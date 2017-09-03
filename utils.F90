@@ -1,6 +1,6 @@
 SUBMODULE (utils) utils
-  USE constants ,ONLY : RP ,pi
-  USE special_functions ,ONLY : coul90
+  USE constants, ONLY : RP, pi
+  USE special_functions, ONLY : coul90
   IMPLICIT NONE
 
 CONTAINS
@@ -15,52 +15,50 @@ CONTAINS
 
     lnfac(0:34) = LOG( fac )
 
-    DO i = 35 ,400
+    DO i = 35, 400
       lnfac(i) = lnfac(i-1) +LOG( REAL(i,KIND=RP) )
     END DO
 
   END SUBROUTINE
 
   ELEMENTAL REAL(KIND=RP) MODULE FUNCTION norm_fac(e,n)
-    REAL(KIND=RP) ,INTENT(IN) :: e
-    INTEGER       ,INTENT(IN) :: n
+    REAL(KIND=RP), INTENT(IN) :: e
+    INTEGER      , INTENT(IN) :: n
 
     norm_fac = SQRT( (2.*e)**(2*n+1) / fac(2*n) )
 
   END FUNCTION
 
-  MODULE SUBROUTINE read_input(in_unit ,Ei ,Es ,Ee ,thetas ,step ,Atom ,Orbit)
-    INTEGER ,INTENT(IN) :: in_unit
-    REAL(KIND=RP)    ,INTENT(OUT) :: Ei ,Es ,Ee ,thetas
-    INTEGER          ,INTENT(OUT) :: step(3)
-    CHARACTER(LEN=2) ,INTENT(OUT) :: Atom ,Orbit
+  MODULE SUBROUTINE read_input(in_unit, Ei, Es, Ee, thetas, step, Atom, Orbit)
+    INTEGER, INTENT(IN) :: in_unit
+    REAL(KIND=RP)   , INTENT(OUT) :: Ei, Es, Ee, thetas
+    INTEGER         , INTENT(OUT) :: step(3)
+    CHARACTER(LEN=2), INTENT(OUT) :: Atom, Orbit
 
-    READ( in_unit ,* ) Atom
-    READ( in_unit ,* ) Orbit
-    READ( in_unit ,* ) Ei ,Es ,Ee
-    READ( in_unit ,* ) thetas
-    READ( in_unit ,* ) step
+    READ( in_unit, * ) Atom
+    READ( in_unit, * ) Orbit
+    READ( in_unit, * ) Ei, Es, Ee
+    READ( in_unit, * ) thetas
+    READ( in_unit, * ) step
 
   END SUBROUTINE read_input
 
-  MODULE SUBROUTINE read_orbit(orbit_file ,lo ,no ,n ,a ,e )
-    CHARACTER(LEN=5) ,INTENT(IN)  :: orbit_file
-    INTEGER          ,INTENT(OUT) :: lo ,no
-    INTEGER ,ALLOCATABLE ,INTENT(OUT) :: n(:)
-    REAL(KIND=RP) ,ALLOCATABLE ,INTENT(OUT) :: a(:) ,e(:)
+  MODULE SUBROUTINE read_orbit(orbit_file, lo, no, n, a, e )
+    CHARACTER(LEN=5), INTENT(IN)  :: orbit_file
+    INTEGER         , INTENT(OUT) :: lo, no
+    INTEGER, ALLOCATABLE, INTENT(OUT) :: n(:)
+    REAL(KIND=RP), ALLOCATABLE, INTENT(OUT) :: a(:), e(:)
 
     INTEGER :: IN
-#ifdef _WIN32
-    OPEN( newunit=IN ,FILE='Data\'//orbit_file//'.dat' ,STATUS='old' ,ACTION='read')
-#else
-    OPEN( newunit=IN ,FILE='Data/'//orbit_file//'.dat' ,STATUS='old' ,ACTION='read')
-#endif
-    READ( IN ,* ) lo
-    READ( IN ,* ) no
-    ALLOCATE ( a(no) ,e(no) ,n(no) )
-    READ( IN ,* ) n
-    READ( IN ,* ) a
-    READ( IN ,* ) e
+
+    OPEN( newunit=IN, FILE='Data/'//orbit_file//'.dat', STATUS='old', ACTION='read')
+
+    READ( IN, * ) lo
+    READ( IN, * ) no
+    ALLOCATE ( a(no), e(no), n(no) )
+    READ( IN, * ) n
+    READ( IN, * ) a
+    READ( IN, * ) e
     CLOSE(IN)
 
   END SUBROUTINE read_orbit
@@ -77,14 +75,14 @@ CONTAINS
     !  l_1 l_2 l_3
     !  m_1 m_2 m_3
     s1 = 0._RP
-    DO t = MAX(0,l2-l3-m1,l1-l3+m2) ,MIN(l1+l2-l3,l1-m1,l2+m2)
+    DO t = MAX(0,l2-l3-m1,l1-l3+m2), MIN(l1+l2-l3,l1-m1,l2+m2)
       s1 = s1 +(-1)**t*EXP(-( lnfac(t) +lnfac(l1+l2-l3-t) +lnfac(l3-l2+m1+t) +lnfac(l3-l1-m2+t) &
         +lnfac(l1-m1-t) +lnfac(l2+m2-t) ))
     END DO
     !  l_1 l_2 l_3
     !  0   0   0
     s0 = 0._RP
-    DO t = MAX(0,l2-l3,l1-l3) ,MIN(l1+l2-l3,l1,l2)
+    DO t = MAX(0,l2-l3,l1-l3), MIN(l1+l2-l3,l1,l2)
       s0 = s0 +(-1)**t*EXP(-( lnfac(t) +lnfac(l1+l2-l3-t) +lnfac(l3-l2+t) +lnfac(l3-l1+t) +lnfac(l1-t) &
         +lnfac(l2-t) ))
     END DO
@@ -132,13 +130,13 @@ CONTAINS
   !
   !    Output, real ( kind = 8 ) W(n), the weights.
 
-  MODULE SUBROUTINE clenshaw_curtis( a ,b ,x ,w ,n )
-    REAL(KIND=RP) ,INTENT(IN) :: a ,b
-    INTEGER ,INTENT(IN) :: n
-    REAL(KIND=RP) ,INTENT(OUT) ,ALLOCATABLE :: w(:) ,x(:)
+  MODULE SUBROUTINE clenshaw_curtis( a, b, x, w, n )
+    REAL(KIND=RP), INTENT(IN) :: a, b
+    INTEGER, INTENT(IN) :: n
+    REAL(KIND=RP), INTENT(OUT), ALLOCATABLE :: w(:), x(:)
 
     REAL(KIND=RP) :: theta !,bj
-    INTEGER :: i ,j
+    INTEGER :: i, j
 
     IF ( n < 3 ) THEN
       ERROR STOP 'clenashaw_curtis  error : n < 3 '
@@ -156,7 +154,7 @@ CONTAINS
     !      x(i) = COS( (n-i) *pi /(n-1) )
     !    END DO
     x(1) = -1._RP
-    x(2:n-1) = [ ( COS( (n-i)*pi/(n-1) ) ,i=2,n-1 ) ]
+    x(2:n-1) = [ ( COS( (n-i)*pi/(n-1) ), i=2,n-1 ) ]
     x(n) = 1._RP
 
     IF ( MOD(n,2) == 1 ) THEN
@@ -200,11 +198,11 @@ CONTAINS
   !! s_l''(r) + f_l(r) *s_l(r) = km**2 *s_l(r)
 
   MODULE SUBROUTINE ode_second_dw(km,lmax,rc,f,s,delta)
-    INTEGER ,INTENT(IN) :: lmax
-    REAL(KIND=RP) ,INTENT(IN)  :: f(0:,0:),rc,km
-    REAL(KIND=RP) ,INTENT(OUT) :: s(0:,0:),delta(0:lmax)
+    INTEGER, INTENT(IN) :: lmax
+    REAL(KIND=RP), INTENT(IN)  :: f(0:,0:),rc,km
+    REAL(KIND=RP), INTENT(OUT) :: s(0:,0:),delta(0:lmax)
     REAL(KIND=RP) :: h,rho,eta
-    REAL(KIND=RP) ,DIMENSION(0:lmax) :: jl,gl,jpl,gpl,fn,betap,beta
+    REAL(KIND=RP), DIMENSION(0:lmax) :: jl,gl,jpl,gpl,fn,betap,beta
     INTEGER :: i,ns,ifail,l
 
     ns=SIZE(s,1)-1
@@ -235,9 +233,9 @@ CONTAINS
 
   END SUBROUTINE ode_second_dw
 
-  ELEMENTAL REAL(KIND=RP) MODULE FUNCTION Uij(ni ,ei ,nj ,ej ,r)
-    REAL(KIND=RP) ,INTENT(IN) :: ei ,ej ,r
-    INTEGER       ,INTENT(IN) :: ni ,nj
+  ELEMENTAL REAL(KIND=RP) MODULE FUNCTION Uij(ni, ei, nj, ej, r)
+    REAL(KIND=RP), INTENT(IN) :: ei, ej, r
+    INTEGER      , INTENT(IN) :: ni, nj
     INTEGER :: k
     REAL(KIND=RP) :: a
 
@@ -250,36 +248,32 @@ CONTAINS
 
   END FUNCTION Uij
 
-  MODULE SUBROUTINE calculate_U(Atom ,Orbit ,r ,U )
-    CHARACTER(LEN=2) ,INTENT(IN) :: Atom ,Orbit
-    REAL(KIND=RP)    ,INTENT(IN) :: r(:)
-    REAL(KIND=RP)    ,INTENT(OUT) :: U(:)
+  MODULE SUBROUTINE calculate_U(Atom, Orbit, r, U )
+    CHARACTER(LEN=2), INTENT(IN) :: Atom, Orbit
+    REAL(KIND=RP)   , INTENT(IN) :: r(:)
+    REAL(KIND=RP)   , INTENT(OUT) :: U(:)
 
     integer :: in
 
-#ifdef _WIN32
-    OPEN( newunit=IN ,FILE='Data\'//Atom//'.dat' ,STATUS='old' ,ACTION='read')
-#else
-    OPEN( newunit=IN ,FILE='Data/'//Atom//'.dat' ,STATUS='old' ,ACTION='read')
-#endif
+    OPEN( newunit=IN, FILE='Data/'//Atom//'.dat', STATUS='old', ACTION='read')
 
     U = 0._RP
     DO
       BLOCK
-        real(kind=rp) ,allocatable :: a(:),e(:)
-        integer ,allocatable :: n(:)
-        integer :: lo ,no ,i1 ,i2 ,nocup
+        real(kind=rp), allocatable :: a(:),e(:)
+        integer, allocatable :: n(:)
+        integer :: lo, no, i1, i2, nocup
         character(len=2) :: orbit_i
 
-        READ(IN ,fmt=* ,iostat=lo ) orbit_i
+        READ(IN, fmt=*, iostat=lo ) orbit_i
         IF(lo<0) exit
 
-        CALL read_orbit(Atom//'_'//orbit_i ,lo ,no ,n ,a ,e)
+        CALL read_orbit(Atom//'_'//orbit_i, lo, no, n, a, e)
         nocup = 2*(2*lo+1)
         if(orbit_i==Orbit) nocup = nocup -1
 
-        DO CONCURRENT( i1 = 1:no ,i2 = 1:no )
-          U = U + nocup *a(i1) *a(i2) *Uij( n(i1) ,e(i1) ,n(i2) ,e(i2) ,r )
+        DO CONCURRENT( i1 = 1:no, i2 = 1:no )
+          U = U + nocup *a(i1) *a(i2) *Uij( n(i1), e(i1), n(i2), e(i2), r )
         END DO
 
       END BLOCK

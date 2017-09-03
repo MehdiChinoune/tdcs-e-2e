@@ -1,6 +1,6 @@
 SUBMODULE (special_functions) special_functions
-  USE constants ,ONLY : RP ,pi
-  USE utils     ,ONLY : lnfac
+  USE constants, ONLY : RP, pi
+  USE utils    , ONLY : lnfac
   IMPLICIT NONE
 CONTAINS
 
@@ -27,19 +27,19 @@ CONTAINS
   !     This version is accurate to within 5 in the 14th significant
   !     decimal digit.
   !-----------------------------------------------------------------------
-  ELEMENTAL MODULE FUNCTION cgamma(z ,mo) RESULT(w)
+  ELEMENTAL MODULE FUNCTION cgamma(z, mo) RESULT(w)
     COMPLEX(KIND=rp) :: w
     COMPLEX(KIND=rp), INTENT(IN)  :: z
     INTEGER, INTENT(IN),OPTIONAL  :: mo
 
     ! Local variables
     COMPLEX(KIND=rp) :: eta, eta2, SUM
-    REAL(KIND=rp), PARAMETER :: c0(12) = [ .833333333333333E-01_rp ,-.277777777777778E-02_rp &
-      ,.793650793650794E-03_rp ,-.595238095238095E-03_rp , .841750841750842E-03_rp &
-      ,-.191752691752692E-02_rp , .641025641025641E-02_rp ,-.295506535947712E-01_rp &
-      ,.179644372368831_rp     ,-1.39243221690590_rp     ,13.4028640441684_rp      &
-      ,-156.848284626002_rp ] ,pi = 3.14159265358979_rp ,pi2  = 6.28318530717959_rp &
-      ,alpi = 1.14472988584940_rp ,hl2p = .918938533204673_rp ,half = 0.5_rp
+    REAL(KIND=rp), PARAMETER :: c0(12) = [ .833333333333333E-01_rp, -.277777777777778E-02_rp &
+     , .793650793650794E-03_rp, -.595238095238095E-03_rp,  .841750841750842E-03_rp &
+     , -.191752691752692E-02_rp,  .641025641025641E-02_rp, -.295506535947712E-01_rp &
+     , .179644372368831_rp    , -1.39243221690590_rp    , 13.4028640441684_rp      &
+     , -156.848284626002_rp ], pi = 3.14159265358979_rp, pi2  = 6.28318530717959_rp &
+     , alpi = 1.14472988584940_rp, hl2p = .918938533204673_rp, half = 0.5_rp
     REAL(KIND=rp)  :: a, a1, a2, c, cn, cut, d, eps, et, e2t, h1, h2, s, sn, &
       s1, s2, t, t1, t2, u, u1, u2, v1, v2, w1, w2, x, y, y2
     INTEGER    :: j, k, l, m, MAX, n, nm1
@@ -61,7 +61,7 @@ CONTAINS
     x = REAL(z, KIND=rp)
     y = AIMAG(z)
 
-    !IF ( ABS(x) >= MIN( REAL(MAX,RP) ,1.0_RP/eps ) ) THEN! GO TO 70
+    !IF ( ABS(x) >= MIN( REAL(MAX,RP), 1.0_RP/eps ) ) THEN! GO TO 70
     w= CMPLX(0.,0.,rp)
     ! RETURN
     !END IF
@@ -304,17 +304,17 @@ CONTAINS
   END FUNCTION cgamma
 
   ELEMENTAL REAL(KIND=rp) MODULE FUNCTION assoc_legendre(l,m,x)
-    INTEGER       ,INTENT(IN) :: l ,m
-    REAL(KIND=rp) ,INTENT(IN) :: x
+    INTEGER      , INTENT(IN) :: l, m
+    REAL(KIND=rp), INTENT(IN) :: x
     !Computes the associated Legendre polynomial P^m_L (x). Here m and l are integers satisfying
-    ! 0 <= m <= l , while x lies in the range −1 <= x <= 1.
-    INTEGER :: i ,l1
-    REAL(KIND=rp) :: fact ,pmm ,pmm1 ,pmm2
+    ! 0 <= m <= l,  while x lies in the range −1 <= x <= 1.
+    INTEGER :: i, l1
+    REAL(KIND=rp) :: fact, pmm, pmm1, pmm2
     !if(m.lt.0.or.m.gt.l.or.abs(x).gt.1.)pause 'bad arguments in plgndr'
     pmm=1. !Compute P^m_m
     IF( m > 0 ) THEN
       fact = 1._rp
-      DO i = 1 ,m
+      DO i = 1, m
         pmm = pmm *fact
         fact = fact +2._rp
       END DO
@@ -326,9 +326,9 @@ CONTAINS
       !pmmp1 = x *(2*m+1) *pmm ! Compute P^{l-1}_l
       !IF( m == l-1 ) THEN
       !  assoc_legendre = pmmp1
-      !ELSE ! Compute P^m_l , m < l-1
+      !ELSE ! Compute P^m_l,  m < l-1
       pmm1=0.
-      DO l1 = m+1 ,l
+      DO l1 = m+1, l
         pmm2 = pmm1
         pmm1 = pmm
         pmm = ( x*(2*l1-1)*pmm1 -(l1+m-1)*pmm2 ) /(l1-m)
@@ -338,15 +338,15 @@ CONTAINS
     RETURN
   END FUNCTION assoc_legendre
 
-  ELEMENTAL COMPLEX(KIND=rp) MODULE FUNCTION spherical_harmonic( l ,m ,theta ,phi )
-    INTEGER       ,INTENT(IN) :: l ,m
-    REAL(KIND=rp) ,INTENT(IN) :: theta ,phi
+  ELEMENTAL COMPLEX(KIND=rp) MODULE FUNCTION spherical_harmonic( l, m, theta, phi )
+    INTEGER      , INTENT(IN) :: l, m
+    REAL(KIND=rp), INTENT(IN) :: theta, phi
     INTEGER :: ma
 
     ma = ABS(m)
 
     spherical_harmonic = EXP( 0.5*( lnfac(l-ma) -lnfac(l+ma) ) ) *SQRT( (2.*l+1._rp)/(4.*pi) ) &
-      *CMPLX( COS(m*phi) ,SIN(m*phi) ,KIND=rp ) *assoc_legendre(l ,ma ,COS(theta) )
+      *CMPLX( COS(m*phi), SIN(m*phi), KIND=rp ) *assoc_legendre(l, ma, COS(theta) )
     IF( mod(theta,2.*pi)>pi .and. mod(m,2)/=0 ) spherical_harmonic = -spherical_harmonic
     IF( MOD(m,2)<0 ) spherical_harmonic = -spherical_harmonic
 
@@ -355,7 +355,7 @@ CONTAINS
   !>  COULOMB & BESSEL FUNCTION PROGRAM-- COUL90 -- USING STEED'S METHOD
   !!
   !!  COUL90 RETURNS ARRAYS FC = F, GC = G, FCP = (D/DX) F, GCP = (D/DX) G
-  !!   FOR REAL X > 0. ,REAL ETA (INCLUDING 0.), AND REAL XLMIN >-1.
+  !!   FOR REAL X > 0., REAL ETA (INCLUDING 0.), AND REAL XLMIN >-1.
   !!   FOR (LRANGE+1) INTEGER-SPACED LAMBDA VALUES.
   !!   IT HENCE GIVES POSITIVE-ENERGY SOLUTIONS TO THE COULOMB SCHRODINGER
   !!   EQUATION, TO THE KLEIN-GORDON EQUATION AND TO SUITABLE FORMS OF
@@ -418,22 +418,22 @@ CONTAINS
   !!  AUTHOR: A. R. BARNETT      MANCHESTER  MARCH   1981
   !!                             AUCKLAND    MARCH   1991
   !!----------------------------------------------------------------------
-  PURE MODULE SUBROUTINE coul90(x ,eta ,lmin ,lrange ,fc ,gc ,fcp ,gcp ,kfn ,ifail )
-    INTEGER ,INTENT(IN)  :: lmin,lrange, kfn
-    INTEGER ,INTENT(OUT) :: ifail
-    REAL(KIND=RP) ,INTENT(IN) :: x,eta
-    REAL(KIND=RP) ,INTENT(OUT),DIMENSION(lmin:lmin+lrange) :: fc , gc , fcp, gcp
+  PURE MODULE SUBROUTINE coul90(x, eta, lmin, lrange, fc, gc, fcp, gcp, kfn, ifail )
+    INTEGER, INTENT(IN)  :: lmin,lrange, kfn
+    INTEGER, INTENT(OUT) :: ifail
+    REAL(KIND=RP), INTENT(IN) :: x,eta
+    REAL(KIND=RP), INTENT(OUT),DIMENSION(lmin:lmin+lrange) :: fc,  gc,  fcp, gcp
 
-    INTEGER ,PARAMETER :: limit = 20000
-    !REAL(KIND=RP) ,PARAMETER :: small = SQRT(TINY(1._RP)) ,zero = 0._RP ,one = 1._RP ,two = 2._RP &
-    REAL(KIND=RP) ,PARAMETER :: small = SQRT(TINY(1._RP)) ,zero = 0._RP ,one = 1._RP ,two = 2._RP &
-      ,ten2 = 100._RP ,half = 0.5_RP ,rt2dpi = 0.797884560802865_RP
+    INTEGER, PARAMETER :: limit = 20000
+    !REAL(KIND=RP), PARAMETER :: small = SQRT(TINY(1._RP)), zero = 0._RP, one = 1._RP, two = 2._RP &
+    REAL(KIND=RP), PARAMETER :: small = SQRT(TINY(1._RP)), zero = 0._RP, one = 1._RP, two = 2._RP &
+     , ten2 = 100._RP, half = 0.5_RP, rt2dpi = 0.797884560802865_RP
     !!---- ARRAYS INDEXED FROM 0 INSIDE SUBROUTINE: STORAGE FROM IDUM3
-    REAL(KIND=RP) :: accur ,acch ,xinv ,pk ,cf1 ,c ,d ,pk1 ,etak ,rk2 ,tk ,dcf1 ,den ,xlm ,xll &
-      ,el ,xl ,rl ,sl ,f ,fcmaxl ,fcminl ,gcminl ,omega ,wronsk ,wi ,a ,b ,ar ,ai ,br ,bi ,dr &
-      ,di ,dp ,dq ,alpha ,beta, e2mm1 ,fjwkb , gjwkb ,p ,q ,GAMMA ,gammai ,ERR
-    INTEGER  :: l ,maxl ,idum2 ,nfp ,idum1 ,idum3
-    LOGICAL  :: etane0 ,xlturn
+    REAL(KIND=RP) :: accur, acch, xinv, pk, cf1, c, d, pk1, etak, rk2, tk, dcf1, den, xlm, xll &
+     , el, xl, rl, sl, f, fcmaxl, fcminl, gcminl, omega, wronsk, wi, a, b, ar, ai, br, bi, dr &
+     , di, dp, dq, alpha, beta, e2mm1, fjwkb,  gjwkb, p, q, GAMMA, gammai, ERR
+    INTEGER  :: l, maxl, idum2, nfp, idum1, idum3
+    LOGICAL  :: etane0, xlturn
     !COMMON / STEED  / ERR,NFP,IDUM1,IDUM2,IDUM3
     !COMMON / DESET  / CF1,P,Q,F,GAMMA,WRONSK
     !----------------------------------------------------------------------
@@ -458,7 +458,7 @@ CONTAINS
       ifail = -1
       !WRITE(6,1000) X,ACCH
       !1000   FORMAT(' FOR X = ',1P,D12.3,'     TRY SMALL-X  SOLUTIONS',' OR X IS NEGATIVE'/ &
-        !       ,' SQUARE ROOT (ACCURACY) =  ',D12.3/)
+        !      , ' SQUARE ROOT (ACCURACY) =  ',D12.3/)
       RETURN
     ENDIF
 
@@ -493,7 +493,7 @@ CONTAINS
     d = zero
     c = cf1
     !---- BEGIN CF1 LOOP ON PK = K STARTING AT LAMBDA + 1: LENTZ-THOMPSON
-    DO l = 1 , limit
+    DO l = 1,  limit
       pk1 = pk + one
       IF( etane0 ) THEN
         etak = eta / pk
@@ -652,12 +652,12 @@ CONTAINS
     !---------------------------------------------------------------------
     !---- UPWARD RECURRENCE FROM GC(IDUM3),GCP(IDUM3) STORED VALUES ARE RL,SL
     !---- RENORMALISE FC,FCP AT EACH LAMBDA AND CORRECT REGULAR DERIVATIVE
-    !---- XL   = XLM HERE  AND RL = ONE , EL = ZERO FOR BESSELS
+    !---- XL   = XLM HERE  AND RL = ONE,  EL = ZERO FOR BESSELS
     !---------------------------------------------------------------------
     omega = beta * omega / ABS(den)
     xl = xlm
     rl = one
-    DO l = idum3+1 , maxl
+    DO l = idum3+1,  maxl
       xl = xl + one
       IF( etane0 ) THEN
         rl = gc (l)
@@ -679,16 +679,16 @@ CONTAINS
   !!---- CALLS MAX, SQRT, LOG, EXP, ATAN2, REAL, INT
   !!     AUTHOR:    A.R.BARNETT   FEB 1981    LAST UPDATE MARCH 1991
   !!----------------------------------------------------------------------
-  ELEMENTAL SUBROUTINE  jwkb( x ,eta ,xl ,fjwkb ,gjwkb ,iexp )
-    REAL(KIND=RP) ,INTENT(IN)  :: x ,eta ,xl
-    REAL(KIND=RP) ,INTENT(OUT) :: fjwkb ,gjwkb
-    INTEGER ,INTENT(OUT) :: iexp
+  ELEMENTAL SUBROUTINE  jwkb( x, eta, xl, fjwkb, gjwkb, iexp )
+    REAL(KIND=RP), INTENT(IN)  :: x, eta, xl
+    REAL(KIND=RP), INTENT(OUT) :: fjwkb, gjwkb
+    INTEGER, INTENT(OUT) :: iexp
 
-    INTEGER ,PARAMETER :: maxexp = 300
-    REAL(KIND=RP) ,PARAMETER :: zero = 0._RP ,half = 0._RP ,one = 1._RP ,six = 6._RP ,ten = 10._RP &
-      ,dzero = 0._RP ,rl35 = 35._RP ,aloge = 0.4342945_RP
+    INTEGER, PARAMETER :: maxexp = 300
+    REAL(KIND=RP), PARAMETER :: zero = 0._RP, half = 0._RP, one = 1._RP, six = 6._RP, ten = 10._RP &
+     , dzero = 0._RP, rl35 = 35._RP, aloge = 0.4342945_RP
 
-    REAL(KIND=RP) :: phi ,phi10 ,gh2 ,xll1 ,hll ,hl ,sl ,rl2 ,gh
+    REAL(KIND=RP) :: phi, phi10, gh2, xll1, hll, hl, sl, rl2, gh
     !!----------------------------------------------------------------------
     !!---- CHOOSE MAXEXP NEAR MAX EXPONENT RANGE
     !!---- E.G. 1.D300 FOR REAL
@@ -715,7 +715,7 @@ CONTAINS
     RETURN
   END SUBROUTINE  jwkb
   !>   REAL RICCATI-BESSEL FUNCTIONS AND X-DERIVATIVES :
-  !!   PSI = X . J/L/(X) , CHI = X . Y/L/(X)    FROM L=0 TO L=LMAX
+  !!   PSI = X . J/L/(X),  CHI = X . Y/L/(X)    FROM L=0 TO L=LMAX
   !!      FOR REAL X > SQRT(ACCUR) (E.G. 1D-7)  AND INTEGER LMAX
   !! PSI (L)  =      PSI/L/(X) STORES   REGULAR RICCATI-BESSEL FUNCTION:
   !! PSID(L)  = D/DX PSI/L/(X)          PSI(0) =  SIN(X)
@@ -745,19 +745,19 @@ CONTAINS
   !!   AUTHOR :   A.R.BARNETT      MANCHESTER    12 MARCH 1990.
   !!                               AUCKLAND      12 MARCH 1991.
   !!---------------------------------------------------------------------
-  PURE MODULE SUBROUTINE ricbes( x ,lmax ,psi ,chi ,psid ,chid ,ifail )
-    REAL(KIND=RP) ,INTENT(IN) :: x
-    INTEGER ,INTENT(IN) :: lmax
-    INTEGER ,INTENT(INOUT) :: ifail
-    REAL(KIND=RP) ,INTENT(OUT) :: psi(0:lmax) ,chi(0:lmax) ,psid(0:lmax) ,chid(0:lmax)
+  PURE MODULE SUBROUTINE ricbes( x, lmax, psi, chi, psid, chid, ifail )
+    REAL(KIND=RP), INTENT(IN) :: x
+    INTEGER, INTENT(IN) :: lmax
+    INTEGER, INTENT(INOUT) :: ifail
+    REAL(KIND=RP), INTENT(OUT) :: psi(0:lmax), chi(0:lmax), psid(0:lmax), chid(0:lmax)
 
-    INTEGER ,PARAMETER :: limit = 20000 !,maxl = 1001
-    REAL(KIND=RP) ,PARAMETER :: zero = 0._RP ,one = 1._RP ,two = 2._RP ,small = SQRT(TINY(1._RP)) &
-      ,three = 3._RP
+    INTEGER, PARAMETER :: limit = 20000 !,maxl = 1001
+    REAL(KIND=RP), PARAMETER :: zero = 0._RP, one = 1._RP, two = 2._RP, small = SQRT(TINY(1._RP)) &
+     , three = 3._RP
 
-    INTEGER :: nfp ,l
-    REAL(KIND=RP) :: accur ,tk ,sl ,ERR
-    REAL(KIND=RP) :: xinv ,cf1 ,dcf1 ,den ,c ,d ,omega ,twoxi
+    INTEGER :: nfp, l
+    REAL(KIND=RP) :: accur, tk, sl, ERR
+    REAL(KIND=RP) :: xinv, cf1, dcf1, den, c, d, omega, twoxi
     !COMMON / STEED  / ERR,NFP,IDUM1,IDUM2,IDUM3
     !!----
     !!---- CALCULATE THE L=0   RICCATI-BESSEL FUNCTIONS DIRECTLY
@@ -802,7 +802,7 @@ CONTAINS
       psi (lmax) = den
       psid(lmax) = cf1 * den
       !!---- DOWNWARD RECURSION TO L=0  AS RICCATI-BESSEL FUNCTIONS
-      DO l = lmax , 2, -1
+      DO l = lmax,  2, -1
         psi (l-1) = sl * psi(l) + psid(l)
         psid(l-1) = sl * psi(l-1) - psi (l)
         sl = sl - xinv
@@ -812,7 +812,7 @@ CONTAINS
       !ENDIF
       !IF (LMAX > 0) THEN
       omega =psi(0) / den
-      DO l = 1 , lmax
+      DO l = 1,  lmax
         psi (l) = omega * psi (l)
         psid(l) = omega * psid(l)
         sl = xinv * REAL(l,KIND=RP)
@@ -838,7 +838,7 @@ CONTAINS
     ELSE
     !    WRITE(6,1001) x
     !    1001   FORMAT(' WITH X = ',1p,e15.5,'    TRY SMALL-X SOLUTIONS',/ &
-      !    ,'  PSI/L/(X)  ->   X**(L+1) / (2L+1)!!      AND',/,'  CHI/L/(X)  ->  -(2L-1)!! / X**L'/)
+      !   , '  PSI/L/(X)  ->   X**(L+1) / (2L+1)!!      AND',/,'  CHI/L/(X)  ->  -(2L-1)!! / X**L'/)
     ENDIF
     RETURN
   END SUBROUTINE ricbes
