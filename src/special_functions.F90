@@ -1,25 +1,17 @@
 SUBMODULE (special_functions) special_functions
-  USE constants, ONLY : RP, pi
-  USE utils    , ONLY : lnfac
   IMPLICIT NONE
 CONTAINS
 
   !-----------------------------------------------------------------------
-  !
   !        EVALUATION OF THE COMPLEX GAMMA AND LOGGAMMA FUNCTIONS
-  !
   !                        ---------------
-  !
   !     MO IS AN INTEGER, Z A COMPLEX ARGUMENT, AND W A COMPLEX VARIABLE.
-  !
   !                 W = GAMMA(Z)       IF MO = 0
   !                 W = LN(GAMMA(Z))   OTHERWISE
-  !
   !-----------------------------------------------------------------------
   !     WRITTEN BY ALFRED H. MORRIS, JR.
   !        NAVAL SURFACE WARFARE CENTER
   !        DAHLGREN, VIRGINIA
-  !
   !     This version, in a subset of Fortran 90, prepared by
   !     Alan.Miller @ vic.cmis.csiro.au
   !     http://www.ozemail.com.au/~milleraj
@@ -141,13 +133,12 @@ CONTAINS
     IF (eps > 1.e-8_rp) cut = 16.0_rp
     IF (a < cut) THEN
       IF (a == 0._rp) RETURN!GO TO 70
-      10 n = n + 1
-      t = t + 1.0_rp
-      a = t * t + y2
-      IF (a < cut) GO TO 10
-
+      DO WHILE(a < cut)
+        n = n + 1
+        t = t + 1.0_rp
+        a = t * t + y2
+      END DO
       !     LET S1 + S2*I BE THE PRODUCT OF THE TERMS (Z+J)/(Z+N)
-
       u1 = (x*t+y2) / a
       u2 = y / a
       s1 = u1
@@ -339,9 +330,13 @@ CONTAINS
   END FUNCTION assoc_legendre
 
   ELEMENTAL COMPLEX(KIND=rp) MODULE FUNCTION spherical_harmonic( l, m, theta, phi )
+    use constants ,only: pi
+    use utils ,only: lnfac, fac_called
     INTEGER      , INTENT(IN) :: l, m
     REAL(KIND=rp), INTENT(IN) :: theta, phi
     INTEGER :: ma
+
+    if(.not. fac_called ) error stop 'you should call factorial before using y_l^m(\theta,\phi)'
 
     ma = ABS(m)
 
@@ -364,7 +359,8 @@ CONTAINS
   !!
   !!   CALLING VARIABLES; ALL REALS ARE REAL (REAL*8)
   !!
-  !! @param[in]  X       - REAL ARGUMENT FOR COULOMB FUNCTIONS > 0.0 [ X > SQRT(ACCUR) : ACCUR IS TARGET
+  !! @param[in]  X       - REAL ARGUMENT FOR COULOMB FUNCTIONS > 0.0 [ X > SQRT(ACCUR) :
+  !!                       ACCUR IS TARGET
   !!                         ACCURACY 1.0D-14 ]
   !! @param[out] ETA     - REAL SOMMERFELD PARAMETER, UNRESTRICTED > = < 0.0
   !! @param[in]  XLMIN   - REAL MINIMUM LAMBDA-VALUE (L-VALUE OR ORDER), GENERALLY IN RANGE
@@ -420,12 +416,11 @@ CONTAINS
   !!----------------------------------------------------------------------
   PURE MODULE SUBROUTINE coul90(x, eta, lmin, lrange, fc, gc, fcp, gcp, kfn, ifail )
     INTEGER, INTENT(IN)  :: lmin,lrange, kfn
-    INTEGER, INTENT(OUT) :: ifail
+    INTEGER, INTENT(OUT), OPTIONAL :: ifail
     REAL(KIND=RP), INTENT(IN) :: x,eta
     REAL(KIND=RP), INTENT(OUT),DIMENSION(lmin:lmin+lrange) :: fc,  gc,  fcp, gcp
 
     INTEGER, PARAMETER :: limit = 20000
-    !REAL(KIND=RP), PARAMETER :: small = SQRT(TINY(1._RP)), zero = 0._RP, one = 1._RP, two = 2._RP &
     REAL(KIND=RP), PARAMETER :: small = SQRT(TINY(1._RP)), zero = 0._RP, one = 1._RP, two = 2._RP &
      , ten2 = 100._RP, half = 0.5_RP, rt2dpi = 0.797884560802865_RP
     !!---- ARRAYS INDEXED FROM 0 INSIDE SUBROUTINE: STORAGE FROM IDUM3
@@ -445,7 +440,7 @@ CONTAINS
     !---- CHANGE ACCUR TO SUIT MACHINE AND PRECISION REQUIRED
 
     accur = EPSILON(1._RP)!1.E-10
-    ifail = 0
+!    ifail = 0
     idum2 = 1
     idum1 = 0
     gjwkb = zero
@@ -454,7 +449,7 @@ CONTAINS
     etane0 = ( eta /= zero .and. kfn == 0 )
     acch = SQRT(accur)
     !!---- TEST RANGE OF X, EXIT IF<=SQRT(ACCUR) OR IF NEGATIVE
-    IF( x <= acch ) THEN
+    IF( x <= acch .and. present(ifail) ) THEN
       ifail = -1
       !WRITE(6,1000) X,ACCH
       !1000   FORMAT(' FOR X = ',1P,D12.3,'     TRY SMALL-X  SOLUTIONS',' OR X IS NEGATIVE'/ &
@@ -467,7 +462,7 @@ CONTAINS
     ELSE
       xlm = lmin
     ENDIF
-    IF( xlm <= -one .or. lrange < 0 ) THEN
+    IF( xlm <= -one .or. lrange < 0 .and. present(ifail) ) THEN
       ifail = -2
       !       WRITE (6,1001) LRANGE,LMIN,XLM
       !1001   FORMAT(/' PROBLEM WITH INPUT ORDER VALUES: LRANGE, XLMIN, XLM = ',2I10,1P,D15.6/)
@@ -517,7 +512,7 @@ CONTAINS
       IF( ABS(dcf1-one) < accur ) EXIT
     END DO
     !---- ERROR EXIT
-    IF( ABS(dcf1-one) >= accur) THEN
+    IF( ABS(dcf1-one) >= accur .and. present(ifail) ) THEN
       ifail = 1
       !WRITE (6,1002) LIMIT, CF1,DCF1, PK,ACCUR
       !1002  FORMAT('CF1 HAS FAILED TO CONVERGE AFTER',I10,'ITERATIONS',/'CF1,DCF1,PK,ACCUR=  ',1P,4D12.3/)
@@ -557,7 +552,7 @@ CONTAINS
     !---- EVALUATE CF2 = P + I.Q  USING STEED'S ALGORITHM (NO ZEROS)
     !---------------------------------------------------------------------
     IF( xlturn ) CALL jwkb(x,eta,MAX(xlm,zero),fjwkb,gjwkb,idum2)
-    IF( idum2 > 1 .or. gjwkb > one / (acch*ten2)) THEN
+    IF( idum2 > 1 .or. gjwkb > one/(acch*ten2) ) THEN
       omega = fjwkb
       GAMMA = gjwkb * omega
       p = f
@@ -596,7 +591,7 @@ CONTAINS
         IF( ABS(dp)+ABS(dq) < (ABS(p)+ABS(q)) * accur ) EXIT
       END DO
       !---- ERROR EXIT
-      IF( ABS(dp)+ABS(dq) >= (ABS(p)+ABS(q)) * accur) THEN
+      IF( ABS(dp)+ABS(dq) >= (ABS(p)+ABS(q)) * accur .and. present(ifail) ) THEN
         ifail = 2
         !WRITE (6,1003) LIMIT,P,Q,DP,DQ,ACCUR
         !1003    FORMAT('CF2 HAS FAILED TO CONVERGE AFTER',I7,'ITERATIONS',&
@@ -670,15 +665,18 @@ CONTAINS
       fcp(l) = omega * ( fcp(l) - alpha * fc(l) )
       fc (l) = omega * fc (l)
     END DO
+
+    if(present(ifail) ) ifail = 0
+
     RETURN
   END SUBROUTINE coul90
-  !!----------------------------------------------------------------------
-  !>---- COMPUTES JWKB APPROXIMATIONS TO COULOMB FUNCTIONS  FOR XL .GE. 0.
-  !!---- AS MODIFIED BY BIEDENHARN ET AL. PHYS REV 97 (1955) 542-554
-  !!---- CALCULATED IN SINGLE, RETURNED IN REAL VARIABLES
-  !!---- CALLS MAX, SQRT, LOG, EXP, ATAN2, REAL, INT
+  !----------------------------------------------------------------------
+  !> COMPUTES JWKB APPROXIMATIONS TO COULOMB FUNCTIONS  FOR XL .GE. 0.
+  !! AS MODIFIED BY BIEDENHARN ET AL. PHYS REV 97 (1955) 542-554
+  !! CALCULATED IN SINGLE, RETURNED IN REAL VARIABLES
+  !! CALLS MAX, SQRT, LOG, EXP, ATAN2, REAL, INT
   !!     AUTHOR:    A.R.BARNETT   FEB 1981    LAST UPDATE MARCH 1991
-  !!----------------------------------------------------------------------
+  !----------------------------------------------------------------------
   ELEMENTAL SUBROUTINE  jwkb( x, eta, xl, fjwkb, gjwkb, iexp )
     REAL(KIND=RP), INTENT(IN)  :: x, eta, xl
     REAL(KIND=RP), INTENT(OUT) :: fjwkb, gjwkb
@@ -689,10 +687,10 @@ CONTAINS
      , dzero = 0._RP, rl35 = 35._RP, aloge = 0.4342945_RP
 
     REAL(KIND=RP) :: phi, phi10, gh2, xll1, hll, hl, sl, rl2, gh
-    !!----------------------------------------------------------------------
-    !!---- CHOOSE MAXEXP NEAR MAX EXPONENT RANGE
-    !!---- E.G. 1.D300 FOR REAL
-    !!----------------------------------------------------------------------
+    !----------------------------------------------------------------------
+    !---- CHOOSE MAXEXP NEAR MAX EXPONENT RANGE
+    !---- E.G. 1.D300 FOR REAL
+    !----------------------------------------------------------------------
     gh2   = x * (eta + eta - x)
     xll1  = MAX( xl * xl + xl, dzero )
     IF( gh2 + xll1 <= zero ) RETURN
@@ -714,6 +712,7 @@ CONTAINS
     fjwkb = half / (gh * gjwkb)
     RETURN
   END SUBROUTINE  jwkb
+
   !>   REAL RICCATI-BESSEL FUNCTIONS AND X-DERIVATIVES :
   !!   PSI = X . J/L/(X),  CHI = X . Y/L/(X)    FROM L=0 TO L=LMAX
   !!      FOR REAL X > SQRT(ACCUR) (E.G. 1D-7)  AND INTEGER LMAX
@@ -796,7 +795,7 @@ CONTAINS
       END DO
       !!---- ERROR EXIT, NO CONVERGENCE
       GOTO 50
-      20    nfp = l
+20    nfp = l
       !!---- ERROR ESTIMATE
       ERR = accur*SQRT(REAL(nfp,KIND=RP))
       psi (lmax) = den
@@ -842,5 +841,24 @@ CONTAINS
     ENDIF
     RETURN
   END SUBROUTINE ricbes
+
+  ELEMENTAL REAL(RP) MODULE FUNCTION symbol_3j(l1, l2, l3, m1, m2, m3)
+    use utils ,only:lnfac
+    INTEGER, INTENT(IN) :: l1, l2, l3, m1, m2, m3
+
+    REAL(RP) :: s, cst
+    INTEGER :: t
+
+    s = 0._RP
+    cst = 0.5_rp*(lnfac(l1+m1) +lnfac(l1-m1) +lnfac(l2+m2) +lnfac(l2-m2) +lnfac(l3+m3) +lnfac(l3-m3) &
+      +lnfac(l2+l3-l1) +lnfac(l3+l1-l2) +lnfac(l1+l2-l3) -lnfac(l1+l2+l3+1) )
+    DO t = MAX(0, l2-l3-m1, l1-l3+m2 ), MIN(l1+l2-l3, l1-m1, l2+m2 )
+      s = s +(-1)**t* EXP( cst -( lnfac(t) +lnfac(l1+l2-l3-t) +lnfac(l3-l2+m1+t) &
+        +lnfac(l3-l1-m2+t) +lnfac(l1-m1-t) +lnfac(l2+m2-t) ) )
+    END DO
+
+    symbol_3j = (-1.)**m3 *s
+
+  END FUNCTION symbol_3j
 
 END SUBMODULE special_functions

@@ -18,6 +18,11 @@ MODULE fdcs_e2e
       INTEGER, INTENT(IN) :: out_unit
     END SUBROUTINE fdcs_fba_dw
 
+    MODULE SUBROUTINE fdcs_dwb(in_unit,out_unit)
+      INTEGER, INTENT(IN) :: in_unit
+      INTEGER, INTENT(IN) :: out_unit
+    END SUBROUTINE fdcs_dwb
+
   END INTERFACE
 
 END MODULE fdcs_e2e

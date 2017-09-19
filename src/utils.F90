@@ -1,6 +1,4 @@
 SUBMODULE (utils) utils
-  USE constants, ONLY : RP, pi
-  USE special_functions, ONLY : coul90
   IMPLICIT NONE
 
 CONTAINS
@@ -8,16 +6,19 @@ CONTAINS
   MODULE SUBROUTINE factorial()
     INTEGER :: i
 
+    IF(fac_called) RETURN
+
     fac(0) = 1._RP
     DO i=1,34
       fac(i) = i*fac(i-1)
     END DO
 
     lnfac(0:34) = LOG( fac )
-
     DO i = 35, 400
       lnfac(i) = lnfac(i-1) +LOG( REAL(i,KIND=RP) )
     END DO
+
+    fac_called = .true.
 
   END SUBROUTINE
 
@@ -63,74 +64,75 @@ CONTAINS
 
   END SUBROUTINE read_orbit
 
-  ELEMENTAL REAL(KIND=RP) MODULE FUNCTION y1y2y3(l1,l2,l3,m1,m2,m3)
-    INTEGER,INTENT(IN) :: l1,l2,l3,m1,m2,m3
+  ELEMENTAL REAL(KIND=RP) MODULE FUNCTION y1y2y3(l1, l2, l3, m1, m2, m3 )
+    USE constants ,ONLY: pi
+    USE ieee_arithmetic ,ONLY: ieee_is_nan, ieee_is_finite
+    INTEGER, INTENT(IN) :: l1, l2, l3, m1, m2, m3
     INTEGER :: t
-    REAL(KIND=RP) :: s0,s1
+    REAL(KIND=RP) :: s0, s1, cst_1, cst_0
+
+    IF(.NOT. fac_called ) ERROR STOP 'you should call factorial before using y1y2y3'
 
     y1y2y3=0._RP
     IF( MOD(l1+l2+l3,2)/=0 .or. m1+m2+m3/=0 .or. l3<ABS(l1-l2) .or. l3>l1+l2 .or. ABS(m1)>l1 &
       .or. ABS(m2)>l2 .or. ABS(m3)>l3  ) RETURN
 
-    !  l_1 l_2 l_3
-    !  m_1 m_2 m_3
+    !  / l_1 l_2 l_3 \
+    !  |             |
+    !  \ m_1 m_2 m_3 /
     s1 = 0._RP
-    DO t = MAX(0,l2-l3-m1,l1-l3+m2), MIN(l1+l2-l3,l1-m1,l2+m2)
-      s1 = s1 +(-1)**t*EXP(-( lnfac(t) +lnfac(l1+l2-l3-t) +lnfac(l3-l2+m1+t) +lnfac(l3-l1-m2+t) &
-        +lnfac(l1-m1-t) +lnfac(l2+m2-t) ))
-    END DO
-    !  l_1 l_2 l_3
-    !  0   0   0
-    s0 = 0._RP
-    DO t = MAX(0,l2-l3,l1-l3), MIN(l1+l2-l3,l1,l2)
-      s0 = s0 +(-1)**t*EXP(-( lnfac(t) +lnfac(l1+l2-l3-t) +lnfac(l3-l2+t) +lnfac(l3-l1+t) +lnfac(l1-t) &
-        +lnfac(l2-t) ))
+    cst_1 = 0.5_rp*(lnfac(l1+m1) +lnfac(l1-m1) +lnfac(l2+m2) +lnfac(l2-m2) +lnfac(l3+m3) &
+      +lnfac(l3-m3) +lnfac(l2+l3-l1) +lnfac(l3+l1-l2) &
+      -0.7*lnfac(l1+l2+l3+1) )
+    DO t = MAX(0, l2-l3-m1, l1-l3+m2 ), MIN(l1+l2-l3, l1-m1, l2+m2 )
+      s1 = s1 +(-1)**t* EXP( cst_1 -( lnfac(t) +lnfac(l1+l2-l3-t) +lnfac(l3-l2+m1+t) &
+        +lnfac(l3-l1-m2+t) +lnfac(l1-m1-t) +lnfac(l2+m2-t) ) )
     END DO
 
-    y1y2y3 = s0 *s1 *EXP( (lnfac(l1+m1) +lnfac(l1-m1) +lnfac(l2+m2) +lnfac(l2-m2) +lnfac(l3+m3) &
-      +lnfac(l3-m3) )/2. + lnfac(l1) +lnfac(l2) +lnfac(l3) +lnfac(l1+l2-l3) +lnfac(l2+l3-l1) &
-      +lnfac(l3+l1-l2) -lnfac(l1+l2+l3+1) ) *SQRT( (2*l1+1)*(2*l2+1)*(2*l3+1)/(4.*pi) ) *(-1)**m3
+    ! / l_1 l_2 l_3 \
+    ! |             |
+    ! \ 0   0   0   /
+    s0 = 0._RP
+    cst_0 = lnfac(l1) +lnfac(l2) +lnfac(l3) +0.5_rp*( lnfac(l2+l3-l1) &
+      +lnfac(l3+l1-l2) -0.7*lnfac(l1+l2+l3+1) )
+    DO t = MAX(0, l2-l3, l1-l3 ), MIN(l1+l2-l3, l1, l2 )
+      s0 = s0 +(-1)**t *EXP( cst_0 -( lnfac(t) +lnfac(l1+l2-l3-t) +lnfac(l3-l2+t) +lnfac(l3-l1+t) &
+        +lnfac(l1-t) +lnfac(l2-t) ) )
+    END DO
+
+    y1y2y3 = (-1)**m3 *SQRT( (2*l1+1)*(2*l2+1)*(2*l3+1)/(4.*pi) ) *s1 &
+      *( EXP(lnfac(l1+l2-l3)-0.3*lnfac(l1+l2+l3+1) ) *s0 )
+    IF( ieee_is_nan(y1y2y3) .or. (.NOT. ieee_is_finite(y1y2y3)) ) ERROR STOP 'y1y2y3 overflow'
 
   END FUNCTION y1y2y3
 
+
   ! CLENSHAW_CURTIS_COMPUTE computes a Clenshaw Curtis quadrature rule.
-  !
   !  Discussion:
-  !
   !    Our convention is that the abscissas are numbered from left to right.
-  !
   !    The rule is defined on [-1,1].
-  !
   !    The integral to approximate:
-  !
   !      Integral ( -1 <= X <= 1 ) F(X) dX
-  !
   !    The quadrature rule:
-  !
   !      Sum ( 1 <= I <= n ) W(I) * F ( X(I) )
   !
   !  Licensing:
-  !
   !    This code is distributed under the GNU LGPL license.
   !
   !  Modified:
-  !
   !    15 February 2009
   !
   !  Author:
-  !
   !    John Burkardt
-  !
+
   !  Parameters:
-  !
   !    Input, integer ( kind = 4 ) n, the order of the rule.
   !    1 <= ORDER.
-  !
   !    Output, real ( kind = 8 ) X(n), the abscissas.
-  !
   !    Output, real ( kind = 8 ) W(n), the weights.
 
   MODULE SUBROUTINE clenshaw_curtis( a, b, x, w, n )
+    USE constants ,ONLY: pi
     REAL(KIND=RP), INTENT(IN) :: a, b
     INTEGER, INTENT(IN) :: n
     REAL(KIND=RP), INTENT(OUT), ALLOCATABLE :: w(:), x(:)
@@ -192,12 +194,62 @@ CONTAINS
 
   END SUBROUTINE clenshaw_curtis
 
+  PURE MODULE SUBROUTINE gauleg(a,b,x,w,n)
+    use constants ,only: pi
+    INTEGER, INTENT(IN) :: n
+    REAL(rp), INTENT(IN) :: a,b
+    REAL(rp), INTENT(OUT), ALLOCATABLE :: x(:),w(:)
+    INTEGER :: i
+
+    ALLOCATE(x(n),w(n))
+
+    x(1:(n+1)/2) = [(COS(pi*(4.*i-1.)/(4.*n+2.)), i=1,(n+1)/2 )]
+
+    CALL pd(x(1:(n+1)/2),w(1:(n+1)/2),n)
+
+    DO CONCURRENT (i=1:(n+1)/2)
+      x(n-i+1)=-x(i)
+      w(n-i+1)=w(i)
+    END DO
+
+    x = ( (a-b)*x +b+a )/2.
+    w = (b-a)*w/2.
+
+  END SUBROUTINE gauleg
+
+  PURE SUBROUTINE pd(sx,sw,n)
+    INTEGER, INTENT(IN) :: n
+    REAL(rp), INTENT(OUT),CONTIGUOUS :: sw(:)
+    REAL(rp), INTENT(INOUT),CONTIGUOUS :: sx(:)
+
+    REAL(RP),PARAMETER :: eps=EPSILON(eps)
+    REAL(rp), DIMENSION((n+1)/2) :: dp0,dp1,dp2,dp
+    INTEGER :: i
+
+    dp2 = 0._RP
+    DO
+      dp0 = 1._RP
+      dp1 = sx
+      DO i=1,n-1
+        dp2 = ((2.*i+1._RP)*sx*dp1-i*dp0)/(i+1._RP)
+        dp0 = dp1
+        dp1 = dp2
+      ENDDO
+      dp = n*(dp0-sx*dp1)/(1._RP-sx**2)
+      sx = sx-dp2/dp
+
+      IF( ALL(ABS(dp2/dp)<=eps) ) EXIT
+    ENDDO
+    sw = 2._rp/((1._rp-sx**2)*dp**2)
+  END SUBROUTINE pd
+
   !> ode_second_dw
   !!
   !! This subroutine solve Equation of the form
   !! s_l''(r) + f_l(r) *s_l(r) = km**2 *s_l(r)
 
   MODULE SUBROUTINE ode_second_dw(km,lmax,rc,f,s,delta)
+    USE special_functions ,ONLY: coul90
     INTEGER, INTENT(IN) :: lmax
     REAL(KIND=RP), INTENT(IN)  :: f(0:,0:),rc,km
     REAL(KIND=RP), INTENT(OUT) :: s(0:,0:),delta(0:lmax)
@@ -253,24 +305,24 @@ CONTAINS
     REAL(KIND=RP)   , INTENT(IN) :: r(:)
     REAL(KIND=RP)   , INTENT(OUT) :: U(:)
 
-    integer :: in
+    INTEGER :: IN
 
     OPEN( newunit=IN, FILE='Data/'//Atom//'.dat', STATUS='old', ACTION='read')
 
     U = 0._RP
     DO
       BLOCK
-        real(kind=rp), allocatable :: a(:),e(:)
-        integer, allocatable :: n(:)
-        integer :: lo, no, i1, i2, nocup
-        character(len=2) :: orbit_i
+        REAL(KIND=rp), ALLOCATABLE :: a(:),e(:)
+        INTEGER, ALLOCATABLE :: n(:)
+        INTEGER :: lo, no, i1, i2, nocup
+        CHARACTER(LEN=2) :: orbit_i
 
-        READ(IN, fmt=*, iostat=lo ) orbit_i
-        IF(lo<0) exit
+        READ(IN, FMT=*, IOSTAT=lo ) orbit_i
+        IF(lo<0) EXIT
 
         CALL read_orbit(Atom//'_'//orbit_i, lo, no, n, a, e)
         nocup = 2*(2*lo+1)
-        if(orbit_i==Orbit) nocup = nocup -1
+        IF(orbit_i==Orbit) nocup = nocup -1
 
         DO CONCURRENT( i1 = 1:no, i2 = 1:no )
           U = U + nocup *a(i1) *a(i2) *Uij( n(i1), e(i1), n(i2), e(i2), r )

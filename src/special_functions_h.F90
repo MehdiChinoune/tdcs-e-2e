@@ -22,7 +22,7 @@ MODULE special_functions
 
     PURE MODULE SUBROUTINE coul90(x, eta, lmin, lrange, fc, gc, fcp, gcp, kfn, ifail )
       INTEGER      , INTENT(IN)  :: lmin,lrange, kfn
-      INTEGER      , INTENT(OUT) :: ifail
+      INTEGER      , INTENT(OUT), OPTIONAL :: ifail
       REAL(KIND=RP), INTENT(IN)  :: x,eta
       REAL(KIND=RP), INTENT(OUT),DIMENSION(lmin:lmin+lrange) :: fc,  gc,  fcp, gcp
     END SUBROUTINE coul90
@@ -33,6 +33,10 @@ MODULE special_functions
       INTEGER      , INTENT(INOUT) :: ifail
       REAL(KIND=RP), INTENT(OUT), DIMENSION(0:lmax)   :: psi, chi, psid, chid
     END SUBROUTINE ricbes
+
+    ELEMENTAL REAL(RP) MODULE FUNCTION symbol_3j(l1, l2, l3, m1, m2, m3)
+      INTEGER, INTENT(IN) :: l1, l2, l3, m1, m2, m3
+    END FUNCTION symbol_3j
 
   END INTERFACE
 

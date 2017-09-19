@@ -4,6 +4,7 @@ MODULE utils
 ! Common Variables
   !REAL(KIND=RP), PROTECTED :: fac(0:34), lnfac(0:400)
   REAL(KIND=RP) :: fac(0:34), lnfac(0:400)
+  logical :: fac_called = .false.
 
 INTERFACE
 
@@ -38,6 +39,12 @@ INTERFACE
     INTEGER, INTENT(IN) :: n
     REAL(KIND=RP), INTENT(OUT), ALLOCATABLE :: w(:), x(:)
   END SUBROUTINE clenshaw_curtis
+
+  PURE MODULE SUBROUTINE gauleg(a,b,x,w,n)
+    INTEGER, INTENT(IN) :: n
+    REAL(rp), INTENT(IN) :: a,b
+    REAL(rp), INTENT(OUT), ALLOCATABLE :: x(:),w(:)
+  END SUBROUTINE gauleg
 
   MODULE SUBROUTINE ode_second_dw(km,lmax,rc,f,s,delta)
     INTEGER, INTENT(IN) :: lmax
