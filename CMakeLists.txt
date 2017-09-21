@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.7)
 
-project(Main_new Fortran)
+project(TDCS-e-2e Fortran)
 
 if(NOT CMAKE_BUILD_TYPE)
   set( CMAKE_BUILD_TYPE "Release" )
