@@ -55,6 +55,12 @@ CONTAINS
 
     !IF ( ABS(x) >= MIN( REAL(MAX,RP), 1.0_RP/eps ) ) THEN! GO TO 70
     w= CMPLX(0.,0.,rp)
+
+    s2 = 0._RP
+    s1 = 0._RP
+    s = 0._RP
+    h2 = 0._RP
+    h1 = 0._RP
     ! RETURN
     !END IF
     IF (x < 0.0_rp) THEN
@@ -99,8 +105,8 @@ CONTAINS
       a1 = sn * a1
       a2 = cn * a2
       a = a1 * a1 + a2 * a2
-      IF (a == 0._rp) RETURN!GO TO 70
-      IF (mo == 0) THEN
+      IF( a==0._rp ) RETURN!GO TO 70
+      IF( mo==0 ) THEN
 
         h1 = a1 / a
         h2 = -a2 / a
@@ -448,6 +454,7 @@ CONTAINS
     !IF(KFN /= 0) ETA = ZERO
     etane0 = ( eta /= zero .and. kfn == 0 )
     acch = SQRT(accur)
+    gammai = 0._RP
     !!---- TEST RANGE OF X, EXIT IF<=SQRT(ACCUR) OR IF NEGATIVE
     IF( x <= acch .and. present(ifail) ) THEN
       ifail = -1
@@ -828,7 +835,7 @@ CONTAINS
 50  IF (x < zero) THEN
     !    WRITE(6,1000) x
     !    1000   FORMAT(' X NEGATIVE !',1p,e15.5,' ... USE REFLECTION FORMULA'/)
-    ELSE IF (x == zero) THEN
+    ELSE IF ( x==zero ) THEN
       ifail = 0
       chi(0) = one
       DO l = 1, lmax
