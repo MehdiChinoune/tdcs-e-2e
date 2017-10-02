@@ -308,14 +308,14 @@ CONTAINS
     INTEGER :: i, l1
     REAL(KIND=rp) :: fact, pmm, pmm1, pmm2
     !if(m.lt.0.or.m.gt.l.or.abs(x).gt.1.)pause 'bad arguments in plgndr'
-    pmm=1. !Compute P^m_m
+    pmm = 1. !Compute P^m_m
     IF( m > 0 ) THEN
       fact = 1._rp
       DO i = 1, m
         pmm = pmm *fact
         fact = fact +2._rp
       END DO
-      pmm = pmm *( -SQRT(1._rp-x**2) )**m
+      pmm = pmm *( SQRT(1._rp-x**2) )**m
     ENDIF
     IF( m == l ) THEN
       assoc_legendre = pmm
@@ -324,7 +324,7 @@ CONTAINS
       !IF( m == l-1 ) THEN
       !  assoc_legendre = pmmp1
       !ELSE ! Compute P^m_l,  m < l-1
-      pmm1=0.
+      pmm1 = 0._rp
       DO l1 = m+1, l
         pmm2 = pmm1
         pmm1 = pmm
@@ -421,14 +421,14 @@ CONTAINS
   !!                             AUCKLAND    MARCH   1991
   !!----------------------------------------------------------------------
   PURE MODULE SUBROUTINE coul90(x, eta, lmin, lrange, fc, gc, fcp, gcp, kfn, ifail )
-    INTEGER, INTENT(IN)  :: lmin,lrange, kfn
+    INTEGER, INTENT(IN)  :: lmin, lrange, kfn
     INTEGER, INTENT(OUT), OPTIONAL :: ifail
-    REAL(KIND=RP), INTENT(IN) :: x,eta
-    REAL(KIND=RP), INTENT(OUT),DIMENSION(lmin:lmin+lrange) :: fc,  gc,  fcp, gcp
+    REAL(KIND=RP), INTENT(IN) :: x, eta
+    REAL(KIND=RP), INTENT(OUT), DIMENSION(lmin:lmin+lrange) :: fc,  gc,  fcp, gcp
 
     INTEGER, PARAMETER :: limit = 20000
-    REAL(KIND=RP), PARAMETER :: small = SQRT(TINY(1._RP)), zero = 0._RP, one = 1._RP, two = 2._RP &
-     , ten2 = 100._RP, half = 0.5_RP, rt2dpi = 0.797884560802865_RP
+    REAL(KIND=RP), PARAMETER :: small = SQRT(TINY(1._RP)), zero = 0._RP, one = 1._RP, two = 2._RP, &
+     ten2 = 100._RP, half = 0.5_RP, rt2dpi = 0.797884560802865_RP
     !!---- ARRAYS INDEXED FROM 0 INSIDE SUBROUTINE: STORAGE FROM IDUM3
     REAL(KIND=RP) :: accur, acch, xinv, pk, cf1, c, d, pk1, etak, rk2, tk, dcf1, den, xlm, xll &
      , el, xl, rl, sl, f, fcmaxl, fcminl, gcminl, omega, wronsk, wi, a, b, ar, ai, br, bi, dr &
@@ -445,13 +445,14 @@ CONTAINS
     !---- USE Q0 FOR IBM REAL*16: D0 FOR REAL*8 AND REAL
     !---- CHANGE ACCUR TO SUIT MACHINE AND PRECISION REQUIRED
 
-    accur = EPSILON(1._RP)!1.E-10
+    accur = EPSILON(1._RP)
+!    accur = 1.E-7_RP
 !    ifail = 0
     idum2 = 1
     idum1 = 0
     gjwkb = zero
     ERR = one
-    !IF(KFN /= 0) ETA = ZERO
+!    IF(KFN /= 0) ETA = ZERO
     etane0 = ( eta /= zero .and. kfn == 0 )
     acch = SQRT(accur)
     gammai = 0._RP
