@@ -18,6 +18,12 @@ CONTAINS
       lnfac(i) = lnfac(i-1) +LOG( REAL(i,KIND=RP) )
     END DO
 
+    fak(0) = 0._rp
+    fak(1) = 0._rp
+    do i = 2, 400
+      fak(i) = lnfac(i-1) +(i-1)*log(0.05_rp)
+    end do
+
     fac_called = .true.
 
   END SUBROUTINE
@@ -106,164 +112,36 @@ CONTAINS
 
   END FUNCTION y1y2y3
 
-
-  ! CLENSHAW_CURTIS_COMPUTE computes a Clenshaw Curtis quadrature rule.
-  !  Discussion:
-  !    Our convention is that the abscissas are numbered from left to right.
-  !    The rule is defined on [-1,1].
-  !    The integral to approximate:
-  !      Integral ( -1 <= X <= 1 ) F(X) dX
-  !    The quadrature rule:
-  !      Sum ( 1 <= I <= n ) W(I) * F ( X(I) )
-  !
-  !  Licensing:
-  !    This code is distributed under the GNU LGPL license.
-  !
-  !  Modified:
-  !    15 February 2009
-  !
-  !  Author:
-  !    John Burkardt
-
-  !  Parameters:
-  !    Input, integer ( kind = 4 ) n, the order of the rule.
-  !    1 <= ORDER.
-  !    Output, real ( kind = 8 ) X(n), the abscissas.
-  !    Output, real ( kind = 8 ) W(n), the weights.
-
-  MODULE SUBROUTINE clenshaw_curtis( a, b, x, w, n )
-    USE constants ,ONLY: pi
-    REAL(KIND=RP), INTENT(IN) :: a, b
-    INTEGER, INTENT(IN) :: n
-    REAL(KIND=RP), INTENT(OUT), ALLOCATABLE :: w(:), x(:)
-
-    REAL(KIND=RP) :: theta !,bj
-    INTEGER :: i, j
-
-    IF ( n < 3 ) THEN
-      ERROR STOP 'clenashaw_curtis  error : n < 3 '
-    END IF
-
-    ALLOCATE(x(n),w(n))
-
-    !    IF ( n == 1 ) THEN
-    !      x(1) = 0._RP
-    !      w(1) = 2._RP
-    !      RETURN
-    !    END IF
-
-    !    DO CONCURRENT( i = 1:n )
-    !      x(i) = COS( (n-i) *pi /(n-1) )
-    !    END DO
-    x(1) = -1._RP
-    x(2:n-1) = [ ( COS( (n-i)*pi/(n-1) ), i=2,n-1 ) ]
-    x(n) = 1._RP
-
-    IF ( MOD(n,2) == 1 ) THEN
-      x((n+1)/2) = 0._RP
-    END IF
-
-    w = 1._RP
-    DO CONCURRENT( i = 1:n )
-      theta = (i-1) *pi/(n-1)
-
-      DO j = 1, (n-1) /2 -1
-        !        IF ( 2*j == (n-1) ) THEN
-        !          bj = 1._RP
-        !        ELSE
-        !          bj = 2._RP
-        !        END IF
-        !        w(i) = w(i) - bj *COS ( 2.*j *theta ) / (4*j*j - 1.)
-        w(i) = w(i) - 2.*COS ( 2.*j *theta ) / (4*j*j - 1.)
-      END DO
-
-      IF( MOD(n,2) == 0 ) THEN
-        w(i) = w(i) -2.*COS ( 2.*( (n-1)/2 ) *theta ) / (4*( (n-1)/2 )**2 - 1.)
-      ELSE
-        w(i) = w(i) -COS ( (n-1)*theta ) /( (n-1)**2 - 1.)
-      END IF
-
-    END DO
-
-    w(2:n-1) = 2.*w(2:n-1)
-
-    w = w /(n-1.)
-
-    x = ( (a+b) + (b-a)*x ) /2.
-    w = (b-a)*w/2.
-
-  END SUBROUTINE clenshaw_curtis
-
-  PURE MODULE SUBROUTINE gauleg(a,b,x,w,n)
-    use constants ,only: pi
-    INTEGER, INTENT(IN) :: n
-    REAL(rp), INTENT(IN) :: a,b
-    REAL(rp), INTENT(OUT), ALLOCATABLE :: x(:),w(:)
-    INTEGER :: i
-
-    ALLOCATE(x(n),w(n))
-
-    x(1:(n+1)/2) = [(COS(pi*(4.*i-1.)/(4.*n+2.)), i=1,(n+1)/2 )]
-
-    CALL pd(x(1:(n+1)/2),w(1:(n+1)/2),n)
-
-    DO CONCURRENT (i=1:(n+1)/2)
-      x(n-i+1)=-x(i)
-      w(n-i+1)=w(i)
-    END DO
-
-    x = ( (a-b)*x +b+a )/2.
-    w = (b-a)*w/2.
-
-  END SUBROUTINE gauleg
-
-  PURE SUBROUTINE pd(sx,sw,n)
-    INTEGER, INTENT(IN) :: n
-    REAL(rp), INTENT(OUT),CONTIGUOUS :: sw(:)
-    REAL(rp), INTENT(INOUT),CONTIGUOUS :: sx(:)
-
-    REAL(RP),PARAMETER :: eps=EPSILON(eps)
-    REAL(rp), DIMENSION((n+1)/2) :: dp0,dp1,dp2,dp
-    INTEGER :: i
-
-    dp2 = 0._RP
-    DO
-      dp0 = 1._RP
-      dp1 = sx
-      DO i=1,n-1
-        dp2 = ((2.*i+1._RP)*sx*dp1-i*dp0)/(i+1._RP)
-        dp0 = dp1
-        dp1 = dp2
-      ENDDO
-      dp = n*(dp0-sx*dp1)/(1._RP-sx**2)
-      sx = sx-dp2/dp
-
-      IF( ALL(ABS(dp2/dp)<=eps) ) EXIT
-    ENDDO
-    sw = 2._rp/((1._rp-sx**2)*dp**2)
-  END SUBROUTINE pd
-
   !> ode_second_dw
   !!
   !! This subroutine solve Equation of the form
   !! s_l''(r) + f_l(r) *s_l(r) = km**2 *s_l(r)
 
-  MODULE SUBROUTINE ode_second_dw(km,lmax,rc,f,s,delta)
+  MODULE SUBROUTINE ode_second_dw(km, lmax, rc, z, f, s, delta )
     USE special_functions ,ONLY: coul90
-    INTEGER, INTENT(IN) :: lmax
-    REAL(KIND=RP), INTENT(IN)  :: f(0:,0:),rc,km
-    REAL(KIND=RP), INTENT(OUT) :: s(0:,0:),delta(0:lmax)
-    REAL(KIND=RP) :: h,rho,eta
-    REAL(KIND=RP), DIMENSION(0:lmax) :: jl,gl,jpl,gpl,fn,betap,beta
-    INTEGER :: i,ns,ifail,l
+    INTEGER, INTENT(IN) :: lmax, z
+    REAL(KIND=RP), INTENT(IN)  :: f(0:,0:), rc, km
+    REAL(KIND=RP), INTENT(OUT) :: s(0:,0:), delta(0:lmax)
+    REAL(KIND=RP) :: h, rho, eta
+    REAL(KIND=RP), DIMENSION(0:lmax) :: jl, gl, jpl, gpl, fn, betap, beta
+    INTEGER :: i, ns, ifail, l
 
-    ns=SIZE(s,1)-1
-    h=rc/ns
+    ns = SIZE(s,1)-1
+    h = rc/ns
 
-    rho=km*h*(ns-2)
+    rho = km*h*(ns-2)
 
-    eta=-1./km
-    CALL coul90(rho,eta,0,lmax,jl,gl,jpl,gpl,0,ifail)
+    if(z/=0) then
+      eta = -z/km
+      CALL coul90(rho, eta, 0, lmax, jl, gl, jpl, gpl, 0, ifail )
+    else
+      CALL coul90(rho, 0._rp, 0, lmax, jl, gl, jpl, gpl, 1, ifail )
+      jpl = rho*jpl +jl
+      gpl = rho*gpl +gl
+      jl = rho*jl
+      gl = rho*gl
+    end if
+
 
     DO l=0,lmax
       s(0,l) = 0.
@@ -271,6 +149,7 @@ CONTAINS
       DO i=1,ns-1
         s(i+1,l) = ( (2.+f(i,l)*5.*h**2/6.)*s(i,l) - (1.-f(i-1,l)*h**2/12.)*s(i-1,l) ) &
           /( 1.-f(i+1,l)*h**2/12. )
+        !if(abs(s(i+1,l))>1._rp) s(1:i+1,l) = s(1:i+1,l)*1.e-5_rp
       END DO
     END DO
 
@@ -280,7 +159,7 @@ CONTAINS
     fn = (COS(delta)*jl+SIN(delta)*gl) /beta
 
     DO l=0,lmax
-      s(:,l)=s(:,l)*fn(l)
+      s(:,l) = s(:,l)*fn(l)
     END DO
 
   END SUBROUTINE ode_second_dw
@@ -334,5 +213,185 @@ CONTAINS
     CLOSE(IN)
 
   END SUBROUTINE calculate_U
+
+
+  MODULE SUBROUTINE INTRPL(X, Y, U, V )
+    USE CONSTANTS ,ONLY: RP
+    IMPLICIT NONE
+    REAL(RP), INTENT(IN) :: X(:), Y(:), U(:)
+    REAL(RP), INTENT(OUT) :: V(:)
+    !
+    !  REAL(WP) INTERPOLATION OF A SINGLE VALUED FUNCTION
+    !  THIS SUBROUTINE INTERPOLATES, FROM VALUES OF THE FUNCTION
+    !  GIVEN  AS ORDINATES OF INPUT DATA POINTS IN AN X-Y PLANE
+    !  AND FOR A GIVEN SET OF X VALUES(ABSCISSAE),THE VALUES OF
+    !  A SINGLE VALUED FUNCTION Y=Y(X).
+    !
+    !  THE INPUT PARAMETERS ARE:
+    !
+    !  L = NUMBER OF DATA POINTS (MUST BE TWO OR GREATER)
+    !  X = ARRAY OF DIMENSION L STORING THE X VALUES OF INPUT DATA POINTS (IN ASCENDING ORDER)
+    !  Y = ARRAY OF DIMENSION L STORING THE Y VALUES OF INPUT DATA POINTS
+    !  N = NUMBER OF POINTS AT WHICH INTERPOLATION OF THE Y-VALUES IS REQUIRED (MUST BE 1 OR GREATER)
+    !  U = ARRAY OF DIMENSION N STORING THE X VALUES OF THE DESIRED POINTS
+    !
+    !  THE OUTPUT PARAMETER IS:
+    !
+    !  V = ARRAY OF DIMENSION N WHERE THE INTERPOLATED Y VALUES ARE TO BE DISPLAYED
+    !
+    !  DECLARATION STATEMENTS
+    REAL(RP) :: A2, A3, A4, T4, TM2, TM3, TM4, X4, Y4
+    INTEGER :: I, IMN, IMX, IPV, J, K, L, N
+    REAL(RP), TARGET :: P0, Q0, Q1, UK, X2, X5, SW, Y2, Y5
+    REAL(RP), POINTER :: DX, X3, Y3, T3, A1, TM1, A5, TM5, SA, W2, W4, Q2, W3, Q3
+
+    X3 => P0
+    P0 = 0._RP
+    Y3 => Q0
+    Q0 = 0._RP
+    T3 => Q1
+    Q1 = 0._RP
+    DX => UK
+    A1 => X2; TM1 => X2
+    X2 = 0._RP
+    A5 => X5; TM5 => X5
+    X5 = 0._RP
+    SA => SW
+    W2 => Y2; W4 => Y2; Q2 => Y2
+    Y2 = 0._RP
+    W3 => Y5; Q3 => Y5
+    Y5 = 0._RP
+
+
+    !  PRELIMINARY PROCESSING
+    L = SIZE(X)
+    IF(SIZE(Y)/=L) print*,'size(Y)/=size(X)'
+    N = SIZE(U)
+    IF(SIZE(V)/=N) error stop 'INTRPL : size(V)/=size(U)'
+
+    TM4 = 0._RP
+    A4 = 0._RP
+    A2 = 0._RP
+
+    IPV=0
+    !  MAIN LOOP
+    DO K = 1,N
+      UK = U(K)
+      !  ROUTINE TO LOCATE THE DESIRED POINT
+      IF(UK<X(1)) THEN
+        I = 1
+      ELSEIF(UK>=X(L)) THEN
+        I = L+1
+      ELSE
+        IMN = 2
+        IMX = L
+        DO
+          I = (IMN+IMX)/2
+          IF(UK<X(I)) THEN
+            IMX = I
+          ELSE
+            IMN = I+1
+          END IF
+          IF(IMX<=IMN) EXIT
+        END DO
+        I = IMX
+      END IF
+      !  CHECK IF I=IPV
+      IF(I/=IPV) THEN
+        IPV = I
+        !  ROUTINES TO PICK UP NECESSARY X AND Y VALUES AND TO ESTIMATE THEM IF NECESSARY
+        J = I
+        IF(J==1) J = 2
+        IF(J==L+1) J = L
+        X3 = X(J-1)
+        Y3 = Y(J-1)
+        X4 = X(J)
+        Y4 = Y(J)
+        A3 = X4-X3
+        TM3 = (Y4-Y3)/A3
+        TM2 = 0._RP
+        IF( L/=2 ) THEN
+          IF( J/=2 ) THEN
+            X2 = X(J-2)
+            Y2 = Y(J-2)
+            A2 = X3-X2
+            TM2 = (Y3-Y2)/A2
+          END IF
+          IF(J/=L) THEN
+            X5 = X(J+1)
+            Y5 = Y(J+1)
+            A4 = X5-X4
+            TM4 = (Y5-Y4)/A4
+            IF(J==2) TM2 = TM3+TM3-TM4
+          ELSE
+            TM4 = TM3+TM3-TM2
+          END IF
+        ELSE
+          TM2 = TM3
+        END IF
+        IF(J>3) THEN
+          A1 = X2-X(J-3)
+          TM1 = (Y2-Y(J-3))/A1
+        ELSE
+          TM1 = TM2+TM2-TM3
+        END IF
+        IF(J<L-1) THEN
+          A5 = X(J+2)-X5
+          TM5 = (Y(J+2)-Y5)/A5
+        ELSE
+          TM5 = TM4+TM4-TM3
+        END IF
+        !  NUMERICAL DIFFERENTIATION
+        IF(I/=L+1) THEN
+          W2 = ABS(TM4-TM3)
+          W3 = ABS(TM2-TM1)
+          SW = W2+W3
+          IF(SW==0._RP) THEN
+            W2 = 0.5_RP
+            W3 = 0.5_RP
+            SW = 1._RP
+          END IF
+          T3 = (W2*TM2+W3*TM3)/SW
+        END IF
+        IF(I==1) THEN
+          T4 = T3
+          SA = A3+A4
+          T3 = 0.5_RP*(TM1+TM2-A4*(A3-A4)*(TM3-TM4)/(SA*SA))
+          X3 = X3-A4
+          Y3 = Y3-TM2*A4
+          A3 = A4
+          TM3 = TM2
+        ELSE
+          W3 = ABS(TM5-TM4)
+          W4 = ABS(TM3-TM2)
+          SW = W3+W4
+          IF(SW==0._RP) THEN
+            W3 = 0.5_RP
+            W4 = 0.5_RP
+            SW = 1._RP
+          END IF
+          T4 = (W3*TM3+W4*TM4)/SW
+          IF(I==L+1) THEN
+            T3 = T4
+            SA = A2+A3
+            T4 = 0.5_RP*(TM4+TM5-A2*(A2-A3)*(TM2-TM3)/(SA*SA))
+            X3 = X4
+            Y3 = Y4
+            A3 = A2
+            TM3 = TM4
+          END IF
+        END IF
+        !  COMPUTATION OF THE POLYNOMIAL
+        Q2 = (2._RP*(TM3-T3)+TM3-T4)/A3
+        Q3 = (-TM3-TM3+T3+T4)/(A3*A3)
+      END IF
+      DX = UK-P0
+      V(K) = Q0+DX*(Q1+DX*(Q2+DX*Q3))
+
+    END DO
+
+    RETURN
+  END SUBROUTINE INTRPL
+
 
 END SUBMODULE utils
