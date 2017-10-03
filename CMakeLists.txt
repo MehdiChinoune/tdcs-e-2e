@@ -15,7 +15,7 @@ if ( "${CMAKE_Fortran_COMPILER_ID}" MATCHES "GNU" )
   endif()
 
   set( CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS} -Wall -Ofast" )
-  set( CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS} -Wall -g -fcheck=all" )
+  set( CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS} -Wall -g -fcheck=bounds" )
   
 elseif ( "${CMAKE_Fortran_COMPILER_ID}" MATCHES "INTEL" )
 
@@ -25,6 +25,9 @@ elseif ( "${CMAKE_Fortran_COMPILER_ID}" MATCHES "INTEL" )
 endif ()
 
 add_subdirectory(src)
+
+file(COPY Data DESTINATION ./ )
+file(COPY input.dat DESTINATION ./ )
 
 #set(srcs main.F90 constants.F90 trigo.F90 trigo_h.F90 special_functions_h.F90 special_functions.F90 utils_h.F90 utils.F90 fdcs_e2e_h.F90 fdcs_e2e.F90 )
 
