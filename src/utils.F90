@@ -36,40 +36,6 @@ CONTAINS
 
   END FUNCTION
 
-  MODULE SUBROUTINE read_input(in_unit, Ei, Es, Ee, thetas, step, Atom, Orbit)
-    INTEGER, INTENT(IN) :: in_unit
-    REAL(KIND=RP)   , INTENT(OUT) :: Ei, Es, Ee, thetas
-    INTEGER         , INTENT(OUT) :: step(3)
-    CHARACTER(LEN=2), INTENT(OUT) :: Atom, Orbit
-
-    READ( in_unit, * ) Atom
-    READ( in_unit, * ) Orbit
-    READ( in_unit, * ) Ei, Es, Ee
-    READ( in_unit, * ) thetas
-    READ( in_unit, * ) step
-
-  END SUBROUTINE read_input
-
-  MODULE SUBROUTINE read_orbit(orbit_file, lo, no, n, a, e )
-    CHARACTER(LEN=5), INTENT(IN)  :: orbit_file
-    INTEGER         , INTENT(OUT) :: lo, no
-    INTEGER, ALLOCATABLE, INTENT(OUT) :: n(:)
-    REAL(KIND=RP), ALLOCATABLE, INTENT(OUT) :: a(:), e(:)
-
-    INTEGER :: IN
-
-    OPEN( newunit=IN, FILE='Data/'//orbit_file//'.dat', STATUS='old', ACTION='read')
-
-    READ( IN, * ) lo
-    READ( IN, * ) no
-    ALLOCATE ( a(no), e(no), n(no) )
-    READ( IN, * ) n
-    READ( IN, * ) a
-    READ( IN, * ) e
-    CLOSE(IN)
-
-  END SUBROUTINE read_orbit
-
   ELEMENTAL REAL(KIND=RP) MODULE FUNCTION y1y2y3(l1, l2, l3, m1, m2, m3 )
     USE constants ,ONLY: pi
     USE ieee_arithmetic ,ONLY: ieee_is_nan, ieee_is_finite
@@ -180,6 +146,7 @@ CONTAINS
   END FUNCTION Uij
 
   MODULE SUBROUTINE calculate_U(Atom, Orbit, r, U )
+    use input ,only: read_orbit
     CHARACTER(LEN=2), INTENT(IN) :: Atom, Orbit
     REAL(KIND=RP)   , INTENT(IN) :: r(:)
     REAL(KIND=RP)   , INTENT(OUT) :: U(:)
