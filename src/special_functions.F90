@@ -865,7 +865,7 @@ CONTAINS
         +lnfac(l3-l1-m2+t) +lnfac(l1-m1-t) +lnfac(l2+m2-t) ) )
     END DO
 
-    symbol_3j = (-1.)**m3 *s
+    symbol_3j = (-1)**m3 *s
 
   END FUNCTION symbol_3j
 
