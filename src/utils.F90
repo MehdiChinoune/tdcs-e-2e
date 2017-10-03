@@ -160,13 +160,13 @@ CONTAINS
       BLOCK
         REAL(KIND=rp), ALLOCATABLE :: a(:),e(:)
         INTEGER, ALLOCATABLE :: n(:)
-        INTEGER :: lo, no, i1, i2, nocup
+        INTEGER :: nelec, lo, no, i1, i2, nocup
         CHARACTER(LEN=2) :: orbit_i
 
         READ(IN, FMT=*, IOSTAT=lo ) orbit_i
         IF(lo<0) EXIT
 
-        CALL read_orbit(Atom//'_'//orbit_i, lo, no, n, a, e)
+        CALL read_orbit(Atom//'_'//orbit_i, nelec, lo, no, n, a, e)
         nocup = 2*(2*lo+1)
         IF(orbit_i==Orbit) nocup = nocup -1
 

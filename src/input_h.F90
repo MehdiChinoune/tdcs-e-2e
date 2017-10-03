@@ -11,9 +11,9 @@ MODULE input
       CHARACTER(LEN=2), INTENT(OUT) :: Atom, Orbit
     END SUBROUTINE read_input
 
-    MODULE SUBROUTINE read_orbit(orbit_file, lo, no, n, a, e )
+    MODULE SUBROUTINE read_orbit(orbit_file, nelec, lo, no, n, a, e )
       CHARACTER(LEN=5), INTENT(IN)  :: orbit_file
-      INTEGER         , INTENT(OUT) :: lo, no
+      INTEGER         , INTENT(OUT) :: nelec, lo, no
       INTEGER, ALLOCATABLE, INTENT(OUT) :: n(:)
       REAL(KIND=RP), ALLOCATABLE, INTENT(OUT) :: a(:), e(:)
     END SUBROUTINE read_orbit
