@@ -4,10 +4,10 @@ MODULE input
 
   INTERFACE
 
-    MODULE SUBROUTINE read_input(in_unit, Ei, Es, Ee, thetas, step, Atom, Orbit)
+    MODULE SUBROUTINE read_input(in_unit, Ei, Es, Ee, thetas, step, Atom, Orbit, exchange)
       INTEGER, INTENT(IN) :: in_unit
       REAL(KIND=RP)   , INTENT(OUT) :: Ei, Es, Ee, thetas
-      INTEGER         , INTENT(OUT) :: step(3)
+      INTEGER         , INTENT(OUT) :: exchange, step(3)
       CHARACTER(LEN=2), INTENT(OUT) :: Atom, Orbit
     END SUBROUTINE read_input
 

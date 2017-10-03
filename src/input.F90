@@ -3,10 +3,10 @@ SUBMODULE (input) input
 
 CONTAINS
 
-  MODULE SUBROUTINE read_input(in_unit, Ei, Es, Ee, thetas, step, Atom, Orbit)
+  MODULE SUBROUTINE read_input(in_unit, Ei, Es, Ee, thetas, step, Atom, Orbit, exchange)
     INTEGER, INTENT(IN) :: in_unit
     REAL(KIND=RP)   , INTENT(OUT) :: Ei, Es, Ee, thetas
-    INTEGER         , INTENT(OUT) :: step(3)
+    INTEGER         , INTENT(OUT) :: exchange, step(3)
     CHARACTER(LEN=2), INTENT(OUT) :: Atom, Orbit
 
     READ( in_unit, * ) Atom
@@ -14,6 +14,7 @@ CONTAINS
     READ( in_unit, * ) Ei, Es, Ee
     READ( in_unit, * ) thetas
     READ( in_unit, * ) step
+    READ( in_unit, * ) exchange
 
   END SUBROUTINE read_input
 
