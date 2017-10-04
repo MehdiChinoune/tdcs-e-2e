@@ -145,11 +145,12 @@ CONTAINS
 
   END FUNCTION Uij
 
-  MODULE SUBROUTINE calculate_U(Atom, Orbit, r, U )
+  MODULE SUBROUTINE calculate_U(Atom, Orbit, r, U, state )
     use input ,only: read_orbit
     CHARACTER(LEN=2), INTENT(IN) :: Atom, Orbit
     REAL(KIND=RP)   , INTENT(IN) :: r(:)
     REAL(KIND=RP)   , INTENT(OUT) :: U(:)
+    INTEGER :: state
 
     INTEGER :: IN
 
@@ -163,12 +164,11 @@ CONTAINS
         INTEGER :: nelec, lo, no, i1, i2, nocup
         CHARACTER(LEN=2) :: orbit_i
 
-        READ(IN, FMT=*, IOSTAT=lo ) orbit_i
+        READ(IN, FMT=*, IOSTAT=lo ) orbit_i, nocup
         IF(lo<0) EXIT
 
         CALL read_orbit(Atom//'_'//orbit_i, nelec, lo, no, n, a, e)
-        nocup = 2*(2*lo+1)
-        IF(orbit_i==Orbit) nocup = nocup -1
+        IF(orbit_i==Orbit .and. state==1 ) nocup = nocup -1
 
         DO CONCURRENT( i1 = 1:no, i2 = 1:no )
           U = U + nocup *a(i1) *a(i2) *Uij( n(i1), e(i1), n(i2), e(i2), r )
@@ -180,7 +180,6 @@ CONTAINS
     CLOSE(IN)
 
   END SUBROUTINE calculate_U
-
 
   MODULE SUBROUTINE INTRPL(X, Y, U, V )
     USE CONSTANTS ,ONLY: RP

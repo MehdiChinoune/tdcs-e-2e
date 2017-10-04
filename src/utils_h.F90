@@ -31,10 +31,11 @@ MODULE utils
       INTEGER      , INTENT(IN) :: ni, nj
     END FUNCTION Uij
 
-    MODULE SUBROUTINE calculate_U(Atom, Orbit, r, U )
+    MODULE SUBROUTINE calculate_U(Atom, Orbit, r, U, state )
       CHARACTER(LEN=2), INTENT(IN) :: Atom, Orbit
       REAL(KIND=RP)   , INTENT(IN) :: r(:)
       REAL(KIND=RP)   , INTENT(OUT) :: U(:)
+      INTEGER :: state
     END SUBROUTINE calculate_U
 
     MODULE SUBROUTINE INTRPL(X, Y, U, V )
