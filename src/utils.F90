@@ -145,7 +145,7 @@ CONTAINS
     REAL(KIND=RP) :: a
 
     a = 1._RP
-    DO CONCURRENT( k = 1:ni+nj-1 )
+    DO k = 1,ni+nj-1
       a = a + ((ei+ej)*r)**k *(ni+nj-k) /( (ni+nj)*fac(k) )
     END DO
     Uij = a *EXP(-(ei+ej)*r) *fac(ni+nj) *ei**ni *ej**nj *SQRT(ei*ej) &
@@ -180,8 +180,10 @@ CONTAINS
 
         IF(nocup==0) CYCLE
 
-        DO CONCURRENT( i1 = 1:no, i2 = 1:no )
-          U = U + nocup *a(i1) *a(i2) *Uij( n(i1), e(i1), n(i2), e(i2), r )
+        DO i1 = 1,no
+          DO i2 = 1,no
+            U = U + nocup *a(i1) *a(i2) *Uij( n(i1), e(i1), n(i2), e(i2), r )
+          END DO
         END DO
 
       END BLOCK

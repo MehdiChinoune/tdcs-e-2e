@@ -60,7 +60,7 @@ CONTAINS
     END IF
 
     w = 1._RP
-    DO CONCURRENT( i = 1:n )
+    DO i = 1,n
       theta = (i-1) *pi/(n-1)
 
       DO j = 1, (n-1) /2 -1
