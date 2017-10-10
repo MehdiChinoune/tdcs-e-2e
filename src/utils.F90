@@ -159,16 +159,18 @@ CONTAINS
     U = 0._RP
     DO
       BLOCK
-        REAL(KIND=rp), ALLOCATABLE :: a(:),e(:)
+        REAL(KIND=RP), ALLOCATABLE :: a(:),e(:)
         INTEGER, ALLOCATABLE :: n(:)
         INTEGER :: nelec, lo, no, i1, i2, nocup
         CHARACTER(LEN=2) :: orbit_i
 
-        READ(IN, FMT=*, IOSTAT=lo ) orbit_i, nocup
+        READ(IN, FMT=*, IOSTAT=lo ) orbit_i
         IF(lo<0) EXIT
 
         CALL read_orbit(Atom//'_'//orbit_i, nelec, lo, no, n, a, e)
-        IF(orbit_i==Orbit .and. state==1 ) nocup = nocup -1
+        IF(orbit_i==Orbit ) nocup = nelec -state
+
+        IF(nocup==0) CYCLE
 
         DO CONCURRENT( i1 = 1:no, i2 = 1:no )
           U = U + nocup *a(i1) *a(i2) *Uij( n(i1), e(i1), n(i2), e(i2), r )
