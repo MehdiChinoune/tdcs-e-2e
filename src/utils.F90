@@ -18,11 +18,10 @@ CONTAINS
       lnfac(i) = lnfac(i-1) +LOG( REAL(i,KIND=RP) )
     END DO
 
-    fak(0) = 0._rp
-    fak(1) = 0._rp
-    do i = 2, 400
-      fak(i) = lnfac(i-1) +(i-1)*log(0.05_rp)
-    end do
+!    fak(0) = 0._RP
+!    do i = 1, 400
+!      fak(i) = lnfac(i) +i*log(0.05_RP)
+!    end do
 
     fac_called = .true.
 
@@ -53,7 +52,7 @@ CONTAINS
     !  |             |
     !  \ m_1 m_2 m_3 /
     s1 = 0._RP
-    cst_1 = 0.5_rp*(lnfac(l1+m1) +lnfac(l1-m1) +lnfac(l2+m2) +lnfac(l2-m2) +lnfac(l3+m3) &
+    cst_1 = 0.5_RP*(lnfac(l1+m1) +lnfac(l1-m1) +lnfac(l2+m2) +lnfac(l2-m2) +lnfac(l3+m3) &
       +lnfac(l3-m3) +lnfac(l2+l3-l1) +lnfac(l3+l1-l2) &
       -0.7*lnfac(l1+l2+l3+1) )
     DO t = MAX(0, l2-l3-m1, l1-l3+m2 ), MIN(l1+l2-l3, l1-m1, l2+m2 )
@@ -65,7 +64,7 @@ CONTAINS
     ! |             |
     ! \ 0   0   0   /
     s0 = 0._RP
-    cst_0 = lnfac(l1) +lnfac(l2) +lnfac(l3) +0.5_rp*( lnfac(l2+l3-l1) &
+    cst_0 = lnfac(l1) +lnfac(l2) +lnfac(l3) +0.5_RP*( lnfac(l2+l3-l1) &
       +lnfac(l3+l1-l2) -0.7*lnfac(l1+l2+l3+1) )
     DO t = MAX(0, l2-l3, l1-l3 ), MIN(l1+l2-l3, l1, l2 )
       s0 = s0 +(-1)**t *EXP( cst_0 -( lnfac(t) +lnfac(l1+l2-l3-t) +lnfac(l3-l2+t) +lnfac(l3-l1+t) &
@@ -84,38 +83,47 @@ CONTAINS
   !! s_l''(r) + f_l(r) *s_l(r) = km**2 *s_l(r)
 
   MODULE SUBROUTINE ode_second_dw(km, lmax, rc, z, f, s, delta )
-    USE special_functions ,ONLY: coul90
+    USE special_functions ,ONLY: coul90, ricbes
     INTEGER, INTENT(IN) :: lmax, z
     REAL(KIND=RP), INTENT(IN)  :: f(0:,0:), rc, km
     REAL(KIND=RP), INTENT(OUT) :: s(0:,0:), delta(0:lmax)
+    REAL(KIND=RP) :: Big = SQRT(HUGE(1._RP)), eps = EPSILON(1._RP)
     REAL(KIND=RP) :: h, rho, eta
     REAL(KIND=RP), DIMENSION(0:lmax) :: jl, gl, jpl, gpl, fn, betap, beta
-    INTEGER :: i, ns, ifail, l
+    INTEGER :: i, ns, ifail, l, is
 
     ns = SIZE(s,1)-1
     h = rc/ns
 
     rho = km*h*(ns-2)
 
-    if(z/=0) then
+    IF(z/=0) THEN
       eta = -z/km
-      CALL coul90(rho, eta, 0, lmax, jl, gl, jpl, gpl, 0, ifail )
-    else
-      CALL coul90(rho, 0._rp, 0, lmax, jl, gl, jpl, gpl, 1, ifail )
-      jpl = rho*jpl +jl
-      gpl = rho*gpl +gl
-      jl = rho*jl
-      gl = rho*gl
-    end if
+      CALL coul90(rho, eta, 0, lmax, jl, gl, jpl, gpl, 0 )
+    ELSE
+      CALL ricbes(rho, lmax, jl, gl, jpl, gpl )
+!      CALL coul90(rho, 0._RP, 0, lmax, jl, gl, jpl, gpl, 1, ifail )
+!      jpl = rho*jpl +jl
+!      gpl = rho*gpl +gl
+!      jl = rho*jl
+!      gl = rho*gl
+    END IF
 
 
     DO l=0,lmax
-      s(0,l) = 0.
-      s(1,l) = h**(l+1)
-      DO i=1,ns-1
-        s(i+1,l) = ( (2.+f(i,l)*5.*h**2/6.)*s(i,l) - (1.-f(i-1,l)*h**2/12.)*s(i-1,l) ) &
-          /( 1.-f(i+1,l)*h**2/12. )
-        !if(abs(s(i+1,l))>1._rp) s(1:i+1,l) = s(1:i+1,l)*1.e-5_rp
+      is = 1
+      s(0,l) = 0._RP
+      !s(1,l) = h**(l+1)
+      !if(s(1,l)==0._RP) then
+        DO is=1,1000
+          s(is,l) = (is*h)**(l+1)
+          IF(s(is,l)>0._RP) EXIT
+        END DO
+      !end if
+      DO i=is,ns-1
+        s(i+1,l) = ( (2._rp+f(i,l)*5._rp*h**2/6.)*s(i,l) - (1._rp-f(i-1,l)*h**2/12.)*s(i-1,l) ) &
+          /( 1._rp-f(i+1,l)*h**2/12. )
+        IF(ABS(s(i+1,l))>Big) s(1:i+1,l) = s(1:i+1,l)*eps
       END DO
     END DO
 
@@ -146,7 +154,7 @@ CONTAINS
   END FUNCTION Uij
 
   MODULE SUBROUTINE calculate_U(Atom, Orbit, r, U, state )
-    use input ,only: read_orbit
+    USE input ,ONLY: read_orbit
     CHARACTER(LEN=2), INTENT(IN) :: Atom, Orbit
     REAL(KIND=RP)   , INTENT(IN) :: r(:)
     REAL(KIND=RP)   , INTENT(OUT) :: U(:)
@@ -233,9 +241,9 @@ CONTAINS
 
     !  PRELIMINARY PROCESSING
     L = SIZE(X)
-    IF(SIZE(Y)/=L) print*,'size(Y)/=size(X)'
+    IF(SIZE(Y)/=L) PRINT*,'size(Y)/=size(X)'
     N = SIZE(U)
-    IF(SIZE(V)/=N) error stop 'INTRPL : size(V)/=size(U)'
+    IF(SIZE(V)/=N) ERROR STOP 'INTRPL : size(V)/=size(U)'
 
     TM4 = 0._RP
     A4 = 0._RP

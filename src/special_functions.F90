@@ -20,19 +20,19 @@ CONTAINS
   !     decimal digit.
   !-----------------------------------------------------------------------
   ELEMENTAL MODULE FUNCTION cgamma(z, mo) RESULT(w)
-    COMPLEX(KIND=rp) :: w
-    COMPLEX(KIND=rp), INTENT(IN)  :: z
+    COMPLEX(KIND=RP) :: w
+    COMPLEX(KIND=RP), INTENT(IN)  :: z
     INTEGER, INTENT(IN),OPTIONAL  :: mo
 
     ! Local variables
-    COMPLEX(KIND=rp) :: eta, eta2, SUM
-    REAL(KIND=rp), PARAMETER :: c0(12) = [ .833333333333333E-01_rp, -.277777777777778E-02_rp &
-     , .793650793650794E-03_rp, -.595238095238095E-03_rp,  .841750841750842E-03_rp &
-     , -.191752691752692E-02_rp,  .641025641025641E-02_rp, -.295506535947712E-01_rp &
-     , .179644372368831_rp    , -1.39243221690590_rp    , 13.4028640441684_rp      &
-     , -156.848284626002_rp ], pi = 3.14159265358979_rp, pi2  = 6.28318530717959_rp &
-     , alpi = 1.14472988584940_rp, hl2p = .918938533204673_rp, half = 0.5_rp
-    REAL(KIND=rp)  :: a, a1, a2, c, cn, cut, d, eps, et, e2t, h1, h2, s, sn, &
+    COMPLEX(KIND=RP) :: eta, eta2, SUM
+    REAL(KIND=RP), PARAMETER :: c0(12) = [ .833333333333333E-01_RP, -.277777777777778E-02_RP &
+     , .793650793650794E-03_RP, -.595238095238095E-03_RP,  .841750841750842E-03_RP &
+     , -.191752691752692E-02_RP,  .641025641025641E-02_RP, -.295506535947712E-01_RP &
+     , .179644372368831_RP    , -1.39243221690590_RP    , 13.4028640441684_RP      &
+     , -156.848284626002_RP ], pi = 3.14159265358979_RP, pi2  = 6.28318530717959_RP &
+     , alpi = 1.14472988584940_RP, hl2p = .918938533204673_RP, half = 0.5_RP
+    REAL(KIND=RP)  :: a, a1, a2, c, cn, cut, d, eps, et, e2t, h1, h2, s, sn, &
       s1, s2, t, t1, t2, u, u1, u2, v1, v2, w1, w2, x, y, y2
     INTEGER    :: j, k, l, m, MAX, n, nm1
     !---------------------------
@@ -46,11 +46,11 @@ CONTAINS
     !            SUCH THAT 1.0 + EPS > 1.0.
 
     !                      MAX = IPMPAR(3)
-    MAX = HUGE(3)
-    eps = EPSILON(1.0_rp)
+    MAX = HUGE(1)
+    eps = EPSILON(1._RP)
 
     !---------------------------
-    x = REAL(z, KIND=rp)
+    x = REAL(z, KIND=RP)
     y = AIMAG(z)
 
     !IF ( ABS(x) >= MIN( REAL(MAX,RP), 1.0_RP/eps ) ) THEN! GO TO 70
@@ -63,7 +63,7 @@ CONTAINS
     h1 = 0._RP
     ! RETURN
     !END IF
-    IF (x < 0.0_rp) THEN
+    IF (x < 0.0_RP) THEN
       !-----------------------------------------------------------------------
       !            CASE WHEN THE REAL PART OF Z IS NEGATIVE
       !-----------------------------------------------------------------------
@@ -74,9 +74,9 @@ CONTAINS
 
       !     SET  A1 = (1 + E2T)/2  AND  A2 = (1 - E2T)/2
 
-      a1 = half * (1.0_rp + e2t)
+      a1 = half * (1.0_RP + e2t)
       t2 = t + t
-      IF (t2 >= -0.15_rp) THEN
+      IF (t2 >= -0.15_RP) THEN
         a2 = -half * rexp(t2)
       ELSE
         a2 = half * (half + (half - e2t))
@@ -105,7 +105,7 @@ CONTAINS
       a1 = sn * a1
       a2 = cn * a2
       a = a1 * a1 + a2 * a2
-      IF( a==0._rp ) RETURN!GO TO 70
+      IF( a==0._RP ) RETURN!GO TO 70
       IF( mo==0 ) THEN
 
         h1 = a1 / a
@@ -118,30 +118,30 @@ CONTAINS
         h1 = (alpi+t) - half * LOG(a)
         h2 = -ATAN2(a2,a1)
       END IF
-      IF (AIMAG(z) >= 0.0_rp) THEN
-        x = 1.0_rp - x
+      IF (AIMAG(z) >= 0.0_RP) THEN
+        x = 1.0_RP - x
         y = -y
       ELSE
         h2 = -h2
-        x = 1.0_rp - x
+        x = 1.0_RP - x
       END IF
     END IF
     !-----------------------------------------------------------------------
     !           CASE WHEN THE REAL PART OF Z IS NONNEGATIVE
     !-----------------------------------------------------------------------
-    w1 = 0.0_rp
-    w2 = 0.0_rp
+    w1 = 0.0_RP
+    w2 = 0.0_RP
     n = 0
     t = x
     y2 = y * y
     a = t * t + y2
-    cut = 36.0_rp
-    IF (eps > 1.e-8_rp) cut = 16.0_rp
+    cut = 36.0_RP
+    IF (eps > 1.e-8_RP) cut = 16.0_RP
     IF (a < cut) THEN
-      IF (a == 0._rp) RETURN!GO TO 70
+      IF (a == 0._RP) RETURN
       DO WHILE(a < cut)
         n = n + 1
-        t = t + 1.0_rp
+        t = t + 1.0_RP
         a = t * t + y2
       END DO
       !     LET S1 + S2*I BE THE PRODUCT OF THE TERMS (Z+J)/(Z+N)
@@ -173,7 +173,7 @@ CONTAINS
 
     !     SET  V1 + V2*I = (Z - 0.5) * LOG(Z + N) - Z
 
-    t1 = half * LOG(a) - 1.0_rp
+    t1 = half * LOG(a) - 1.0_RP
     t2 = ATAN2(y,t)
     u = x - half
     v1 = (u*t1-half) - y * t2
@@ -181,30 +181,28 @@ CONTAINS
 
     !     LET A1 + A2*I BE THE ASYMPTOTIC SUM
 
-    eta = CMPLX(t/a, -y/a, KIND=rp)
+    eta = CMPLX(t/a, -y/a, KIND=RP)
     eta2 = eta * eta
     m = 12
-    IF (a >= 289.0_rp) m = 6
+    IF (a >= 289.0_RP) m = 6
     IF (eps > 1.e-8) m = m / 2
-    SUM = CMPLX(c0(m), 0.0_rp, KIND=rp)
+    SUM = CMPLX(c0(m), 0.0_RP, KIND=RP)
     l = m
     DO j = 2, m
       l = l - 1
-      SUM = CMPLX(c0(l), 0.0_rp, KIND=rp) + SUM * eta2
+      SUM = CMPLX(c0(l), 0.0_RP, KIND=RP) + SUM * eta2
     END DO
     SUM = SUM * eta
-    a1 = REAL(SUM, KIND=rp)
+    a1 = REAL(SUM, KIND=RP)
     a2 = AIMAG(SUM)
     !-----------------------------------------------------------------------
     !                 GATHERING TOGETHER THE RESULTS
     !-----------------------------------------------------------------------
     w1 = (((a1 + hl2p) - w1) + v1) - n
     w2 = (a2 - w2) + v2
-    IF (REAL(z, KIND=rp) < 0.0_rp) GO TO 50
+    IF (REAL(z, KIND=RP) < 0.0_RP) GO TO 50
     IF (mo == 0) THEN
-
       !     CASE WHEN THE REAL PART OF Z IS NONNEGATIVE AND MO = 0
-
       a = EXP(w1)
       w1 = a * COS(w2)
       w2 = a * SIN(w2)
@@ -254,13 +252,8 @@ CONTAINS
     END IF
 
     !     TERMINATION
+    60  w = CMPLX(w1, w2, KIND=RP)
 
-    60  w = CMPLX(w1, w2, KIND=rp)
-    RETURN
-    !-----------------------------------------------------------------------
-    !             THE REQUESTED VALUE CANNOT BE COMPUTED
-    !-----------------------------------------------------------------------
-    !70 w = (0.0_RP, 0.0_RP)
     RETURN
 
   CONTAINS
@@ -270,52 +263,57 @@ CONTAINS
       !-----------------------------------------------------------------------
       !            EVALUATION OF THE FUNCTION EXP(X) - 1
       !-----------------------------------------------------------------------
-      REAL(KIND=rp), INTENT(IN) :: x
-      REAL(KIND=rp)             :: fn_val
+      REAL(KIND=RP), INTENT(IN) :: x
+      REAL(KIND=RP)             :: fn_val
 
       ! Local variables
-      REAL(KIND=rp), PARAMETER  :: p1 =  .914041914819518E-09_rp,  &
-        p2 = .238082361044469E-01_rp, q1 = -.499999999085958_rp,      &
-        q2 = .107141568980644_rp,     q3 = -.119041179760821E-01_rp,  &
-        q4 = .595130811860248E-03_rp
-      REAL(KIND=rp) :: e
+      REAL(KIND=RP), PARAMETER  :: p1 =  .914041914819518E-09_RP,  &
+        p2 = .238082361044469E-01_RP, q1 = -.499999999085958_RP,      &
+        q2 = .107141568980644_RP,     q3 = -.119041179760821E-01_RP,  &
+        q4 = .595130811860248E-03_RP
+      REAL(KIND=RP) :: e
       !-----------------------
-      IF (ABS(x) <= 0.15_rp) THEN
-        fn_val = x * (((p2*x + p1)*x + 1.0_rp) / ( ( ( (q4*x + q3)*x + q2)*x + q1 )*x + 1.0_rp) )
+      IF (ABS(x) <= 0.15_RP) THEN
+        fn_val = x * (((p2*x + p1)*x + 1.0_RP) / ( ( ( (q4*x + q3)*x + q2)*x + q1 )*x + 1.0_RP) )
         RETURN
       END IF
 
-      IF (x >= 0.0_rp) THEN
+      IF (x >= 0.0_RP) THEN
         e = EXP(x)
-        fn_val = e * (half + (half - 1.0_rp/e))
+        fn_val = e * (half + (half - 1.0_RP/e))
         RETURN
       END IF
-      IF (x >= -37.0_rp) THEN
+      IF (x >= -37.0_RP) THEN
         fn_val = (EXP(x) - half) - half
         RETURN
       END IF
-      fn_val = -1.0_rp
+      fn_val = -1.0_RP
       RETURN
     END FUNCTION rexp
 
   END FUNCTION cgamma
 
-  ELEMENTAL REAL(KIND=rp) MODULE FUNCTION assoc_legendre(l,m,x)
+  !> assoc_legendre
+  !! Computes the associated Legendre polynomial P^m_L (x). Here m and l are integers satisfying
+  !! 0 <= m <= l,  while x lies in the range −1 <= x <= 1.
+  ELEMENTAL REAL(KIND=RP) MODULE FUNCTION assoc_legendre(l,m,x)
+    USE ieee_arithmetic ,only: ieee_is_finite, ieee_is_nan, ieee_is_normal
     INTEGER      , INTENT(IN) :: l, m
-    REAL(KIND=rp), INTENT(IN) :: x
-    !Computes the associated Legendre polynomial P^m_L (x). Here m and l are integers satisfying
-    ! 0 <= m <= l,  while x lies in the range −1 <= x <= 1.
+    REAL(KIND=RP), INTENT(IN) :: x
+
     INTEGER :: i, l1
-    REAL(KIND=rp) :: fact, pmm, pmm1, pmm2
+    REAL(KIND=RP) :: fact, pmm, pmm1, pmm2
     !if(m.lt.0.or.m.gt.l.or.abs(x).gt.1.)pause 'bad arguments in plgndr'
-    pmm = 1. !Compute P^m_m
+
+    !Compute P^m_m
+    pmm = 1.
     IF( m > 0 ) THEN
-      fact = 1._rp
+      fact = 1._RP
       DO i = 1, m
         pmm = pmm *fact
-        fact = fact +2._rp
+        fact = fact +2._RP
       END DO
-      pmm = pmm *( SQRT(1._rp-x**2) )**m
+      pmm = pmm *( -SQRT(1._RP-x**2) )**m
     ENDIF
     IF( m == l ) THEN
       assoc_legendre = pmm
@@ -324,7 +322,7 @@ CONTAINS
       !IF( m == l-1 ) THEN
       !  assoc_legendre = pmmp1
       !ELSE ! Compute P^m_l,  m < l-1
-      pmm1 = 0._rp
+      pmm1 = 0._RP
       DO l1 = m+1, l
         pmm2 = pmm1
         pmm1 = pmm
@@ -332,22 +330,30 @@ CONTAINS
       END DO
       assoc_legendre=pmm
     ENDIF
+   ! if( .not. ieee_is_finite(pmm) ) assoc_legendre = huge(1._RP)
+    !if(pmm/=pmm) error stop 'plm error'
     RETURN
   END FUNCTION assoc_legendre
 
-  ELEMENTAL COMPLEX(KIND=rp) MODULE FUNCTION spherical_harmonic( l, m, theta, phi )
+  ELEMENTAL COMPLEX(KIND=RP) MODULE FUNCTION spherical_harmonic( l, m, theta, phi )
     use constants ,only: pi
     use utils ,only: lnfac, fac_called
     INTEGER      , INTENT(IN) :: l, m
-    REAL(KIND=rp), INTENT(IN) :: theta, phi
+    REAL(KIND=RP), INTENT(IN) :: theta, phi
+    REAL(KIND=RP), PARAMETER :: Tinye = log(tiny(1._RP))
     INTEGER :: ma
 
     if(.not. fac_called ) error stop 'you should call factorial before using y_l^m(\theta,\phi)'
 
     ma = ABS(m)
+    if( (lnfac(l-ma)-lnfac(l+ma))<2*Tinye ) then
+      spherical_harmonic = (0._RP, 0._RP)
+      return
+    end if
 
-    spherical_harmonic = EXP( 0.5*( lnfac(l-ma) -lnfac(l+ma) ) ) *SQRT( (2.*l+1._rp)/(4.*pi) ) &
-      *CMPLX( COS(m*phi), SIN(m*phi), KIND=rp ) *assoc_legendre(l, ma, COS(theta) )
+    spherical_harmonic = EXP( 0.5*( lnfac(l-ma) -lnfac(l+ma) ) ) &
+      *SQRT( (2.*l+1._RP)/(4.*pi) ) *CMPLX( COS(m*phi), SIN(m*phi), KIND=RP ) &
+      *assoc_legendre(l, ma, COS(theta) )
     IF( mod(theta,2.*pi)>pi .and. mod(m,2)/=0 ) spherical_harmonic = -spherical_harmonic
     IF( MOD(m,2)<0 ) spherical_harmonic = -spherical_harmonic
 
@@ -855,13 +861,22 @@ CONTAINS
     INTEGER, INTENT(IN) :: l1, l2, l3, m1, m2, m3
 
     REAL(RP) :: s, cst
-    INTEGER :: t
+    INTEGER :: t, ti, tf
+
+    !IF( ABS(M1)>L1 .OR. ABS(M2)>L2 .OR. ABS(M3)>L3 .OR. L3>(L1+L2) .OR. L3<ABS(L1-L2) ) RETURN
 
     s = 0._RP
-    cst = 0.5_rp*(lnfac(l1+m1) +lnfac(l1-m1) +lnfac(l2+m2) +lnfac(l2-m2) +lnfac(l3+m3) +lnfac(l3-m3) &
+    cst = 0.5_RP*(lnfac(l1+m1) +lnfac(l1-m1) +lnfac(l2+m2) +lnfac(l2-m2) +lnfac(l3+m3) +lnfac(l3-m3) &
       +lnfac(l2+l3-l1) +lnfac(l3+l1-l2) +lnfac(l1+l2-l3) -lnfac(l1+l2+l3+1) )
-    DO t = MAX(0, l2-l3-m1, l1-l3+m2 ), MIN(l1+l2-l3, l1-m1, l2+m2 )
-      s = s +(-1)**t* EXP( cst -( lnfac(t) +lnfac(l1+l2-l3-t) +lnfac(l3-l2+m1+t) &
+
+    ti = MAX(0, l2-l3-m1, l1-l3+m2 )
+    tf = MIN(l1+l2-l3, l1-m1, l2+m2 )
+!    if(ti>tf) then
+!      symbol_3j = 0._RP
+!      return
+!    end if
+    DO t = ti,tf
+      s = s +(-1)**t *EXP( cst-( lnfac(t) +lnfac(l1+l2-l3-t) +lnfac(l3-l2+m1+t) &
         +lnfac(l3-l1-m2+t) +lnfac(l1-m1-t) +lnfac(l2+m2-t) ) )
     END DO
 

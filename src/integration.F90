@@ -136,7 +136,7 @@ CONTAINS
 
       IF( ALL(ABS(dp2/dp)<=eps) ) EXIT
     ENDDO
-    sw = 2._rp/((1._rp-sx**2)*dp**2)
+    sw = 2._RP/((1._RP-sx**2)*dp**2)
   END SUBROUTINE pd
 
 END SUBMODULE integration
