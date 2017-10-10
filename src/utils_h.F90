@@ -3,7 +3,7 @@ MODULE utils
   IMPLICIT NONE
   ! Common Variables
   !REAL(KIND=RP), PROTECTED :: fac(0:34), lnfac(0:400)
-  REAL(KIND=RP) :: fac(0:34), lnfac(0:400), fak(0:400)
+  REAL(KIND=RP) :: fac(0:34), lnfac(0:400)!, fak(0:400)
   logical :: fac_called = .false.
 
   INTERFACE
