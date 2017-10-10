@@ -755,7 +755,7 @@ CONTAINS
   PURE MODULE SUBROUTINE ricbes( x, lmax, psi, chi, psid, chid, ifail )
     REAL(KIND=RP), INTENT(IN) :: x
     INTEGER, INTENT(IN) :: lmax
-    INTEGER, INTENT(INOUT) :: ifail
+    INTEGER, INTENT(INOUT), OPTIONAL :: ifail
     REAL(KIND=RP), INTENT(OUT) :: psi(0:lmax), chi(0:lmax), psid(0:lmax), chid(0:lmax)
 
     INTEGER, PARAMETER :: limit = 20000 !,maxl = 1001
@@ -773,7 +773,7 @@ CONTAINS
     psid(0) = -chi(0)
     chid(0) = psi(0)
     accur = EPSILON(1._RP)!1.E-17
-    ifail = -1
+    if(present(ifail)) ifail = -1
     IF (x < SQRT(accur) ) GOTO 50
     !!---- TAKES CARE OF NEGATIVE X ... USE REFLECTION FORMULA
     !!---- BEGIN CALCULATION OF CF1 UNLESS LMAX = 0, WHEN SOLUTIONS BELOW
@@ -828,7 +828,7 @@ CONTAINS
       END DO
     ENDIF
     !!---- CALCULATIONS SUCCESSFUL
-    ifail = 0
+    if(present(ifail)) ifail = 0
     RETURN
     !!---------------------------------------------------------------------
     !!---- ERROR TRAPS
