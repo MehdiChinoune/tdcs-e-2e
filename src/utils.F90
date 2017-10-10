@@ -191,7 +191,7 @@ CONTAINS
 
   END SUBROUTINE calculate_U
 
-  MODULE SUBROUTINE INTRPL(X, Y, U, V )
+  MODULE PURE SUBROUTINE INTRPL(X, Y, U, V )
     USE CONSTANTS ,ONLY: RP
     IMPLICIT NONE
     REAL(RP), INTENT(IN) :: X(:), Y(:), U(:)
@@ -241,7 +241,7 @@ CONTAINS
 
     !  PRELIMINARY PROCESSING
     L = SIZE(X)
-    IF(SIZE(Y)/=L) PRINT*,'size(Y)/=size(X)'
+    IF(SIZE(Y)/=L) ERROR STOP 'size(Y)/=size(X)'
     N = SIZE(U)
     IF(SIZE(V)/=N) ERROR STOP 'INTRPL : size(V)/=size(U)'
 

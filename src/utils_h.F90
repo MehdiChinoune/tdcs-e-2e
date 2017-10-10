@@ -38,7 +38,7 @@ MODULE utils
       INTEGER :: state
     END SUBROUTINE calculate_U
 
-    MODULE SUBROUTINE INTRPL(X, Y, U, V )
+    MODULE PURE SUBROUTINE INTRPL(X, Y, U, V )
       REAL(RP), INTENT(IN) :: X(:), Y(:), U(:)
       REAL(RP), INTENT(OUT) :: V(:)
     END SUBROUTINE INTRPL
