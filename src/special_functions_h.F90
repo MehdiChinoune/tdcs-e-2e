@@ -30,7 +30,7 @@ MODULE special_functions
     PURE MODULE SUBROUTINE ricbes( x, lmax, psi, chi, psid, chid, ifail )
       REAL(KIND=RP), INTENT(IN)    :: x
       INTEGER      , INTENT(IN)    :: lmax
-      INTEGER      , INTENT(INOUT) :: ifail
+      INTEGER      , INTENT(INOUT), OPTIONAL :: ifail
       REAL(KIND=RP), INTENT(OUT), DIMENSION(0:lmax)   :: psi, chi, psid, chid
     END SUBROUTINE ricbes
 
