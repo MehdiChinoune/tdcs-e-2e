@@ -862,7 +862,9 @@ CONTAINS
     REAL(RP) :: s, cst
     INTEGER :: t, ti, tf
 
-    !IF( ABS(M1)>L1 .OR. ABS(M2)>L2 .OR. ABS(M3)>L3 .OR. L3>(L1+L2) .OR. L3<ABS(L1-L2) ) RETURN
+    symbol_3j=0._rp
+    IF( ABS(M1)>L1 .OR. ABS(M2)>L2 .OR. ABS(M3)>L3 .OR. L3>(L1+L2) .OR. L3<ABS(L1-L2) &
+      .OR. M1+M2+M3/=0 ) RETURN
 
     s = 0._RP
     cst = 0.5_RP*(lnfac(l1+m1) +lnfac(l1-m1) +lnfac(l2+m2) +lnfac(l2-m2) +lnfac(l3+m3) +lnfac(l3-m3) &
@@ -870,16 +872,13 @@ CONTAINS
 
     ti = MAX(0, l2-l3-m1, l1-l3+m2 )
     tf = MIN(l1+l2-l3, l1-m1, l2+m2 )
-!    if(ti>tf) then
-!      symbol_3j = 0._RP
-!      return
-!    end if
+
     DO t = ti,tf
-      s = s +(-1)**t *EXP( cst-( lnfac(t) +lnfac(l1+l2-l3-t) +lnfac(l3-l2+m1+t) &
+      s = -s +(-1)**tf *EXP( cst-( lnfac(t) +lnfac(l1+l2-l3-t) +lnfac(l3-l2+m1+t) &
         +lnfac(l3-l1-m2+t) +lnfac(l1-m1-t) +lnfac(l2+m2-t) ) )
     END DO
 
-    symbol_3j = (-1)**m3 *s
+    symbol_3j = s *(-1)**(MOD((l3-m3),2))
 
   END FUNCTION symbol_3j
 
