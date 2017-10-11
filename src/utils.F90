@@ -18,11 +18,6 @@ CONTAINS
       lnfac(i) = lnfac(i-1) +LOG( REAL(i,KIND=RP) )
     END DO
 
-!    fak(0) = 0._RP
-!    do i = 1, 400
-!      fak(i) = lnfac(i) +i*log(0.05_RP)
-!    end do
-
     fac_called = .true.
 
   END SUBROUTINE
@@ -102,24 +97,15 @@ CONTAINS
       CALL coul90(rho, eta, 0, lmax, jl, gl, jpl, gpl, 0 )
     ELSE
       CALL ricbes(rho, lmax, jl, gl, jpl, gpl )
-!      CALL coul90(rho, 0._RP, 0, lmax, jl, gl, jpl, gpl, 1, ifail )
-!      jpl = rho*jpl +jl
-!      gpl = rho*gpl +gl
-!      jl = rho*jl
-!      gl = rho*gl
     END IF
 
 
     DO l=0,lmax
-      is = 1
       s(0,l) = 0._RP
-      !s(1,l) = h**(l+1)
-      !if(s(1,l)==0._RP) then
-        DO is=1,1000
-          s(is,l) = (is*h)**(l+1)
-          IF(s(is,l)>0._RP) EXIT
-        END DO
-      !end if
+      DO is=1,1000
+        s(is,l) = (is*h)**(l+1)
+        IF(s(is,l)>0._RP) EXIT
+      END DO
       DO i=is,ns-1
         s(i+1,l) = ( (2._rp+f(i,l)*5._rp*h**2/6.)*s(i,l) - (1._rp-f(i-1,l)*h**2/12.)*s(i-1,l) ) &
           /( 1._rp-f(i+1,l)*h**2/12. )
