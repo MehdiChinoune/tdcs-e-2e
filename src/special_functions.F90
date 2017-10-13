@@ -53,7 +53,7 @@ CONTAINS
     x = REAL(z, KIND=RP)
     y = AIMAG(z)
 
-    !IF ( ABS(x) >= MIN( REAL(MAX,RP), 1.0_RP/eps ) ) THEN! GO TO 70
+    !IF ( ABS(x) >= MIN( REAL(MAX,RP), 1._RP/eps ) ) THEN! GO TO 70
     w= CMPLX(0.,0.,rp)
 
     s2 = 0._RP
@@ -63,7 +63,7 @@ CONTAINS
     h1 = 0._RP
     ! RETURN
     !END IF
-    IF (x < 0.0_RP) THEN
+    IF (x < 0._RP) THEN
       !-----------------------------------------------------------------------
       !            CASE WHEN THE REAL PART OF Z IS NEGATIVE
       !-----------------------------------------------------------------------
@@ -74,7 +74,7 @@ CONTAINS
 
       !     SET  A1 = (1 + E2T)/2  AND  A2 = (1 - E2T)/2
 
-      a1 = half * (1.0_RP + e2t)
+      a1 = half * (1._RP + e2t)
       t2 = t + t
       IF (t2 >= -0.15_RP) THEN
         a2 = -half * rexp(t2)
@@ -84,7 +84,7 @@ CONTAINS
 
       !     COMPUTE SIN(PI*X) AND COS(PI*X)
 
-      !IF (ABS(x) >= MIN(REAL(MAX,RP), 1.0_RP/eps)) GO TO 70
+      !IF (ABS(x) >= MIN(REAL(MAX,RP), 1._RP/eps)) GO TO 70
       k = INT( ABS(x) )
       u = x + k
       k = MOD(k,2)
@@ -99,49 +99,45 @@ CONTAINS
         sn = -sn
         cn = -cn
       END IF
-
       !     SET  H1 + H2*I  TO  PI/SIN(PI*Z)  OR  LOG(PI/SIN(PI*Z))
-
       a1 = sn * a1
       a2 = cn * a2
       a = a1 * a1 + a2 * a2
       IF( a==0._RP ) RETURN!GO TO 70
       IF( mo==0 ) THEN
-
         h1 = a1 / a
         h2 = -a2 / a
         c = pi * et
         h1 = c * h1
         h2 = c * h2
       ELSE
-
         h1 = (alpi+t) - half * LOG(a)
         h2 = -ATAN2(a2,a1)
       END IF
-      IF (AIMAG(z) >= 0.0_RP) THEN
-        x = 1.0_RP - x
+      IF (AIMAG(z) >= 0._RP) THEN
+        x = 1._RP - x
         y = -y
       ELSE
         h2 = -h2
-        x = 1.0_RP - x
+        x = 1._RP - x
       END IF
     END IF
     !-----------------------------------------------------------------------
     !           CASE WHEN THE REAL PART OF Z IS NONNEGATIVE
     !-----------------------------------------------------------------------
-    w1 = 0.0_RP
-    w2 = 0.0_RP
+    w1 = 0._RP
+    w2 = 0._RP
     n = 0
     t = x
     y2 = y * y
     a = t * t + y2
-    cut = 36.0_RP
-    IF (eps > 1.e-8_RP) cut = 16.0_RP
+    cut = 36._RP
+    IF (eps > 1.e-8_RP) cut = 16._RP
     IF (a < cut) THEN
       IF (a == 0._RP) RETURN
       DO WHILE(a < cut)
         n = n + 1
-        t = t + 1.0_RP
+        t = t + 1._RP
         a = t * t + y2
       END DO
       !     LET S1 + S2*I BE THE PRODUCT OF THE TERMS (Z+J)/(Z+N)
@@ -173,7 +169,7 @@ CONTAINS
 
     !     SET  V1 + V2*I = (Z - 0.5) * LOG(Z + N) - Z
 
-    t1 = half * LOG(a) - 1.0_RP
+    t1 = half * LOG(a) - 1._RP
     t2 = ATAN2(y,t)
     u = x - half
     v1 = (u*t1-half) - y * t2
@@ -184,13 +180,13 @@ CONTAINS
     eta = CMPLX(t/a, -y/a, KIND=RP)
     eta2 = eta * eta
     m = 12
-    IF (a >= 289.0_RP) m = 6
+    IF (a >= 289._RP) m = 6
     IF (eps > 1.e-8) m = m / 2
-    SUM = CMPLX(c0(m), 0.0_RP, KIND=RP)
+    SUM = CMPLX(c0(m), 0._RP, KIND=RP)
     l = m
     DO j = 2, m
       l = l - 1
-      SUM = CMPLX(c0(l), 0.0_RP, KIND=RP) + SUM * eta2
+      SUM = CMPLX(c0(l), 0._RP, KIND=RP) + SUM * eta2
     END DO
     SUM = SUM * eta
     a1 = REAL(SUM, KIND=RP)
@@ -200,9 +196,9 @@ CONTAINS
     !-----------------------------------------------------------------------
     w1 = (((a1 + hl2p) - w1) + v1) - n
     w2 = (a2 - w2) + v2
-    IF (REAL(z, KIND=RP) < 0.0_RP) GO TO 50
+    IF (REAL(z, KIND=RP) < 0._RP) GO TO 50
+    !  CASE WHEN THE REAL PART OF Z IS NONNEGATIVE AND MO = 0
     IF (mo == 0) THEN
-      !     CASE WHEN THE REAL PART OF Z IS NONNEGATIVE AND MO = 0
       a = EXP(w1)
       w1 = a * COS(w2)
       w2 = a * SIN(w2)
@@ -274,20 +270,20 @@ CONTAINS
       REAL(KIND=RP) :: e
       !-----------------------
       IF (ABS(x) <= 0.15_RP) THEN
-        fn_val = x * (((p2*x + p1)*x + 1.0_RP) / ( ( ( (q4*x + q3)*x + q2)*x + q1 )*x + 1.0_RP) )
+        fn_val = x * (((p2*x + p1)*x + 1._RP) / ( ( ( (q4*x + q3)*x + q2)*x + q1 )*x + 1._RP) )
         RETURN
       END IF
 
-      IF (x >= 0.0_RP) THEN
+      IF (x >= 0._RP) THEN
         e = EXP(x)
-        fn_val = e * (half + (half - 1.0_RP/e))
+        fn_val = e * (half + (half - 1._RP/e))
         RETURN
       END IF
-      IF (x >= -37.0_RP) THEN
+      IF (x >= -37._RP) THEN
         fn_val = (EXP(x) - half) - half
         RETURN
       END IF
-      fn_val = -1.0_RP
+      fn_val = -1._RP
       RETURN
     END FUNCTION rexp
 
@@ -863,7 +859,7 @@ CONTAINS
     REAL(RP) :: s, cst
     INTEGER :: t, ti, tf
 
-    symbol_3j=0._rp
+    symbol_3j=0._RP
     IF( ABS(M1)>L1 .OR. ABS(M2)>L2 .OR. ABS(M3)>L3 .OR. L3>(L1+L2) .OR. L3<ABS(L1-L2) &
       .OR. M1+M2+M3/=0 ) RETURN
 
