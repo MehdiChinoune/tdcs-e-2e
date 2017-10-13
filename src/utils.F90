@@ -85,7 +85,7 @@ CONTAINS
     REAL(KIND=RP) :: Big = SQRT(HUGE(1._RP)), eps = EPSILON(1._RP)
     REAL(KIND=RP) :: h, rho, eta
     REAL(KIND=RP), DIMENSION(0:lmax) :: jl, gl, jpl, gpl, fn, betap, beta
-    INTEGER :: i, ns, ifail, l, is
+    INTEGER :: i, ns, l, is
 
     ns = SIZE(s,1)-1
     h = rc/ns
@@ -102,14 +102,14 @@ CONTAINS
 
     DO l=0,lmax
       s(0,l) = 0._RP
-      DO is=1,1000
+      DO is=1,ns-1
         s(is,l) = (is*h)**(l+1)
         IF(s(is,l)>0._RP) EXIT
       END DO
       DO i=is,ns-1
-        s(i+1,l) = ( (2._rp+f(i,l)*5._rp*h**2/6.)*s(i,l) - (1._rp-f(i-1,l)*h**2/12.)*s(i-1,l) ) &
-          /( 1._rp-f(i+1,l)*h**2/12. )
-        IF(ABS(s(i+1,l))>Big) s(1:i+1,l) = s(1:i+1,l)*eps
+        s(i+1,l) = ( (2._RP+f(i,l)*5._RP*h**2/6.)*s(i,l) - (1._RP-f(i-1,l)*h**2/12.)*s(i-1,l) ) &
+          /( 1._RP-f(i+1,l)*h**2/12. )
+        IF(ABS(s(i+1,l))>=Big) s(1:i+1,l) = s(1:i+1,l)*eps
       END DO
     END DO
 
@@ -162,13 +162,16 @@ CONTAINS
         IF(lo<0) EXIT
 
         CALL read_orbit(Atom//'_'//orbit_i, nelec, lo, no, n, a, e)
-        IF(orbit_i==Orbit ) nocup = nelec -state
+        nocup = nelec*(2*lo+1)
+        IF(orbit_i==Orbit ) nocup = nocup -state
 
         IF(nocup==0) CYCLE
 
         DO i1 = 1,no
-          DO i2 = 1,no
-            U = U + nocup *a(i1) *a(i2) *Uij( n(i1), e(i1), n(i2), e(i2), r )
+          U = U + nocup *a(i1)**2 *Uij( n(i1), e(i1), n(i1), e(i1), r )
+          if(i1==1) cycle
+          DO i2 = 1,i1-1
+            U = U + 2*nocup *a(i1) *a(i2) *Uij( n(i1), e(i1), n(i2), e(i2), r )
           END DO
         END DO
 
