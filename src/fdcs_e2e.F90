@@ -526,6 +526,137 @@ CONTAINS
 
   END SUBROUTINE fdcs_dwb
 
+  MODULE SUBROUTINE fdcs_bbk(in_unit,out_unit)
+    USE constants ,ONLY: pi, ev, deg
+    USE utils ,ONLY: factorial
+    USE input ,ONLY: read_input, read_orbit
+    USE trigo ,ONLY: spher2cartez
+    INTEGER, INTENT(IN) :: in_unit
+    INTEGER, INTENT(IN) :: out_unit
+
+    CHARACTER(LEN=2) :: Atom, Orbit
+    REAL(KIND=RP) :: Ei, Es, Ee
+    REAL(KIND=RP) :: thetas
+    INTEGER :: step(3)
+    INTEGER :: nelec
+    INTEGER :: lo, no
+    REAL(KIND=RP), ALLOCATABLE :: a(:), e(:)
+    INTEGER, ALLOCATABLE :: n(:)
+
+    REAL(KIND=RP), PARAMETER   :: phie = 0._RP
+    REAL(KIND=RP) :: kim, ksm, kem, km
+    REAL(KIND=RP) :: ki(3), ks(3), ke(3), k(3)
+
+    REAL(KIND=RP) :: factor, sigma
+    COMPLEX(KIND=RP) :: D_term
+    INTEGER :: i, io, mo
+
+    CALL factorial()
+
+    CALL read_input(in_unit,Ei, Es, Ee, thetas, step, Atom, orbit)
+
+    CALL read_orbit(Atom//'_'//Orbit, nelec, lo, no, n, a, e )
+
+    kim = SQRT(2.*Ei*eV)
+    ksm = SQRT(2.*Es*eV)
+    kem = SQRT(2.*Ee*eV)
+
+    CALL spher2cartez( kim, 0._RP, 0._RP, ki )
+    CALL spher2cartez( ksm, thetas*deg, pi, ks )
+    k = ki -ks
+    km = NORM2(k)
+
+    factor = nelec*4._RP*ksm*kem/(kim)
+
+    DO i = step(1), step(2), step(3)
+
+      CALL spher2cartez( kem, i*deg, phie, ke )
+
+      sigma = 0._RP
+      DO mo = 0, lo
+
+        D_term=(0._RP,0._RP)
+        DO io = 1, no
+          D_term = D_term +a(io)*( tpw(n(io), lo, mo, e(io), ke, k ) -tpw(n(io), lo, mo, e(io), ke ) )
+        END DO
+        sigma = sigma + (1+mo)*ABS(D_term/km**2)**2
+      END DO
+
+      sigma=factor*sigma
+
+      PRINT'(1x,i4,1x,es15.8)',i,sigma
+      WRITE( out_unit, '(1x,i4,1x,es15.8)' ) i, sigma
+    END DO
+
+  END SUBROUTINE fdcs_bbk
+
+  COMPLEX(RP) FUNCTION U_bbk(alpha1, alpha2, alpha3, k1, k2, k3, lam1, lam2, lam3, p1, p2)
+    USE constants ,ONLY: pi
+    USE integration ,ONLY: gauleg
+    REAL(RP), INTENT(IN) :: alpha1, alpha2, alpha3
+    REAL(RP), INTENT(IN) :: k1(3), k2(3), k3(3)
+    REAL(RP), INTENT(IN) :: lam1, lam2, lam3
+    REAL(RP), INTENT(IN) :: p1(3), p2(3)
+
+    COMPLEX(RP), PARAMETER :: zi = (0._RP, 1._RP)
+
+    REAL(RP),ALLOCATABLE :: t3(:), y(:), wy(:), s(:), ws(:)
+    REAL(RP) :: p11(3), p22(3), q1(3), q2(3)
+    REAL(RP) :: q1m, q2m
+    REAL(RP) :: k1m, k2m, k3m
+    COMPLEX(RP) :: lam33
+    COMPLEX(RP) :: sig0, sig1, sig2, sig12
+    COMPLEX(RP) :: sig0_a(3), sig1_a(3), sig2_a(3), sig12_a(3)
+
+    INTEGER :: i, j
+    COMPLEX(RP) :: N_t3, Integ
+
+    U_bbk = ( 0._RP, 0._RP)
+
+    k1m = NORM2(k1)
+    k2m = NORM2(k2)
+    k3m = NORM2(k3)
+
+    CALL gauleg(-10._RP, 10._RP, y, wy, 64)
+    t3 = 1._RP /(1._RP+ EXP(y) )
+
+    CALL gauleg(0._RP, 10._RP, s, ws, 64)
+
+    Integ = (0._RP, 0._RP)
+    DO i=1,64
+      p11 = p1 -t3(i)*k3
+      q1 = k1 +p11
+      q1m = NORM2(q1)
+      p22 = p2 -t3(i)*k3
+      q2 = k2 +p22
+      q2m = NORM2(q2)
+      lam33 = CMPLX(lam3, -t3(i)*k3m, RP )
+
+      sig0_a = [ CMPLX( (lam1+lam2)**2+NORM2(q1-q2)**2, 0._RP, RP), 2*(lam2*(lam1**2+lam33**2+q1m**2) &
+        +lam1*(lam2**2+lam33**2+q2m**2) ), ( (lam1+lam33)**2+q1m**2)*((lam2+lam33)**2+q2m**2) ]
+      sig1_a = -2*[ DOT_PRODUCT(q1-q2,k1) +zi*(lam1+lam2)*k1m, &
+        2*lam2*DOT_PRODUCT(q1,k1) +zi*( (lam2**2+lam33**2+q2m**2)*k1m+2*lam1*lam2*k1m ), &
+        ((lam2+lam33)**2 +q2m**2)*( DOT_PRODUCT(q1,k1) +zi*(lam1+lam33)*k1m ) ]
+      sig2_a = -2*[ DOT_PRODUCT(q2-q1,k2) +zi*(lam1+lam2)*k2m, &
+        2*lam1*DOT_PRODUCT(q2,k2) +zi*( (lam1**2+lam33**2+q1m**2)*k2m+2*lam1*lam2*k2m ), &
+        ((lam1+lam33)**2 +q1m**2)*( DOT_PRODUCT(q2,k2) +zi*(lam2+lam33)*k2m ) ]
+      sig12_a = -2*[ CMPLX( k1m*k2m +DOT_PRODUCT(k1,k2), 0._RP, RP), &
+        2*( (lam1*k1m-zi*DOT_PRODUCT(q1,k1))*k2m +(lam2*k2m-zi*DOT_PRODUCT(q2,k2))*k1m), &
+        -2*( DOT_PRODUCT(q1,k1)+zi*(lam1+lam33)*k1m)*( DOT_PRODUCT(q2,k2)+zi*(lam2+lam33)*k2m) ]
+
+      N_t3 = (0._RP, 0._RP)
+      DO j=1,64
+        sig0 = sig0_a(1)*(s(j)+2*lam33)*s(j) +sig0_a(2)*s(j) + sig0_a(3)
+        sig1 = sig1_a(1)*(s(j)+2*lam33)*s(j) +sig1_a(2)*s(j) + sig1_a(3)
+        sig2 = sig2_a(1)*(s(j)+2*lam33)*s(j) +sig2_a(2)*s(j) + sig2_a(3)
+        sig12 = sig12_a(1)*(s(j)+2*lam33)*s(j) +sig12_a(2)*s(j) + sig12_a(3)
+        N_t3 = N_t3 + (sig0/(sig0+sig1) )**(-zi*alpha1) *(sig0/(sig0+sig2) )**(-zi*alpha2) /sig0
+      END DO
+      Integ = Integ + SINH(pi*alpha3)/(2*pi*zi) *(4*pi)**2 *N_t3
+    END DO
+
+
+  END FUNCTION
 
   SUBROUTINE calculate_chi( km, r, U_tmp, z, x, chi, delta )
     USE utils ,ONLY: ode_second_dw, intrpl
