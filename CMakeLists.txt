@@ -19,8 +19,8 @@ elseif ( "${CMAKE_Fortran_COMPILER_ID}" MATCHES "INTEL" )
   
 elseif ( "${CMAKE_Fortran_COMPILER_ID}" MATCHES "FLANG" )
 
-  set( CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS} -Wal -Mallocatable=03 -O3 -cpp" )
-  set( CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS} -Wall -Mstandard -Mallocatable=03 -g -cpp" )
+  set( CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS} -Wall -Mstandard -Mallocatable=03 -O3" )
+  set( CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS} -Wall -Mstandard -Mallocatable=03 -g" )
   
 elseif ( "${CMAKE_Fortran_COMPILER_ID}" MATCHES "PGI" )
 

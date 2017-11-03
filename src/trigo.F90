@@ -6,14 +6,14 @@ MODULE trigo
   IMPLICIT NONE
 
 CONTAINS
-
+#if defined(__FLANG) || defined(__PGI)
   PURE REAL(RP) FUNCTION norm2(a)
     REAL(RP), INTENT(IN) :: a(:)
 
     norm2 = sqrt( sum(abs(a)**2) )
 
   END FUNCTION
-
+#endif
   PURE SUBROUTINE spher2cartez( km, theta, phi, k )
     REAL(KIND=RP), INTENT(IN)  :: km, phi, theta
     REAL(KIND=RP), INTENT(OUT) :: k(3)
