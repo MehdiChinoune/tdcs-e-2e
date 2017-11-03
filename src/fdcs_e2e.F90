@@ -152,6 +152,7 @@ CONTAINS
   END SUBROUTINE fdcs_fba_cw
 
   MODULE SUBROUTINE fdcs_fba_dw(in_unit,out_unit)
+    USE ieee_arithmetic ,only: ieee_is_nan
     USE constants ,ONLY: pi, deg, ev
     USE special_functions ,ONLY: cgamma, spherical_harmonic, coul90, ricbes, symbol_3j
     USE utils ,ONLY: norm_fac, y1y2y3, factorial, calculate_U, ode_second_dw
@@ -181,7 +182,7 @@ CONTAINS
     REAL(KIND=RP) :: etae, rc, h
     COMPLEX(KIND=RP) :: tmp_z
     COMPLEX(KIND=RP), PARAMETER :: zi = (0._RP, 1._RP)
-    INTEGER :: le, l, me, z = 1
+    INTEGER :: le, l, me, ze
 
     REAL(KIND=RP) :: factor, sigma
     COMPLEX(KIND=RP) :: term, term0
@@ -196,6 +197,7 @@ CONTAINS
     kim = SQRT(2.*Ei*eV)
     ksm = SQRT(2.*Es*eV)
     kem = SQRT(2.*Ee*eV)
+    ze = 1
 
     CALL spher2cartez( kim, 0._RP, 0._RP, ki )
     CALL spher2cartez( ksm, thetas*deg, pi, ks )
@@ -208,7 +210,7 @@ CONTAINS
     rc = 10._RP
     h = rc/np
 
-    etae = -z/kem
+    etae = -ze/kem
 
     x = [(i*h, i = 0, np) ]
     ALLOCATE( chi_b(0:np,0:lemax), chi_0a(0:np,0:lmax) )
@@ -222,7 +224,7 @@ CONTAINS
       END BLOCK
     END DO
 
-    WHERE(chi_0a/=chi_0a)
+    WHERE(ieee_is_nan(chi_0a) )
       chi_0a = 0._RP
     END WHERE
 
@@ -232,18 +234,18 @@ CONTAINS
 
       CALL calculate_U(Atom, Orbit, x, U_tmp, 1 )
 
-      IF(z/=0) THEN
+      IF(ze/=0) THEN
         U(0,:) = -HUGE(1._RP)
       ELSE
         U(0,:) = -kem**2
       END IF
 
-      U(1:np,lemax) = -kem**2 -2.*( z +U_tmp(1:np) ) /x(1:np)
+      U(1:np,lemax) = -kem**2 -2.*( ze +U_tmp(1:np) ) /x(1:np)
       DO l = 0,lemax
         U(1:np,l) = l*(l+1)/x(1:np)**2 +U(1:np,lemax)
       END DO
 
-      CALL ode_second_dw(kem, lemax, rc, z, U, chi_b, delta)
+      CALL ode_second_dw(kem, lemax, rc, ze, U, chi_b, delta)
 
     END BLOCK
 
