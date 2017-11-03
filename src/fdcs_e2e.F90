@@ -323,7 +323,7 @@ CONTAINS
     CHARACTER(LEN=2) :: Atom, Orbit
     REAL(KIND=RP) :: Ei, Es, Ee
     REAL(KIND=RP) :: thetas
-    INTEGER :: step(3), exchange, PCI = 2
+    INTEGER :: step(3), exchange, PCI = 0
     INTEGER       :: nelec
     INTEGER       :: lo, no
     REAL(KIND=RP), ALLOCATABLE :: a(:), e(:)

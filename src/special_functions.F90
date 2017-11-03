@@ -328,7 +328,7 @@ CONTAINS
       *SQRT( (2.*l+1._RP)/(4.*pi) ) *CMPLX( COS(m*phi), SIN(m*phi), KIND=RP ) &
       *assoc_legendre(l, ma, COS(theta) )
     IF( mod(m,2)>0 ) spherical_harmonic = -spherical_harmonic
-    IF( abs(mod(theta,2*pi))>pi .and. mod(m,2)/=0 ) spherical_harmonic = -spherical_harmonic
+    IF( modulo(theta,2*pi)>pi .and. mod(m,2)/=0 ) spherical_harmonic = -spherical_harmonic
 
   END FUNCTION spherical_harmonic
 
