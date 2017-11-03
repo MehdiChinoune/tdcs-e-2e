@@ -8,7 +8,7 @@
 MODULE constants
   USE iso_fortran_env , ONLY : SP => REAL32 , DP => REAL64 ,QP => REAL128
   IMPLICIT NONE
-  INTEGER ,PARAMETER :: RP = DP ! This my chosen precision
+  INTEGER ,PARAMETER :: RP = SP ! This my chosen precision
   REAL(KIND=RP) ,PARAMETER :: pi = 3.141592653589793238_RP , deg = pi/180._RP , eV = 1._RP/27.21165_RP
   REAL(KIND=DP) ,PARAMETER :: fac(0:170) = [ 1._DP ,1._DP ,2._DP ,6._DP ,24._DP ,120._DP &
     ,720._DP ,5040._DP ,40320._DP ,362880._DP ,3628800._DP ,39916800._DP ,479001600._DP &

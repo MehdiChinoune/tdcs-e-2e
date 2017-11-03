@@ -3,45 +3,45 @@ PROGRAM main
   USE fdcs_e2e         , ONLY : fdcs_fba_dw, fdcs_fba_cw, fdcs_fba_pw, fdcs_dwb
 
   IMPLICIT NONE
-  integer(KIND=selected_int_kind(6)) :: start, finish
+  INTEGER(KIND=SELECTED_INT_KIND(6)) :: start, finish
   REAL(KIND=RP) :: rate
-  integer :: in_unit, out_unit, narg
-  character(len=4) :: arg1
+  INTEGER :: in_unit, out_unit, narg
+  CHARACTER(LEN=4) :: arg1
 
-  open( newunit=in_unit, file='input.dat', status='old', action='read')
-  open( newunit=out_unit, file='output.dat', status='replace', action='write')
+  OPEN( newunit=in_unit, FILE='input.dat', STATUS='old', ACTION='read')
+  OPEN( newunit=out_unit, FILE='output.dat', STATUS='replace', ACTION='write')
 
-  call SYSTEM_CLOCK(start,rate)
+  CALL SYSTEM_CLOCK(start,rate)
 
   narg = COMMAND_ARGUMENT_COUNT()
-  if(narg>0) then
+  IF(narg>0) THEN
 
-    call get_command_argument(1, arg1 )
+    CALL GET_COMMAND_ARGUMENT(1, arg1 )
 
-    if(trim(arg1)=='dw') then
-      call fdcs_fba_dw(in_unit,out_unit)
-    elseif(trim(arg1)=='cw') then
-      call fdcs_fba_cw(in_unit,out_unit)
-    elseif(trim(arg1)=='pw') then
-      call fdcs_fba_pw(in_unit,out_unit)
-    end if
-  else
-    block
+    IF(TRIM(arg1)=='dw') THEN
+      CALL fdcs_fba_dw(in_unit,out_unit)
+    ELSEIF(TRIM(arg1)=='cw') THEN
+      CALL fdcs_fba_cw(in_unit,out_unit)
+    ELSEIF(TRIM(arg1)=='pw') THEN
+      CALL fdcs_fba_pw(in_unit,out_unit)
+    END IF
+  ELSE
+    BLOCK
 
+      !call fdcs_fba_pw(in_unit,out_unit)
+      !rewind in_unit
       !call fdcs_fba_cw(in_unit,out_unit)
       !rewind in_unit
-      !call fdcs_fba_dw(in_unit,out_unit)
-      !rewind in_unit
-      call fdcs_dwb(in_unit,out_unit)
+      CALL fdcs_dwb(in_unit,out_unit)
 
-    end block
-  endif
+    END BLOCK
+  ENDIF
 
-  call SYSTEM_CLOCK(finish)
+  CALL SYSTEM_CLOCK(finish)
 
-  close(in_unit)
-  close(out_unit)
+  CLOSE(in_unit)
+  CLOSE(out_unit)
 
-  print*,(finish-start)/rate
+  PRINT*,(finish-start)/rate
 
 END PROGRAM main
