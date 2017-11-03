@@ -306,7 +306,7 @@ CONTAINS
 
   MODULE SUBROUTINE fdcs_dwb(in_unit,out_unit)
     USE constants ,ONLY: ev, deg, pi
-    USE special_functions ,ONLY: symbol_3j, spherical_harmonic, cgamma
+    USE special_functions ,ONLY: spherical_harmonic, cgamma
     USE utils ,ONLY: norm_fac, factorial
     USE input ,ONLY: read_input, read_orbit
     USE trigo ,ONLY: spher2cartez
@@ -316,7 +316,7 @@ CONTAINS
     CHARACTER(LEN=2) :: Atom, Orbit
     REAL(KIND=RP) :: Ei, Es, Ee
     REAL(KIND=RP) :: thetas
-    INTEGER :: step(3), exchange
+    INTEGER :: step(3), exchange, PCI = 2
     INTEGER       :: nelec
     INTEGER       :: lo, no
     REAL(KIND=RP), ALLOCATABLE :: a(:), e(:)
@@ -330,7 +330,6 @@ CONTAINS
     INTEGER, PARAMETER :: limax = 95
     REAL(KIND=RP), ALLOCATABLE, TARGET :: chi_0(:,:)
     REAL(KIND=RP), TARGET :: delta_li(0:limax)
-    INTEGER :: li
 
     INTEGER, PARAMETER :: lsmax = 95
     REAL(KIND=RP), ALLOCATABLE, TARGET :: chi_a(:,:)
@@ -350,11 +349,10 @@ CONTAINS
     REAL(KIND=RP) :: rc, h
     COMPLEX(KIND=RP), ALLOCATABLE :: integral(:,:,:,:), integ(:,:), integralx(:,:,:,:)
     COMPLEX(KIND=RP) :: tmp_z
-    COMPLEX(KIND=RP), PARAMETER :: zi = (0._RP, 1._RP)
 
     REAL(KIND=RP) :: factor, sigma
     COMPLEX(KIND=RP) :: termd, termx
-    INTEGER :: i, l, io, mo = 0, nmax, nmin
+    INTEGER :: i, io, mo = 0
 
     REAL(RP), ALLOCATABLE :: x(:), w(:)
 
@@ -390,66 +388,24 @@ CONTAINS
 
     END BLOCK
 
-    nmin = count( x<25._RP )
     ALLOCATE(chi_0(nx,0:limax), chi_a(nx,0:lsmax), chi_b(nx,0:lemax) )
 
     h = rc/nr
     ALLOCATE( r(0:nr) )
-    r = h *[(i,i=0,nr)]
+    r = [(i*h,i=0,nr)]
 
     BLOCK
-      USE utils ,ONLY: calculate_U, ode_second_dw, intrpl
-      REAL(KIND=RP), POINTER :: delta(:)
-      REAL(RP), ALLOCATABLE :: U(:,:), chi_tmp(:,:), U_tmp(:)
-      INTEGER :: l, z(3), lmax(3)
-      REAL(rp) :: kmi(3)
-      REAL(rp), POINTER :: chi(:,:)
+      USE utils ,ONLY: calculate_U
+      REAL(RP), ALLOCATABLE :: U_tmp(:)
 
-      z = [0, zs, ze]
-      lmax = [limax,lsmax,lemax]
-      kmi = [kim, ksm, kem]
+      ALLOCATE( U_tmp(0:nr) )
 
-      ALLOCATE( U(0:nr,0:limax), chi_tmp(0:nr,0:limax), U_tmp(0:nr) )
-      U_tmp = 0._RP
+      CALL calculate_U(Atom, Orbit, r, U_tmp, 0)
+      CALL calculate_chi( kim, r, U_tmp, 0, x, chi_0, delta_li )
 
-      DO i =1,3
-
-        IF(z(i)==0) THEN
-          CALL calculate_U(Atom, Orbit, r, U_tmp, 0)
-        ELSE
-          CALL calculate_U(Atom, Orbit, r, U_tmp, 1)
-        END IF
-
-        SELECT CASE(i)
-          CASE(1)
-            chi => chi_0
-            delta => delta_li
-          CASE(2)
-            chi => chi_a
-            delta => delta_ls
-          CASE(3)
-            chi => chi_b
-            delta => delta_le
-        END SELECT
-
-        IF(z(i)==0) THEN
-          U(0,0:lmax(i)) = -kmi(i)**2
-        ELSE
-          U(0,0:lmax(i)) = -HUGE(1._RP)
-        END IF
-
-        U(1:nr,lmax(i)) = -kmi(i)**2 -2.*(z(i)*1._RP +U_tmp(1:nr) )/r(1:nr)
-        DO l = 0,lmax(i)
-          U(1:nr,l) = l*(l+1)/r(1:nr)**2 +U(1:nr,lmax(i))
-        END DO
-
-        CALL ode_second_dw(kmi(i), lmax(i), rc, z(i), U(:,0:lmax(i)), chi_tmp(:,0:lmax(i)), delta )
-
-        DO CONCURRENT(l=0:lmax(i))
-          CALL INTRPL(r, chi_tmp(:,l), x, chi(:,l))
-        END DO
-
-      END DO
+      CALL calculate_U(Atom, Orbit, r, U_tmp, 1)
+      CALL calculate_chi( ksm, r, U_tmp, zs, x, chi_a, delta_ls )
+      CALL calculate_chi( kem, r, U_tmp, ze, x, chi_b, delta_le )
 
     END BLOCK
 
@@ -462,141 +418,25 @@ CONTAINS
     chi_b(:,lo) = chi_b(:,lo) -wf*sum( w*chi_b(:,lo)*wf )
     chi_a(:,lo) = chi_a(:,lo) -wf*sum( w*chi_a(:,lo)*wf )
 
-    DO le = 0,lemax
-      tmp_z = cgamma( CMPLX(le+1._RP, etae, KIND=RP), 1 )
-      tmp_z = exp( zi*aimag(tmp_z) )
-      sigma_le(le) = ATAN2( AIMAG(tmp_z), REAL(tmp_z,KIND=RP) )
+    tmp_z = cgamma( CMPLX( 1._RP, etae, RP), 0 )
+    sigma_le(0) = ATAN2( AIMAG(tmp_z), REAL(tmp_z, RP) )
+    DO le = 0,lemax-1
+      sigma_le(le+1) = sigma_le(le) + atan2( etae, le+1._RP )
     END DO
-    if(ze==0) sigma_le = 0._RP
+    sigma_le = sigma_le +delta_le
 
-    DO ls = 0,lsmax
-      tmp_z = cgamma( CMPLX(ls+1._RP, etas, KIND=RP), 1 )
-      tmp_z = exp( zi*aimag(tmp_z) )
-      sigma_ls(ls) = ATAN2( AIMAG(tmp_z), REAL(tmp_z,KIND=RP) )
+    tmp_z = cgamma( CMPLX( 1._RP, etas, RP), 0 )
+    sigma_ls(0) = ATAN2( AIMAG(tmp_z), REAL(tmp_z, RP) )
+    DO ls = 0,lsmax-1
+      sigma_ls(ls+1) = sigma_ls(ls) + atan2( etas, ls+1._RP )
     END DO
-    if(zs==0) sigma_ls = 0._RP
+    sigma_ls = sigma_ls +delta_ls
 
-    ALLOCATE( integral(0:lsmax, 0:lemax, -lemax:lemax, 0:lo) )
     ALLOCATE( integ( 0:2*MAX(limax,lsmax,lemax),  0:limax ) )
-    integral = 0._RP
 
-    DO ls=0,lsmax; DO le=0,lemax
-      integ = 0._RP
-      DO li=0,limax
-        DO l=MAX(ABS(ls-li), ABS(le-lo)), MIN(ls+li, le+lo)
-          IF( MOD(ls+l+li,2)/=0 .OR. MOD(le+l+lo,2)/=0 ) CYCLE
-          BLOCK
-            REAL(RP), PARAMETER :: VSmall = TINY(1._RP), VBig = HUGE(1._RP)
-            REAL(RP) :: Ti, Si
-            REAL(RP) :: integ0
-            REAL(RP) :: xil, xil1
-            INTEGER :: is
-
-            IF(l<=5) nmax = nmin +(5-l)*(nx-nmin)/5
-
-            Ti = 0._RP
-            integ0 = 0._RP
-            Si = 0._RP
-
-            is = 1
-            xil = x(is)**l
-            xil1 = xil*x(is)
-            IF( xil1>VSmall ) THEN
-              Ti = Ti + w(is)*chi_a(is,ls)*chi_0(is,li)*xil
-              integ0 = integ0 + w(is)*Ti*wf(is)*chi_b(is,le)/xil1
-            END IF
-
-            DO i=is+1,nmax
-              Si = Si + w(i-1)*chi_b(i-1,le)*wf(i-1)*xil
-              xil = x(i)**l
-              xil1 = xil*x(i)
-              IF( xil1<VSmall ) CYCLE
-              IF( xil1>=VBig ) EXIT
-              Ti = Ti + w(i)*chi_a(i,ls)*chi_0(i,li)*xil
-              integ0 = integ0 + ( Ti*w(i)*wf(i)*chi_b(i,le) +Si*w(i)*chi_a(i,ls)*chi_0(i,li) )/xil1
-            END DO
-
-            integ(l, li ) = integ(l, li ) + integ0 *symbol_3j(ls, l, li, 0, 0, 0 ) &
-              *symbol_3j(lo, l, le, 0, 0, 0 ) *(2*li+1) *zi**li *exp( -zi*delta_li(li) )
-
-          END BLOCK
-        END DO
-      END DO
-
-      DO mo=0,lo; DO me=-le,le
-        IF( ABS(mo+me)>ls ) CYCLE
-        DO li=0,limax
-          DO l=MAX(ABS(ls-li), ABS(le-lo)), MIN(ls+li, le+lo)
-            IF( MOD(ls+l+li,2)/=0 .OR. MOD(le+l+lo,2)/=0 ) CYCLE
-            integral(ls,le,me,mo) = integral(ls,le,me,mo) + integ(l, li ) &
-              *symbol_3j(ls, l, li, mo+me, -me-mo, 0 ) *symbol_3j(lo, l, le, mo, -me-mo, me)
-          END DO
-        END DO
-      END DO; END DO
-      integral(ls,le,:,:) = integral(ls,le,:,:)*zi**(-ls-le) *SQRT((2*lo+1)*(2*ls+1)*(2*le+1._RP) )&
-        *EXP( zi*( sigma_le(le)+delta_le(le)+sigma_ls(ls)+delta_ls(ls)) )
-    END DO; END DO
-
+    CALL dwb_integrals(chi_0, chi_a, chi_b, delta_li, sigma_ls, sigma_le, wf, x, w, lo, integral)
     IF(exchange==1) THEN
-      ALLOCATE( integralx(0:lsmax, 0:lemax, -lsmax:lsmax,0:lo) )
-      integralx = 0._RP
-      DO ls=0,lemax; DO le=0,lsmax
-        integ = 0._RP
-        DO li = 0,limax
-          DO l = MAX(ABS(ls-li), ABS(le-lo)), MIN(ls+li, le+lo)
-            IF( MOD(ls+l+li,2)/=0 .OR. MOD(le+l+lo,2)/=0 ) CYCLE
-            BLOCK
-              REAL(RP), PARAMETER :: VSmall = TINY(1._RP), VBig = HUGE(1._RP)
-              REAL(RP) :: Ti, Si
-              REAL(RP) :: integ0
-              REAL(RP) :: xil, xil1
-              INTEGER :: nmax, is
-
-              IF(l<=5) nmax = nx -l*296
-
-              Ti = 0._RP
-              integ0 = 0._RP
-              Si = 0._RP
-
-              is = 1
-              xil = x(is)**l
-              xil1 = xil*x(is)
-
-              IF( xil1>VSmall ) THEN
-                Ti = w(is)*chi_b(is,ls)*chi_0(is,li)*xil
-                integ0 = (Ti*w(is)*wf(is)*chi_a(is,le))/xil1
-              END IF
-
-              DO i=is+1,nmax
-                Si = Si + w(i-1)*chi_a(i-1,le)*wf(i-1)*xil
-                xil = x(i)**l
-                xil1 = xil*x(i)
-                IF( xil1<VSmall ) CYCLE
-                IF( xil1>=VBig ) EXIT
-                Ti = Ti + w(i)*chi_b(i,ls)*chi_0(i,li)*xil
-                integ0 = integ0 + w(i)*( Ti*wf(i)*chi_a(i,le) +Si*chi_b(i,ls)*chi_0(i,li) )/xil1
-              END DO
-
-              integ(l, li) = integ(l, li) + integ0 *symbol_3j(ls, l, li, 0, 0, 0 ) &
-                *symbol_3j(lo, l, le, 0, 0, 0 ) *(2*li+1) *zi**li *exp( -zi*delta_li(li) )
-
-            END BLOCK
-          END DO
-        END DO
-
-        DO mo=0,lo; DO me = -le,le
-          IF( ABS(mo+me)>ls ) CYCLE
-          DO li=0,limax
-            DO l=MAX(ABS(ls-li), ABS(le-lo)),MIN(ls+li, le+lo)
-              IF( MOD(ls+l+li,2)/=0 .or. MOD(le+l+lo,2)/=0 ) cycle
-              integralx(le, ls, me, mo) = integralx(le, ls, me, mo) + integ(l, li) &
-                *symbol_3j(ls, l, li, me+mo, -mo-me, 0 ) *symbol_3j(lo, l, le, mo, -me-mo, me)
-            END DO
-          END DO
-        END DO; END DO
-        integralx(le, ls, :, :) = integralx(le, ls, :, :) *SQRT((2*lo+1)*(2*ls+1)*(2*le+1._RP) ) &
-          *zi**(-ls-le) *EXP( zi*(sigma_le(ls)+delta_le(ls)+sigma_ls(le)+delta_ls(le) ) )
-      END DO; END DO
+      CALL dwb_integrals(chi_0, chi_b, chi_a, delta_li, sigma_le, sigma_ls, wf, x, w, lo, integralx)
     END IF
 
     ylms = (0._RP, 0._RP)
@@ -643,7 +483,7 @@ CONTAINS
             DO le=0,lsmax
               DO me=-le,le
                 IF( ABS(me+mo)>ls ) CYCLE
-                termx = termx + ylms(le,me) *ylme(ls,mo+me,i/step(3)) *integralx(le, ls, me, mo )
+                termx = termx + ylms(le,me) *ylme(ls,mo+me,i/step(3)) *integralx(ls, le, me, mo )
               END DO
             END DO
           END DO
@@ -653,12 +493,149 @@ CONTAINS
       END DO
 
       sigma = factor*sigma/(2*lo+1)
+      IF(PCI>=1) THEN
+        BLOCK
+          USE special_functions ,ONLY: conhyp_opt
+          !          USE conhyp_m ,ONLY: conhyp
+          REAL(RP) :: kesm, ke(3), ks(3)
+          REAL(RP) :: r12_av, Et
+          CALL spher2cartez(kem, thetas, pi, ks)
+          CALL spher2cartez(ksm, i*deg, phie, ke)
+          kesm = NORM2(ke-ks)/2._RP
+          sigma = pi/(kesm*(EXP(pi/kesm) -1._RP ) ) *sigma
+          IF(PCI==2) THEN
+            Et = (Es +Ee)*eV
+            r12_av = pi**2/(16.*Et) *( 1._RP +(0.627/pi)*SQRT(Et)*LOG(Et) )**2
+            sigma = ABS( conhyp_opt( 0.5/kesm, -2.*kesm*r12_av  ) )**2 *sigma
+            !sigma = ABS( conhyp( CMPLX(0._RP, 0.5/kesm, RP), (1._RP,0._RP), &
+            !  CMPLX(0._RP, -2.*kesm*r12_av, RP ), 0, 10) )**2 *sigma
+          END IF
+        END BLOCK
+      END IF
 
-      PRINT'(1x,i4,1x,es15.8,2x,f6.2)', i, sigma
+      PRINT'(1x,i4,1x,es15.8)', i, sigma
       WRITE(out_unit, '(1x,i4,1x,es15.8)' ) i, sigma
     END DO
 
   END SUBROUTINE fdcs_dwb
+
+
+  SUBROUTINE calculate_chi( km, r, U_tmp, z, x, chi, delta )
+    USE utils ,ONLY: ode_second_dw, intrpl
+    REAL(RP), INTENT(IN) :: U_tmp(0:), r(0:), x(:), km
+    INTEGER :: z
+    REAL(KIND=RP), INTENT(OUT) :: chi(:,0:), delta(0:)
+
+    REAL(RP), ALLOCATABLE :: U(:,:), chi_tmp(:,:)
+    REAL(RP) :: rc
+    INTEGER :: l, lmax, nr
+
+    lmax = size(delta) -1
+    nr = size(r) -1
+
+    rc = r(nr)
+
+    ALLOCATE( U(0:nr,0:lmax), chi_tmp(0:nr,0:lmax) )
+
+    IF(z==0) THEN
+      U(0,0:lmax) = -km**2
+    ELSE
+      U(0,0:lmax) = -HUGE(1._RP)
+    END IF
+
+    U(1:nr,lmax) = -km**2 -2.*( z*1._RP +U_tmp(1:nr) )/r(1:nr)
+    DO l = 0,lmax
+      U(1:nr,l) = l*(l+1)/r(1:nr)**2 +U(1:nr,lmax)
+    END DO
+
+    CALL ode_second_dw(km, lmax, rc, z, U, chi_tmp, delta )
+
+    DO CONCURRENT(l=0:lmax)
+      CALL INTRPL(r, chi_tmp(:,l), x, chi(:,l))
+    END DO
+
+  END SUBROUTINE calculate_chi
+
+  SUBROUTINE dwb_integrals( chi_0, chi_a, chi_b, sig_0, sig_a, sig_b, wf, x, w, lo, integral )
+    USE special_functions ,ONLY: symbol_3j
+    REAL(RP), INTENT(IN) :: chi_0(:,0:), chi_a(:,0:), chi_b(:,0:), wf(:)
+    REAL(RP), INTENT(IN) :: x(:), w(:)
+    REAL(RP), INTENT(IN) :: sig_0(0:), sig_a(0:), sig_b(0:)
+    INTEGER, INTENT(IN) :: lo
+    COMPLEX(RP), ALLOCATABLE, INTENT(OUT) :: integral(:,:,:,:)
+
+    REAL(RP), PARAMETER :: VSmall = TINY(1._RP), VBig = HUGE(1._RP)
+    COMPLEX(RP), PARAMETER :: zi = (0._RP, 1._RP)
+    INTEGER :: limax, lsmax, lemax, nx, nmin
+    COMPLEX(RP), ALLOCATABLE :: integ(:,:)
+    INTEGER :: li, ls, le, l, me, mo
+    ! Block variables
+    REAL(RP) :: Ti, Si
+    REAL(RP) :: integ0
+    REAL(RP) :: xil, xil1
+    INTEGER :: i, is, nmax
+
+    nx = size(x)
+    limax = size(sig_0) -1
+    lsmax = size(sig_a) -1
+    lemax = size(sig_b) -1
+
+    nmin = count(x<=25._RP)
+
+    ALLOCATE( integral(0:lsmax, 0:lemax, -lemax:lemax, 0:lo) )
+    ALLOCATE( integ( 0:MIN(limax+lsmax,lemax+lo),  0:limax ) )
+    integral = 0._RP
+!$OMP PARALLEL DO COLLAPSE(2) PRIVATE(INTEG,LI,L,ME,MO ,ti,si,integ0,xil,xil1,i,is,nmax) NUM_THREADS(4)
+    DO ls=0,lsmax; DO le=0,lemax
+      integ = 0._RP
+      DO li=0,limax
+        DO l=MAX(ABS(ls-li), ABS(le-lo)), MIN(ls+li, le+lo)
+          IF( MOD(ls+l+li,2)/=0 .OR. MOD(le+l+lo,2)/=0 ) CYCLE
+
+          IF(l<=5) nmax = nmin +(5-l)*(nx-nmin)/5
+
+          Ti = 0._RP
+          integ0 = 0._RP
+          Si = 0._RP
+
+          is = 1
+          xil = x(is)**l
+          xil1 = xil*x(is)
+          IF( xil1>VSmall ) THEN
+            Ti = Ti + w(is)*chi_a(is,ls)*chi_0(is,li)*xil
+            integ0 = integ0 + w(is)*Ti*wf(is)*chi_b(is,le)/xil1
+          END IF
+
+          DO i=is+1,nmax
+            Si = Si + w(i-1)*chi_b(i-1,le)*wf(i-1)*xil
+            xil = x(i)**l
+            IF( xil>=VBig ) EXIT
+            Ti = Ti + w(i)*chi_a(i,ls)*chi_0(i,li)*xil
+            xil1 = xil*x(i)
+            IF( xil1<VSmall ) CYCLE
+            integ0 = integ0 + ( Ti*w(i)*wf(i)*chi_b(i,le) +Si*w(i)*chi_a(i,ls)*chi_0(i,li) )/xil1
+          END DO
+
+          integ(l, li ) = integ(l, li ) + integ0 *symbol_3j(ls, l, li, 0, 0, 0 ) &
+            *symbol_3j(lo, l, le, 0, 0, 0 ) *(2*li+1) *zi**li *exp( -zi*sig_0(li) )
+        END DO
+      END DO
+
+      DO mo=0,lo; DO me=-le,le
+        IF( ABS(mo+me)>ls ) CYCLE
+        DO li=0,limax
+          DO l=MAX(ABS(ls-li), ABS(le-lo)), MIN(ls+li, le+lo)
+            IF( MOD(ls+l+li,2)/=0 .OR. MOD(le+l+lo,2)/=0 ) CYCLE
+            integral(ls,le,me,mo) = integral(ls,le,me,mo) + integ(l, li ) &
+              *symbol_3j(ls, l, li, mo+me, -me-mo, 0 ) *symbol_3j(lo, l, le, mo, -me-mo, me)
+          END DO
+        END DO
+      END DO; END DO
+      integral(ls,le,:,:) = integral(ls,le,:,:)*zi**(-ls-le) *SQRT((2*lo+1)*(2*ls+1)*(2*le+1._RP) ) &
+        *EXP( zi*( sig_b(le) +sig_a(ls) ) )
+    END DO; END DO
+
+  END SUBROUTINE dwb_integrals
 
   PURE COMPLEX(KIND=RP) FUNCTION tpw( n, l, m, e, ke, k)
     USE constants ,ONLY: pi
