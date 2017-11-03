@@ -99,13 +99,13 @@ CONTAINS
     REAL(KIND=RP) :: Ei, Es, Ee
     REAL(KIND=RP) :: thetas
     INTEGER :: step(3), exchange
-    INTEGER       :: nelec
+    INTEGER       :: nelec, ze, zs
     INTEGER       :: lo, no
     REAL(KIND=RP), ALLOCATABLE :: a(:), e(:)
     INTEGER, ALLOCATABLE :: n(:)
 
     REAL(KIND=RP), PARAMETER   :: phie = 0._RP
-    REAL(KIND=RP) :: kim, ksm, kem, km
+    REAL(KIND=RP) :: kim, ksm, kem, km, alpha
     REAL(KIND=RP) :: ki(3), ks(3), ke(3), k(3)
 
     REAL(KIND=RP) :: factor, sigma
@@ -120,7 +120,10 @@ CONTAINS
 
     kim = SQRT(2.*Ei*eV)
     ksm = SQRT(2.*Es*eV)
+    zs = -1 ! Charge of the projectile
     kem = SQRT(2.*Ee*eV)
+    ze = -1 ! Charge of ejected particle
+    alpha = -ze/kem
 
     CALL spher2cartez( kim, 0._RP, 0._RP, ki )
     CALL spher2cartez( ksm, thetas*deg, pi, ks )
@@ -128,7 +131,8 @@ CONTAINS
     km = NORM2(k)
 
     factor = nelec*4._RP*ksm*kem / (kim*km**4)
-    factor = factor *2.*pi/(kem*(1.-EXP(-2.*pi/kem))) ! \abs{ \exp{\pi\alpha/2} *\Gamma(1-i\alpha) }^2
+    !\abs{ \exp{\pi\alpha/2} *\Gamma(1-i\alpha) }^2
+    if(ze/=0) factor = factor *2.*pi*alpha/(1._RP-EXP(-2.*pi*alpha))
 
     DO i = step(1),step(2),step(3)
 
@@ -138,7 +142,8 @@ CONTAINS
       DO mo = 0, lo
         term=(0._RP,0._RP)
         DO io = 1, no
-          term = term +a(io) *( tcw(n(io), lo, mo, e(io), ke, k ) -tcw0(n(io), lo, mo, e(io), ke ) )
+          term = term +a(io) *( tcw(n(io), lo, mo, e(io), alpha, ke, k ) &
+            +zs*tcw0(n(io), lo, mo, e(io), alpha, ke ) )
         END DO
         sigma = sigma +(mo+1)*ABS(term)**2
       END DO
@@ -673,11 +678,11 @@ CONTAINS
 
   END FUNCTION tpw
 
-  PURE COMPLEX(KIND=RP) FUNCTION tcw( n, l, m, e, ke, k)
+  PURE COMPLEX(KIND=RP) FUNCTION tcw( n, l, m, e, alpha, ke, k)
     USE constants ,ONLY: pi
     USE utils ,ONLY: fac, norm_fac
     INTEGER      , INTENT(IN) :: n, l, m
-    REAL(KIND=RP), INTENT(IN) :: e, ke(3), k(3)
+    REAL(KIND=RP), INTENT(IN) :: e, alpha, ke(3), k(3)
 
     REAL(KIND=RP)    :: kem, km, alpha, a, aj1, ke_t(3)
     COMPLEX(KIND=RP) :: w, kec, ekec, gam(0:n), f21(0:n,0:n), alphac, w1m, kep, kp
@@ -698,7 +703,6 @@ CONTAINS
       kep = CMPLX( ke_t(1), -ke_t(2), KIND=RP )
     END IF
 
-    alpha  = 1._RP / kem
     alphac = CMPLX( 0._RP, alpha, KIND=RP) ! i*\alpha
     kec    = CMPLX( 0._RP, kem  , KIND=RP) ! i*ke
     ekec   = CMPLX( e    , -kem , KIND=RP) ! (\epsilon-ike)
@@ -759,18 +763,18 @@ CONTAINS
 
     tcw = tcw *norm_fac(e, n ) *SQRT(l+0.5_RP) *fac(n-l) *SQRT( fac(l-ma)/fac(l+ma) ) *(-1)**ma &
       *fac(ma) *(zi*k(3)/ekec)**l *(2.*ekec/a)**n/a *(kp/k(3))**ma *w1m**(-alphac) /pi
-      !*powcc(w1m,-alpha)/pi
+    !*powcc(w1m,-alpha)/pi
     IF( MOD(m,2)<0 ) tcw = -tcw
 
   END FUNCTION tcw
 
-  PURE COMPLEX(KIND=RP) FUNCTION tcw0( n, l, m, e, ke)
+  PURE COMPLEX(KIND=RP) FUNCTION tcw0( n, l, m, e, alpha, ke)
     USE constants ,ONLY: pi
     USE trigo ,ONLY: cartez2spher
     USE utils ,ONLY: fac, norm_fac
     USE special_functions ,ONLY: spherical_harmonic
     INTEGER      , INTENT(IN) :: n, l, m
-    REAL(KIND=RP), INTENT(IN) :: e, ke(3)
+    REAL(KIND=RP), INTENT(IN) :: e, alpha, ke(3)
 
     REAL(KIND=RP)    :: kem, alpha, thetae, phie, a, aj1
     COMPLEX(KIND=RP) :: w, kec, ekec, gam(0:n), f21(0:n,0:(n-l)), alphac, w1m, tmp
@@ -778,7 +782,6 @@ CONTAINS
 
     CALL cartez2spher( -ke, kem, thetae, phie)
 
-    alpha  = 1._RP / kem
     alphac = CMPLX( 0._RP, alpha, KIND=RP) ! i*\alpha
     kec    = CMPLX( 0._RP, kem  , KIND=RP) ! i*ke
     ekec   = CMPLX( e    , -kem , KIND=RP) ! (\epsilon-ike)
