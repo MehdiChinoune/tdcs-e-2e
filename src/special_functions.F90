@@ -1,6 +1,29 @@
-SUBMODULE (special_functions) special_functions
+MODULE special_functions
+  USE constants ,ONLY: RP
   IMPLICIT NONE
+  REAL(RP), PROTECTED :: fac(0:34), lnfac(0:400)
+  LOGICAL, PROTECTED :: fac_called
+
 CONTAINS
+
+  SUBROUTINE factorial()
+    INTEGER :: i
+
+    IF(fac_called) RETURN
+
+    fac(0) = 1._RP
+    DO i=1,34
+      fac(i) = i*fac(i-1)
+    END DO
+
+    lnfac(0:34) = LOG( fac )
+    DO i = 35, 400
+      lnfac(i) = lnfac(i-1) +LOG( REAL(i,KIND=RP) )
+    END DO
+
+    fac_called = .true.
+
+  END SUBROUTINE
 
   !-----------------------------------------------------------------------
   !        EVALUATION OF THE COMPLEX GAMMA AND LOGGAMMA FUNCTIONS
@@ -19,7 +42,7 @@ CONTAINS
   !     This version is accurate to within 5 in the 14th significant
   !     decimal digit.
   !-----------------------------------------------------------------------
-  ELEMENTAL MODULE FUNCTION cgamma(z, mo) RESULT(w)
+  ELEMENTAL FUNCTION cgamma(z, mo) RESULT(w)
     COMPLEX(KIND=RP) :: w
     COMPLEX(KIND=RP), INTENT(IN)  :: z
     INTEGER, INTENT(IN),OPTIONAL  :: mo
@@ -268,7 +291,7 @@ CONTAINS
   !> assoc_legendre
   !! Computes the associated Legendre polynomial P_l^m (x). Here m and l are integers satisfying
   !! 0 <= m <= l,  while x lies in the range −1 <= x <= 1.
-  ELEMENTAL REAL(KIND=RP) MODULE FUNCTION assoc_legendre(l,m,x)
+  ELEMENTAL REAL(KIND=RP) FUNCTION assoc_legendre(l,m,x)
     USE ieee_arithmetic ,only: ieee_is_finite
     INTEGER      , INTENT(IN) :: l, m
     REAL(KIND=RP), INTENT(IN) :: x
@@ -276,8 +299,8 @@ CONTAINS
     INTEGER :: i, l1
     REAL(KIND=RP) :: fact, pmm, pmm1, pmm2
 
-    IF( m<0 .OR. m>l ) ERROR STOP 'M is out of range [0,L]'
-    IF( ABS(x)>1._RP ) ERROR STOP 'X is out of range [-1., 1.]'
+    !IF( m<0 .OR. m>l ) ERROR STOP 'M is out of range [0,L]'
+    !IF( ABS(x)>1._RP ) ERROR STOP 'X is out of range [-1., 1.]'
 
     !Compute P_m^m
     pmm = 1._RP
@@ -308,15 +331,14 @@ CONTAINS
     RETURN
   END FUNCTION assoc_legendre
 
-  ELEMENTAL COMPLEX(KIND=RP) MODULE FUNCTION spherical_harmonic( l, m, theta, phi )
+  ELEMENTAL COMPLEX(KIND=RP) FUNCTION spherical_harmonic( l, m, theta, phi )
     use constants ,only: pi
-    use utils ,only: lnfac, fac_called
     INTEGER      , INTENT(IN) :: l, m
     REAL(KIND=RP), INTENT(IN) :: theta, phi
     REAL(KIND=RP), PARAMETER :: Tinye = log(tiny(1._RP))
     INTEGER :: ma
 
-    if(.not. fac_called ) error stop 'you should call factorial before using y_l^m(\theta,\phi)'
+    !if(.not. fac_called ) error stop 'you should call factorial before using y_l^m(\theta,\phi)'
 
     ma = ABS(m)
     if( (lnfac(l-ma)-lnfac(l+ma))<2*Tinye ) then
@@ -398,7 +420,7 @@ CONTAINS
   !!  AUTHOR: A. R. BARNETT      MANCHESTER  MARCH   1981
   !!                             AUCKLAND    MARCH   1991
   !!----------------------------------------------------------------------
-  PURE MODULE SUBROUTINE coul90(x, eta, lmin, lrange, fc, gc, fcp, gcp, kfn, ifail )
+  PURE SUBROUTINE coul90(x, eta, lmin, lrange, fc, gc, fcp, gcp, kfn, ifail )
     INTEGER, INTENT(IN)  :: lmin, lrange, kfn
     INTEGER, INTENT(OUT), OPTIONAL :: ifail
     REAL(KIND=RP), INTENT(IN) :: x, eta
@@ -725,7 +747,7 @@ CONTAINS
   !!   AUTHOR :   A.R.BARNETT      MANCHESTER    12 MARCH 1990.
   !!                               AUCKLAND      12 MARCH 1991.
   !!---------------------------------------------------------------------
-  PURE MODULE SUBROUTINE ricbes( x, lmax, psi, chi, psid, chid, ifail )
+  PURE SUBROUTINE ricbes( x, lmax, psi, chi, psid, chid, ifail )
     REAL(KIND=RP), INTENT(IN) :: x
     INTEGER, INTENT(IN) :: lmax
     INTEGER, INTENT(INOUT), OPTIONAL :: ifail
@@ -822,8 +844,7 @@ CONTAINS
   RETURN
   END SUBROUTINE ricbes
 
-  ELEMENTAL REAL(RP) MODULE FUNCTION symbol_3j(l1, l2, l3, m1, m2, m3)
-    use utils ,only:lnfac
+  ELEMENTAL REAL(RP) FUNCTION symbol_3j(l1, l2, l3, m1, m2, m3)
     INTEGER, INTENT(IN) :: l1, l2, l3, m1, m2, m3
 
     REAL(RP) :: s, cst
@@ -854,7 +875,7 @@ CONTAINS
   !> Optimized Confulent Hypergeometric Function when b=1. and (a and z) are pure imaginary
   !! @param[in] a the imaginary part of the original A
   !! @param[in] z the imaginary part of the original Z
-  ELEMENTAL COMPLEX(RP) MODULE FUNCTION conhyp_opt(a,z)
+  ELEMENTAL COMPLEX(RP) FUNCTION conhyp_opt(a,z)
     REAL(RP), INTENT(IN) :: a, z
     INTEGER :: i
     COMPLEX(RP) :: u
@@ -870,4 +891,4 @@ CONTAINS
     RETURN
   END FUNCTION conhyp_opt
 
-END SUBMODULE special_functions
+END MODULE special_functions

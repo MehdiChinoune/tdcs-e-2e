@@ -1,4 +1,5 @@
-SUBMODULE (conhyp_m) conhyp_m
+MODULE conhyp_m
+  USE constants ,only: RP
   IMPLICIT NONE
 
 CONTAINS
@@ -41,7 +42,7 @@ CONTAINS
   !     *                                                              *
   !     ****************************************************************
 
-  COMPLEX(RP) MODULE FUNCTION CONHYP (A,B,Z,LNCHF,IP)
+  COMPLEX(RP) FUNCTION CONHYP (A,B,Z,LNCHF,IP)
     COMPLEX(RP), INTENT(IN) :: A, B, Z
     INTEGER, INTENT(IN), OPTIONAL :: LNCHF, IP
     INTEGER :: I
@@ -588,7 +589,6 @@ CONTAINS
     RETURN
   END SUBROUTINE CMPADD
 
-
   !     ****************************************************************
   !     *                                                              *
   !     *                 SUBROUTINE CMPSUB                            *
@@ -613,7 +613,6 @@ CONTAINS
     CALL ARSUB(AI,BI,CI,L,RMAX)
     RETURN
   END SUBROUTINE CMPSUB
-
 
   !     ****************************************************************
   !     *                                                              *
@@ -644,7 +643,6 @@ CONTAINS
 
     RETURN
   END SUBROUTINE CMPMUL
-
 
   !     ****************************************************************
   !     *                                                              *
@@ -752,7 +750,6 @@ CONTAINS
     RETURN
   END SUBROUTINE EMULT
 
-
   !     ****************************************************************
   !     *                                                              *
   !     *                 SUBROUTINE EDIV                              *
@@ -778,7 +775,6 @@ CONTAINS
     ENDIF
     RETURN
   END SUBROUTINE EDIV
-
 
   !     ****************************************************************
   !     *                                                              *
@@ -823,7 +819,6 @@ CONTAINS
     RETURN
   END SUBROUTINE EADD
 
-
   !     ****************************************************************
   !     *                                                              *
   !     *                 SUBROUTINE ESUB                              *
@@ -844,7 +839,6 @@ CONTAINS
     CALL EADD(N1,E1,N2*(-1._RP),E2,NF,EF)
     RETURN
   END SUBROUTINE ESUB
-
 
   !     ****************************************************************
   !     *                                                              *
@@ -886,7 +880,6 @@ CONTAINS
     350 RETURN
   END SUBROUTINE CONV12
 
-
   !     ****************************************************************
   !     *                                                              *
   !     *                 SUBROUTINE CONV21                            *
@@ -915,7 +908,6 @@ CONTAINS
 
     RETURN
   END SUBROUTINE CONV21
-
 
   !     ****************************************************************
   !     *                                                              *
@@ -980,4 +972,4 @@ CONTAINS
     RETURN
   END SUBROUTINE ECPDIV
 
-END SUBMODULE conhyp_m
+END MODULE conhyp_m

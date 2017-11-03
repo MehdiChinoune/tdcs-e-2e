@@ -1,4 +1,5 @@
-SUBMODULE (integration) integration
+MODULE integration
+  USE constants ,ONLY: RP
   IMPLICIT NONE
 
 CONTAINS
@@ -27,7 +28,7 @@ CONTAINS
   !    Output, real ( kind = 8 ) X(n), the abscissas.
   !    Output, real ( kind = 8 ) W(n), the weights.
 
-  MODULE SUBROUTINE clenshaw_curtis( a, b, x, w, n )
+  SUBROUTINE clenshaw_curtis( a, b, x, w, n )
     USE constants ,ONLY: pi
     REAL(KIND=RP), INTENT(IN) :: a, b
     INTEGER, INTENT(IN) :: n
@@ -36,9 +37,9 @@ CONTAINS
     REAL(KIND=RP) :: theta !,bj
     INTEGER :: i, j
 
-    IF ( n < 3 ) THEN
-      ERROR STOP 'clenashaw_curtis  error : n < 3 '
-    END IF
+!    IF ( n < 3 ) THEN
+!      ERROR STOP 'clenashaw_curtis  error : n < 3 '
+!    END IF
 
     ALLOCATE(x(n),w(n))
 
@@ -90,7 +91,7 @@ CONTAINS
 
   END SUBROUTINE clenshaw_curtis
 
-  PURE MODULE SUBROUTINE gauleg(a,b,x,w,n)
+  PURE SUBROUTINE gauleg(a,b,x,w,n)
     use constants ,only: pi
     INTEGER, INTENT(IN) :: n
     REAL(rp), INTENT(IN) :: a,b
@@ -103,7 +104,7 @@ CONTAINS
 
     CALL pd(x(1:(n+1)/2),w(1:(n+1)/2),n)
 
-    DO CONCURRENT (i=1:(n+1)/2)
+    DO i=1,(n+1)/2
       x(n-i+1)=-x(i)
       w(n-i+1)=w(i)
     END DO
@@ -139,4 +140,4 @@ CONTAINS
     sw = 2._RP/((1._RP-sx**2)*dp**2)
   END SUBROUTINE pd
 
-END SUBMODULE integration
+END MODULE integration

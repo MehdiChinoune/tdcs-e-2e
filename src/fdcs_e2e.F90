@@ -1,13 +1,17 @@
-SUBMODULE (fdcs_e2e) fdcs_e2e
+MODULE fdcs_e2e
   USE constants ,ONLY: RP
   IMPLICIT NONE
 CONTAINS
 
-  MODULE SUBROUTINE fdcs_fba_pw(in_unit,out_unit)
+  SUBROUTINE fdcs_fba_pw(in_unit,out_unit)
     USE constants ,ONLY: pi, ev, deg
-    USE utils ,ONLY: factorial
+    USE special_functions ,ONLY: factorial
     USE input ,ONLY: read_input, read_orbit
+#if defined(__FLANG) || defined(__PGI)
+    USE trigo ,ONLY: spher2cartez, norm2
+#else
     USE trigo ,ONLY: spher2cartez
+#endif
     INTEGER, INTENT(IN) :: in_unit
     INTEGER, INTENT(IN) :: out_unit
 
@@ -87,10 +91,14 @@ CONTAINS
 
   END SUBROUTINE fdcs_fba_pw
 
-  MODULE SUBROUTINE fdcs_fba_cw(in_unit,out_unit)
+  SUBROUTINE fdcs_fba_cw(in_unit,out_unit)
     USE constants ,ONLY: ev, deg, pi
+#if defined(__FLANG) || defined(__PGI)
+    USE trigo ,ONLY: spher2cartez, norm2
+#else
     USE trigo ,ONLY: spher2cartez
-    USE utils ,ONLY: factorial
+#endif
+    USE special_functions ,ONLY: factorial
     USE input ,ONLY: read_input, read_orbit
     INTEGER, INTENT(IN) :: in_unit
     INTEGER, INTENT(IN) :: out_unit
@@ -156,13 +164,17 @@ CONTAINS
 
   END SUBROUTINE fdcs_fba_cw
 
-  MODULE SUBROUTINE fdcs_fba_dw(in_unit,out_unit)
+  SUBROUTINE fdcs_fba_dw(in_unit,out_unit)
     USE ieee_arithmetic ,only: ieee_is_nan
     USE constants ,ONLY: pi, deg, ev
-    USE special_functions ,ONLY: cgamma, spherical_harmonic, coul90, ricbes, symbol_3j
-    USE utils ,ONLY: norm_fac, y1y2y3, factorial, calculate_U, ode_second_dw
+    USE special_functions ,ONLY: cgamma, spherical_harmonic, coul90, ricbes, symbol_3j, factorial
+    USE utils ,ONLY: norm_fac, y1y2y3, calculate_U, ode_second_dw
     USE input ,ONLY: read_input, read_orbit
+#if defined(__FLANG) || defined(__PGI)
+    USE trigo ,ONLY: spher2cartez, cartez2spher, norm2
+#else
     USE trigo ,ONLY: spher2cartez, cartez2spher
+#endif
     INTEGER, INTENT(IN) :: in_unit
     INTEGER, INTENT(IN) :: out_unit
 
@@ -193,6 +205,9 @@ CONTAINS
     COMPLEX(KIND=RP) :: term, term0
     INTEGER :: i, io, mo
 
+    REAL(KIND=RP) :: gc_0a(0:lmax), fdc_0a(0:lmax), gdc_0a(0:lmax), fc_0a(0:lmax)
+    REAL(KIND=RP), ALLOCATABLE :: U(:,:), U_tmp(:)
+
     CALL factorial()
 
     CALL read_input(in_unit,Ei, Es, Ee, thetas, step, Atom, orbit, exchange )
@@ -221,38 +236,32 @@ CONTAINS
     ALLOCATE( chi_b(0:np,0:lemax), chi_0a(0:np,0:lmax) )
     chi_b(0,:) = 0._RP
     chi_0a(0,:) = 0._RP
-    DO CONCURRENT(i = 1:np)
-      BLOCK
-        REAL(KIND=RP) :: gc_0a(0:lmax), fdc_0a(0:lmax), gdc_0a(0:lmax), fc_0a(0:lmax)
-        CALL ricbes(km*x(i), lmax, fc_0a, gc_0a, fdc_0a, gdc_0a, le)
-        chi_0a(i,:) = fc_0a/(km*x(i))
-      END BLOCK
+    DO i = 1,np
+      CALL ricbes(km*x(i), lmax, fc_0a, gc_0a, fdc_0a, gdc_0a, le)
+      chi_0a(i,:) = fc_0a/(km*x(i))
     END DO
 
     WHERE(ieee_is_nan(chi_0a) )
       chi_0a = 0._RP
     END WHERE
 
-    BLOCK
-      REAL(KIND=RP) :: U(0:np,0:lemax), U_tmp(0:np)
-      INTEGER :: l
+    ALLOCATE( U(0:np,0:lemax), U_tmp(0:np) )
+    CALL calculate_U(Atom, Orbit, x, U_tmp, 1 )
 
-      CALL calculate_U(Atom, Orbit, x, U_tmp, 1 )
+    IF(ze/=0) THEN
+      U(0,:) = -HUGE(1._RP)
+    ELSE
+      U(0,:) = -kem**2
+    END IF
 
-      IF(ze/=0) THEN
-        U(0,:) = -HUGE(1._RP)
-      ELSE
-        U(0,:) = -kem**2
-      END IF
+    U(1:np,lemax) = -kem**2 -2.*( ze +U_tmp(1:np) ) /x(1:np)
+    DO l = 0,lemax
+      U(1:np,l) = l*(l+1)/x(1:np)**2 +U(1:np,lemax)
+    END DO
 
-      U(1:np,lemax) = -kem**2 -2.*( ze +U_tmp(1:np) ) /x(1:np)
-      DO l = 0,lemax
-        U(1:np,l) = l*(l+1)/x(1:np)**2 +U(1:np,lemax)
-      END DO
+    CALL ode_second_dw(kem, lemax, rc, ze, U, chi_b, delta)
 
-      CALL ode_second_dw(kem, lemax, rc, ze, U, chi_b, delta)
-
-    END BLOCK
+    DEALLOCATE(U,U_tmp)
 
     wf = 0._RP
     DO io = 1, no
@@ -266,8 +275,9 @@ CONTAINS
     END DO
 
     integral = 0._RP
-    DO CONCURRENT(l=0:lmax)
-      DO CONCURRENT(le=0:lemax, MOD(le+l+lo,2)==0)
+    DO l=0,lmax
+      DO le=0,lemax
+        IF( MOD(le+l+lo,2)/=0 ) CYCLE
         integral(le, l) = 0.5*h*SUM( wf(1:np)*chi_b(1:np,le)*chi_0a(1:np,l) &
           + wf(0:np-1)*chi_b(0:np-1,le)*chi_0a(0:np-1,l) )
       END DO
@@ -311,12 +321,17 @@ CONTAINS
 
   END SUBROUTINE fdcs_fba_dw
 
-  MODULE SUBROUTINE fdcs_dwb(in_unit,out_unit)
+  SUBROUTINE fdcs_dwb(in_unit,out_unit)
     USE constants ,ONLY: ev, deg, pi
-    USE special_functions ,ONLY: spherical_harmonic, cgamma
-    USE utils ,ONLY: norm_fac, factorial
+    USE special_functions ,ONLY: spherical_harmonic, cgamma, factorial
+    USE utils ,ONLY: norm_fac, calculate_U
     USE input ,ONLY: read_input, read_orbit
+#if defined(__FLANG) || defined(__PGI)
+    USE trigo ,ONLY: spher2cartez, norm2
+#else
     USE trigo ,ONLY: spher2cartez
+#endif
+    USE integration ,ONLY: gauleg
     INTEGER, INTENT(IN) :: in_unit
     INTEGER, INTENT(IN) :: out_unit
 
@@ -363,6 +378,10 @@ CONTAINS
 
     REAL(RP), ALLOCATABLE :: x(:), w(:)
 
+    REAL(RP), ALLOCATABLE :: U_tmp(:)
+    REAL(RP), ALLOCATABLE :: xt(:), wt(:)
+    INTEGER, PARAMETER :: nc = nx/64
+
     CALL factorial()
 
     CALL read_input(in_unit,Ei, Es, Ee, thetas, step, Atom, orbit, exchange )
@@ -382,28 +401,19 @@ CONTAINS
     rc = 250._RP
 
     ALLOCATE(x(nx), w(nx) )
-    BLOCK
-      USE integration ,ONLY: gauleg
-      REAL(RP), ALLOCATABLE :: xt(:), wt(:)
-      INTEGER, PARAMETER :: nc = nx/64
 
       DO i=1,nc
         CALL gauleg( (i-1)*rc/nc, i*rc/nc, xt, wt, 64 )
         x( (i-1)*64+1: i*64 ) = xt
         w( (i-1)*64+1: i*64 ) = wt
       END DO
-
-    END BLOCK
+    DEALLOCATE( xt, wt )
 
     ALLOCATE(chi_0(nx,0:limax), chi_a(nx,0:lsmax), chi_b(nx,0:lemax) )
 
     h = rc/nr
     ALLOCATE( r(0:nr) )
     r = [(i*h,i=0,nr)]
-
-    BLOCK
-      USE utils ,ONLY: calculate_U
-      REAL(RP), ALLOCATABLE :: U_tmp(:)
 
       ALLOCATE( U_tmp(0:nr) )
 
@@ -414,7 +424,7 @@ CONTAINS
       CALL calculate_chi( ksm, r, U_tmp, zs, x, chi_a, delta_ls )
       CALL calculate_chi( kem, r, U_tmp, ze, x, chi_b, delta_le )
 
-    END BLOCK
+    DEALLOCATE( U_tmp )
 
     ALLOCATE(wf(nx))
     wf = 0._RP
@@ -447,9 +457,9 @@ CONTAINS
     END IF
 
     ylms = (0._RP, 0._RP)
-    DO CONCURRENT(ls=0:lsmax)
+    DO ls=0,lsmax
       ylms(ls,0) = spherical_harmonic(ls,0,thetas*deg,pi)
-      DO CONCURRENT(me=1:ls)
+      DO me=1,ls
         ylms(ls,me) = spherical_harmonic(ls,me,thetas*deg,pi)
       END DO
       ylms(ls,-2:-ls:-2) = ylms(ls,2:ls:2)
@@ -458,10 +468,10 @@ CONTAINS
 
     ALLOCATE(ylme(0:lemax,-lemax:lemax,step(1)/step(3):step(2)/step(3)))
     ylme = (0._RP, 0._RP)
-    DO CONCURRENT( i=lbound(ylme,3):ubound(ylme,3) )
-      DO CONCURRENT( le=0:lemax )
+    DO i=lbound(ylme,3),ubound(ylme,3)
+      DO le=0,lemax
         ylme(le,0,i) = spherical_harmonic(le,0,i*step(3)*deg,phie)
-        DO CONCURRENT( me=1:le )
+        DO me=1,le
           ylme(le,me,i) = spherical_harmonic(le,me,i*step(3)*deg,phie)
         END DO
         ylme(le,-2:-le:-2,i) = ylme(le,2:le:2,i)
@@ -501,36 +511,44 @@ CONTAINS
 
       sigma = factor*sigma/(2*lo+1)
       IF(PCI>=1) THEN
-        BLOCK
-          USE special_functions ,ONLY: conhyp_opt
-          !          USE conhyp_m ,ONLY: conhyp
-          REAL(RP) :: kesm, ke(3), ks(3)
-          REAL(RP) :: r12_av, Et
-          CALL spher2cartez(kem, thetas, pi, ks)
-          CALL spher2cartez(ksm, i*deg, phie, ke)
-          kesm = NORM2(ke-ks)/2._RP
-          sigma = pi/(kesm*(EXP(pi/kesm) -1._RP ) ) *sigma
-          IF(PCI==2) THEN
-            Et = (Es +Ee)*eV
-            r12_av = pi**2/(16.*Et) *( 1._RP +(0.627/pi)*SQRT(Et)*LOG(Et) )**2
-            sigma = ABS( conhyp_opt( 0.5/kesm, -2.*kesm*r12_av  ) )**2 *sigma
-            !sigma = ABS( conhyp( CMPLX(0._RP, 0.5/kesm, RP), (1._RP,0._RP), &
-            !  CMPLX(0._RP, -2.*kesm*r12_av, RP ), 0, 10) )**2 *sigma
-          END IF
-        END BLOCK
+        CALL PCI_EFFECTS()
       END IF
 
       PRINT'(1x,i4,1x,es15.8)', i, sigma
       WRITE(out_unit, '(1x,i4,1x,es15.8)' ) i, sigma
     END DO
 
+  CONTAINS
+
+    SUBROUTINE PCI_EFFECTS()
+      USE special_functions ,ONLY: conhyp_opt
+      ! USE conhyp_m ,ONLY: conhyp
+      REAL(RP) :: kesm, ke(3), ks(3)
+      REAL(RP) :: r12_av, Et
+      CALL spher2cartez(kem, thetas, pi, ks)
+      CALL spher2cartez(ksm, i*deg, phie, ke)
+      kesm = NORM2(ke-ks)/2._RP
+      sigma = pi/(kesm*(EXP(pi/kesm) -1._RP ) ) *sigma
+      IF(PCI==2) THEN
+        Et = (Es +Ee)*eV
+        r12_av = pi**2/(16.*Et) *( 1._RP +(0.627/pi)*SQRT(Et)*LOG(Et) )**2
+        sigma = ABS( conhyp_opt( 0.5/kesm, -2.*kesm*r12_av  ) )**2 *sigma
+        !sigma = ABS( conhyp( CMPLX(0._RP, 0.5/kesm, RP), (1._RP,0._RP), &
+          !  CMPLX(0._RP, -2.*kesm*r12_av, RP ), 0, 10) )**2 *sigma
+      END IF
+    END SUBROUTINE
+
   END SUBROUTINE fdcs_dwb
 
-  MODULE SUBROUTINE fdcs_bbk(in_unit,out_unit)
+  SUBROUTINE fdcs_bbk(in_unit,out_unit)
     USE constants ,ONLY: pi, ev, deg
-    USE utils ,ONLY: factorial
+    USE special_functions ,ONLY: factorial
     USE input ,ONLY: read_input, read_orbit
+#if defined(__FLANG) || defined(__PGI)
+    USE trigo ,ONLY: spher2cartez, norm2
+#else
     USE trigo ,ONLY: spher2cartez
+#endif
     INTEGER, INTENT(IN) :: in_unit
     INTEGER, INTENT(IN) :: out_unit
 
@@ -593,6 +611,9 @@ CONTAINS
   COMPLEX(RP) FUNCTION U_bbk(alpha1, alpha2, alpha3, k1, k2, k3, lam1, lam2, lam3, p1, p2)
     USE constants ,ONLY: pi
     USE integration ,ONLY: gauleg
+#if defined(__FLANG) || defined(__PGI)
+    USE trigo ,ONLY: norm2
+#endif
     REAL(RP), INTENT(IN) :: alpha1, alpha2, alpha3
     REAL(RP), INTENT(IN) :: k1(3), k2(3), k3(3)
     REAL(RP), INTENT(IN) :: lam1, lam2, lam3
@@ -688,7 +709,7 @@ CONTAINS
 
     CALL ode_second_dw(km, lmax, rc, z, U, chi_tmp, delta )
 
-    DO CONCURRENT(l=0:lmax)
+    DO l=0,lmax
       CALL INTRPL(r, chi_tmp(:,l), x, chi(:,l))
     END DO
 
@@ -723,7 +744,7 @@ CONTAINS
     ALLOCATE( integral(0:lsmax, 0:lemax, -lemax:lemax, 0:lo) )
     ALLOCATE( integ( 0:MIN(limax+lsmax,lemax+lo),  0:limax ) )
     integral = 0._RP
-!$OMP PARALLEL DO COLLAPSE(2) PRIVATE(INTEG,LI,L,ME,MO ,ti,si,integ0,xil,xil1,i,is,nmax) NUM_THREADS(4)
+    !$OMP PARALLEL DO COLLAPSE(2) PRIVATE(INTEG,LI,L,ME,MO ,ti,si,integ0,xil,xil1,i,is,nmax) NUM_THREADS(4)
     DO ls=0,lsmax; DO le=0,lemax
       integ = 0._RP
       DO li=0,limax
@@ -777,9 +798,13 @@ CONTAINS
 
   PURE COMPLEX(KIND=RP) FUNCTION tpw( n, l, m, e, ke, k)
     USE constants ,ONLY: pi
+#if defined(__FLANG) || defined(__PGI)
+    USE trigo ,ONLY: cartez2spher, norm2
+#else
     USE trigo ,ONLY: cartez2spher
-    USE utils ,ONLY: fac, norm_fac
-    USE special_functions ,ONLY: spherical_harmonic
+#endif
+    USE utils ,ONLY: norm_fac
+    USE special_functions ,ONLY: spherical_harmonic, fac
     INTEGER      , INTENT(IN) :: n,l,m
     REAL(KIND=RP), INTENT(IN) :: e,ke(3)
     REAL(KIND=RP), INTENT(IN),OPTIONAL :: k(3)
@@ -811,11 +836,15 @@ CONTAINS
 
   PURE COMPLEX(KIND=RP) FUNCTION tcw( n, l, m, e, alpha, ke, k)
     USE constants ,ONLY: pi
-    USE utils ,ONLY: fac, norm_fac
+    USE special_functions ,ONLY: fac
+    USE utils ,ONLY: norm_fac
+#if defined(__FLANG) || defined(__PGI)
+    USE trigo ,ONLY: norm2
+#endif
     INTEGER      , INTENT(IN) :: n, l, m
     REAL(KIND=RP), INTENT(IN) :: e, alpha, ke(3), k(3)
 
-    REAL(KIND=RP)    :: kem, km, alpha, a, aj1, ke_t(3)
+    REAL(KIND=RP)    :: kem, km, a, aj1, ke_t(3)
     COMPLEX(KIND=RP) :: w, kec, ekec, gam(0:n), f21(0:n,0:n), alphac, w1m, kep, kp
     COMPLEX(KIND=RP) :: tmp_j, tmp_j1, tmp_m1, cst_j, cst_j1, cst_m1
     REAL(KIND=RP)    :: tmp_s, tmp_s3, tmp_s1, cst_s, cst_s3, cst_s1, cst_s2
@@ -901,13 +930,17 @@ CONTAINS
 
   PURE COMPLEX(KIND=RP) FUNCTION tcw0( n, l, m, e, alpha, ke)
     USE constants ,ONLY: pi
+#if defined(__FLANG) || defined(__PGI)
+    USE trigo ,ONLY: cartez2spher, norm2
+#else
     USE trigo ,ONLY: cartez2spher
-    USE utils ,ONLY: fac, norm_fac
-    USE special_functions ,ONLY: spherical_harmonic
+#endif
+    USE utils ,ONLY: norm_fac
+    USE special_functions ,ONLY: spherical_harmonic, fac
     INTEGER      , INTENT(IN) :: n, l, m
     REAL(KIND=RP), INTENT(IN) :: e, alpha, ke(3)
 
-    REAL(KIND=RP)    :: kem, alpha, thetae, phie, a, aj1
+    REAL(KIND=RP)    :: kem, thetae, phie, a, aj1
     COMPLEX(KIND=RP) :: w, kec, ekec, gam(0:n), f21(0:n,0:(n-l)), alphac, w1m, tmp
     INTEGER          :: j, j1
 
@@ -961,4 +994,4 @@ CONTAINS
 
   END FUNCTION powcc
 
-END SUBMODULE fdcs_e2e
+END MODULE fdcs_e2e
