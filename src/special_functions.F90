@@ -879,4 +879,25 @@ CONTAINS
 
   END FUNCTION symbol_3j
 
+  !> Conhyp_opt
+  !!
+  !> Optimized Confulent Hypergeometric Function when b=1. and (a and z) are pure imaginary
+  !! @param[in] a the imaginary part of the original A
+  !! @param[in] z the imaginary part of the original Z
+  ELEMENTAL COMPLEX(RP) MODULE FUNCTION conhyp_opt(a,z)
+    REAL(RP), INTENT(IN) :: a, z
+    INTEGER :: i
+    COMPLEX(RP) :: u
+
+    u = (1._RP, 0._RP)
+    conhyp_opt = u !(1._RP, 0._RP)
+    DO i=1,512
+      u = (z/i**2)*CMPLX( -a, (i-1), RP )*u
+      conhyp_opt = conhyp_opt +u
+      IF( ABS(u/conhyp_opt)<=EPSILON(1._RP) ) EXIT
+    END DO
+
+    RETURN
+  END FUNCTION conhyp_opt
+
 END SUBMODULE special_functions

@@ -38,6 +38,10 @@ MODULE special_functions
       INTEGER, INTENT(IN) :: l1, l2, l3, m1, m2, m3
     END FUNCTION symbol_3j
 
+    ELEMENTAL COMPLEX(RP) MODULE FUNCTION conhyp_opt(a,z)
+      REAL(RP), INTENT(IN) :: a, z
+    END FUNCTION conhyp_opt
+
   END INTERFACE
 
 END MODULE special_functions
