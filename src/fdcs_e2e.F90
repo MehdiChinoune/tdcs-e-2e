@@ -7,11 +7,8 @@ CONTAINS
     USE constants ,ONLY: pi, ev, deg
     USE special_functions ,ONLY: factorial
     USE input ,ONLY: read_input, read_orbit
-#if defined(__FLANG) || defined(__PGI)
-    USE trigo ,ONLY: spher2cartez, norm2
-#else
-    USE trigo ,ONLY: spher2cartez
-#endif
+    USE trigo ,ONLY: spher2cartez, nrm2
+
     INTEGER, INTENT(IN) :: in_unit
     INTEGER, INTENT(IN) :: out_unit
 
@@ -48,7 +45,7 @@ CONTAINS
     CALL spher2cartez( kim, 0._RP, 0._RP, ki )
     CALL spher2cartez( ksm, thetas*deg, pi, ks )
     k = ki -ks
-    km = NORM2(k)
+    km = nrm2(k)
 
     factor = nelec*4._RP*ksm*kem/(kim)
 
@@ -58,7 +55,7 @@ CONTAINS
 
       IF(exchange==1) THEN
         k2 = ki - ke
-        k2m = NORM2(k2)
+        k2m = nrm2(k2)
       END IF
 
       sigma = 0._RP
@@ -93,11 +90,7 @@ CONTAINS
 
   SUBROUTINE fdcs_fba_cw(in_unit,out_unit)
     USE constants ,ONLY: ev, deg, pi
-#if defined(__FLANG) || defined(__PGI)
-    USE trigo ,ONLY: spher2cartez, norm2
-#else
-    USE trigo ,ONLY: spher2cartez
-#endif
+    USE trigo ,ONLY: spher2cartez, nrm2
     USE special_functions ,ONLY: factorial
     USE input ,ONLY: read_input, read_orbit
     INTEGER, INTENT(IN) :: in_unit
@@ -136,7 +129,7 @@ CONTAINS
     CALL spher2cartez( kim, 0._RP, 0._RP, ki )
     CALL spher2cartez( ksm, thetas*deg, pi, ks )
     k = ki -ks
-    km = NORM2(k)
+    km = nrm2(k)
 
     factor = nelec*4._RP*ksm*kem / (kim*km**4)
     !\abs{ \exp{\pi\alpha/2} *\Gamma(1-i\alpha) }^2
@@ -171,7 +164,7 @@ CONTAINS
     USE utils ,ONLY: norm_fac, y1y2y3, calculate_U, ode_second_dw
     USE input ,ONLY: read_input, read_orbit
 #if defined(__FLANG) || defined(__PGI)
-    USE trigo ,ONLY: spher2cartez, cartez2spher, norm2
+    USE trigo ,ONLY: spher2cartez, cartez2spher, nrm2
 #else
     USE trigo ,ONLY: spher2cartez, cartez2spher
 #endif
@@ -327,7 +320,7 @@ CONTAINS
     USE utils ,ONLY: norm_fac, calculate_U
     USE input ,ONLY: read_input, read_orbit
 #if defined(__FLANG) || defined(__PGI)
-    USE trigo ,ONLY: spher2cartez, norm2
+    USE trigo ,ONLY: spher2cartez, nrm2
 #else
     USE trigo ,ONLY: spher2cartez
 #endif
@@ -522,12 +515,13 @@ CONTAINS
 
     SUBROUTINE PCI_EFFECTS()
       USE special_functions ,ONLY: conhyp_opt
+      USE trigo ,ONLY: nrm2
       ! USE conhyp_m ,ONLY: conhyp
       REAL(RP) :: kesm, ke(3), ks(3)
       REAL(RP) :: r12_av, Et
       CALL spher2cartez(kem, thetas, pi, ks)
       CALL spher2cartez(ksm, i*deg, phie, ke)
-      kesm = NORM2(ke-ks)/2._RP
+      kesm = nrm2(ke-ks)/2._RP
       sigma = pi/(kesm*(EXP(pi/kesm) -1._RP ) ) *sigma
       IF(PCI==2) THEN
         Et = (Es +Ee)*eV
@@ -544,11 +538,8 @@ CONTAINS
     USE constants ,ONLY: pi, ev, deg
     USE special_functions ,ONLY: factorial
     USE input ,ONLY: read_input, read_orbit
-#if defined(__FLANG) || defined(__PGI)
-    USE trigo ,ONLY: spher2cartez, norm2
-#else
-    USE trigo ,ONLY: spher2cartez
-#endif
+    USE trigo ,ONLY: spher2cartez, nrm2
+
     INTEGER, INTENT(IN) :: in_unit
     INTEGER, INTENT(IN) :: out_unit
 
@@ -582,7 +573,7 @@ CONTAINS
     CALL spher2cartez( kim, 0._RP, 0._RP, ki )
     CALL spher2cartez( ksm, thetas*deg, pi, ks )
     k = ki -ks
-    km = NORM2(k)
+    km = nrm2(k)
 
     factor = nelec*4._RP*ksm*kem/(kim)
 
@@ -611,9 +602,8 @@ CONTAINS
   COMPLEX(RP) FUNCTION U_bbk(alpha1, alpha2, alpha3, k1, k2, k3, lam1, lam2, lam3, p1, p2)
     USE constants ,ONLY: pi
     USE integration ,ONLY: gauleg
-#if defined(__FLANG) || defined(__PGI)
-    USE trigo ,ONLY: norm2
-#endif
+    USE trigo ,ONLY: nrm2
+
     REAL(RP), INTENT(IN) :: alpha1, alpha2, alpha3
     REAL(RP), INTENT(IN) :: k1(3), k2(3), k3(3)
     REAL(RP), INTENT(IN) :: lam1, lam2, lam3
@@ -634,9 +624,9 @@ CONTAINS
 
     U_bbk = ( 0._RP, 0._RP)
 
-    k1m = NORM2(k1)
-    k2m = NORM2(k2)
-    k3m = NORM2(k3)
+    k1m = nrm2(k1)
+    k2m = nrm2(k2)
+    k3m = nrm2(k3)
 
     CALL gauleg(-10._RP, 10._RP, y, wy, 64)
     t3 = 1._RP /(1._RP+ EXP(y) )
@@ -647,13 +637,13 @@ CONTAINS
     DO i=1,64
       p11 = p1 -t3(i)*k3
       q1 = k1 +p11
-      q1m = NORM2(q1)
+      q1m = nrm2(q1)
       p22 = p2 -t3(i)*k3
       q2 = k2 +p22
-      q2m = NORM2(q2)
+      q2m = nrm2(q2)
       lam33 = CMPLX(lam3, -t3(i)*k3m, RP )
 
-      sig0_a = [ CMPLX( (lam1+lam2)**2+NORM2(q1-q2)**2, 0._RP, RP), 2*(lam2*(lam1**2+lam33**2+q1m**2) &
+      sig0_a = [ CMPLX( (lam1+lam2)**2+nrm2(q1-q2)**2, 0._RP, RP), 2*(lam2*(lam1**2+lam33**2+q1m**2) &
         +lam1*(lam2**2+lam33**2+q2m**2) ), ( (lam1+lam33)**2+q1m**2)*((lam2+lam33)**2+q2m**2) ]
       sig1_a = -2*[ DOT_PRODUCT(q1-q2,k1) +zi*(lam1+lam2)*k1m, &
         2*lam2*DOT_PRODUCT(q1,k1) +zi*( (lam2**2+lam33**2+q2m**2)*k1m+2*lam1*lam2*k1m ), &
@@ -799,7 +789,7 @@ CONTAINS
   PURE COMPLEX(KIND=RP) FUNCTION tpw( n, l, m, e, ke, k)
     USE constants ,ONLY: pi
 #if defined(__FLANG) || defined(__PGI)
-    USE trigo ,ONLY: cartez2spher, norm2
+    USE trigo ,ONLY: cartez2spher, nrm2
 #else
     USE trigo ,ONLY: cartez2spher
 #endif
@@ -838,9 +828,8 @@ CONTAINS
     USE constants ,ONLY: pi
     USE special_functions ,ONLY: fac
     USE utils ,ONLY: norm_fac
-#if defined(__FLANG) || defined(__PGI)
-    USE trigo ,ONLY: norm2
-#endif
+    USE trigo ,ONLY: nrm2
+
     INTEGER      , INTENT(IN) :: n, l, m
     REAL(KIND=RP), INTENT(IN) :: e, alpha, ke(3), k(3)
 
@@ -852,9 +841,9 @@ CONTAINS
     INTEGER          :: j, j1, ma, m1, s, s1, s2, s3
 
     ma = ABS(m)
-    kem = NORM2(ke)
+    kem = nrm2(ke)
     ke_t = -ke
-    km = NORM2(k)
+    km = nrm2(k)
     IF( m>=0 ) THEN
       kp = CMPLX( k(1), k(2), KIND=RP )
       kep = CMPLX( ke_t(1), ke_t(2), KIND=RP )
@@ -866,8 +855,8 @@ CONTAINS
     alphac = CMPLX( 0._RP, alpha, KIND=RP) ! i*\alpha
     kec    = CMPLX( 0._RP, kem  , KIND=RP) ! i*ke
     ekec   = CMPLX( e    , -kem , KIND=RP) ! (\epsilon-ike)
-    a      = NORM2(k+ke_t)**2 +e**2
-    w      = CMPLX( NORM2(k+ke_t)**2 -km**2 +kem**2   , 2.*e*kem , KIND=RP) /a ! w = b/a
+    a      = nrm2(k+ke_t)**2 +e**2
+    w      = CMPLX( nrm2(k+ke_t)**2 -km**2 +kem**2   , 2.*e*kem , KIND=RP) /a ! w = b/a
     w1m    = CMPLX( e**2 +km**2 -kem**2, -2.*e*kem, KIND=RP) /a ! (1-w)
 
     gam(0) = 1._RP
@@ -931,7 +920,7 @@ CONTAINS
   PURE COMPLEX(KIND=RP) FUNCTION tcw0( n, l, m, e, alpha, ke)
     USE constants ,ONLY: pi
 #if defined(__FLANG) || defined(__PGI)
-    USE trigo ,ONLY: cartez2spher, norm2
+    USE trigo ,ONLY: cartez2spher, nrm2
 #else
     USE trigo ,ONLY: cartez2spher
 #endif

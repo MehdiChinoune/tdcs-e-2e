@@ -43,15 +43,6 @@ CONTAINS
 
     ALLOCATE(x(n),w(n))
 
-    !    IF ( n == 1 ) THEN
-    !      x(1) = 0._RP
-    !      w(1) = 2._RP
-    !      RETURN
-    !    END IF
-
-    !    DO CONCURRENT( i = 1:n )
-    !      x(i) = COS( (n-i) *pi /(n-1) )
-    !    END DO
     x(1) = -1._RP
     x(2:n-1) = [ ( COS( (n-i)*pi/(n-1) ), i=2,n-1 ) ]
     x(n) = 1._RP
@@ -65,12 +56,6 @@ CONTAINS
       theta = (i-1) *pi/(n-1)
 
       DO j = 1, (n-1) /2 -1
-        !        IF ( 2*j == (n-1) ) THEN
-        !          bj = 1._RP
-        !        ELSE
-        !          bj = 2._RP
-        !        END IF
-        !        w(i) = w(i) - bj *COS ( 2.*j *theta ) / (4*j*j - 1.)
         w(i) = w(i) - 2.*COS ( 2.*j *theta ) / (4*j*j - 1.)
       END DO
 
