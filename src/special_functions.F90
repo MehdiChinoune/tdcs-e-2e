@@ -57,7 +57,7 @@ CONTAINS
       , alpi = 1.14472988584940_RP, hl2p = .918938533204673_RP, half = 0.5_RP
     REAL(KIND=RP)  :: a, a1, a2, c, cn, cut, d, eps, et, e2t, h1, h2, s, sn, &
       s1, s2, t, t1, t2, u, u1, u2, v1, v2, w1, w2, x, y, y2
-    INTEGER    :: j, k, l, m, MAX, n, nm1
+    INTEGER    :: j, k, l, m, n, nm1
     !---------------------------
     !     ALPI = LOG(PI)
     !     HL2P = 0.5 * LOG(2*PI)
@@ -69,7 +69,7 @@ CONTAINS
     !            SUCH THAT 1.0 + EPS > 1.0.
 
     !                      MAX = IPMPAR(3)
-    MAX = HUGE(1)
+    !MAX = HUGE(1)
     eps = EPSILON(1._RP)
     !---------------------------
     x = REAL(z, KIND=RP)
@@ -431,9 +431,9 @@ CONTAINS
       rt2dpi = 0.797884560802865_RP
     !!---- ARRAYS INDEXED FROM 0 INSIDE SUBROUTINE: STORAGE FROM IDUM3
     REAL(KIND=RP) :: accur, acch, xinv, pk, cf1, c, d, pk1, etak, rk2, tk, dcf1, den, xlm, xll &
-      , el, xl, rl, sl, f, fcmaxl, fcminl, gcminl, omega, wronsk, wi, a, b, ar, ai, br, bi, dr &
+      , el, xl, rl, sl, f, fcmaxl, fcminl, gcminl, omega, wi, a, b, ar, ai, br, bi, dr &
       , di, dp, dq, alpha, beta, e2mm1, fjwkb,  gjwkb, p, q, GAMMA, gammai, ERR
-    INTEGER  :: l, maxl, idum2, nfp, idum1, idum3
+    INTEGER  :: l, maxl, idum2, idum3
     LOGICAL  :: etane0, xlturn
     !----------------------------------------------------------------------
     !     COUL90 HAS CALLS TO: SQRT,ABS,MAX,INT,SIGN,DBLE,MIN
@@ -447,7 +447,7 @@ CONTAINS
     !    accur = 1.E-7_RP
     IF(present(ifail)) ifail = 0
     idum2 = 1
-    idum1 = 0
+    !idum1 = 0
     gjwkb = 0._RP
     ERR = 1._RP
     !    IF(KFN /= 0) ETA = 0._RP
@@ -525,7 +525,7 @@ CONTAINS
       RETURN
     ENDIF
 
-    nfp = INT(pk - xll - 1)
+    !nfp = INT(pk - xll - 1)
     f = cf1
     !---- DOWNWARD RECURRENCE TO LAMBDA = XLM; ARRAYS GC, GCP STORE RL, SL
     IF( lrange > 0 ) THEN
@@ -605,7 +605,7 @@ CONTAINS
         RETURN
       ENDIF
 
-      idum1 = INT(pk / 2._RP)
+      !idum1 = INT(pk / 2._RP)
       ERR = half * accur / MIN( ABS(q),1._RP )
       IF( ABS(p) > ABS(q) ) ERR = ERR * ABS(p)
       !---------------------------------------------------------------------
@@ -619,7 +619,7 @@ CONTAINS
         omega = SQRT( 1._RP + gammai* gammai) * ABS(GAMMA)
       ENDIF
       omega = 1._RP / ( omega * SQRT(q) )
-      wronsk = omega
+     ! wronsk = omega
     ENDIF
     !---------------------------------------------------------------------
     !---- RENORMALISE IF SPHERICAL OR CYLINDRICAL BESSEL FUNCTIONS
@@ -756,8 +756,8 @@ CONTAINS
     INTEGER, PARAMETER :: limit = 20000 !,maxl = 1001
     REAL(KIND=RP), PARAMETER :: small = SQRT(TINY(1._RP)) , three = 3._RP
 
-    INTEGER :: nfp, l
-    REAL(KIND=RP) :: accur, tk, sl, ERR
+    INTEGER :: l
+    REAL(KIND=RP) :: accur, tk, sl!, ERR
     REAL(KIND=RP) :: xinv, cf1, dcf1, den, c, d, omega, twoxi
     !COMMON / STEED  / ERR,NFP,IDUM1,IDUM2,IDUM3
     !!----
@@ -797,9 +797,9 @@ CONTAINS
       END DO
       !!---- ERROR EXIT, NO CONVERGENCE
       GOTO 50
-      20    nfp = l
+      20 continue !   nfp = l
       !!---- ERROR ESTIMATE
-      ERR = accur*SQRT(REAL(nfp,KIND=RP))
+      !ERR = accur*SQRT(REAL(nfp,KIND=RP))
       psi (lmax) = den
       psid(lmax) = cf1 * den
       !!---- DOWNWARD RECURSION TO L=0  AS RICCATI-BESSEL FUNCTIONS

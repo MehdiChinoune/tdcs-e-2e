@@ -232,7 +232,7 @@ CONTAINS
         MX2 = MAX(NUMR(L+1),NUMI(L+1))
       ENDIF
       IF(MX1-MX2 >  2._RP .AND. CR > 0._RP .AND. &
-        ABS( CMPLX(AR,AI,8)*CMPLX(XR,XI,8)/(CMPLX(CR,CI,8)*CNT)) <= 1._RP) EXIT
+        ABS( CMPLX(AR,AI,RP)*CMPLX(XR,XI,RP)/(CMPLX(CR,CI,RP)*CNT)) <= 1._RP) EXIT
       CALL CMPMUL(SUMR,SUMI,CR,CI,QR1,QI1,L,RMAX)
       CALL CMPMUL(SUMR,SUMI,CR2,CI2,QR2,QI2,L,RMAX)
       QR2(L+1)=QR2(L+1)-1
@@ -529,10 +529,10 @@ CONTAINS
     REAL(RP), INTENT(IN) :: A(-1:L+1), B, RMAX
     REAL(RP), INTENT(OUT) :: C(-1:L+1)
 
-    REAL(RP) ::  B2,CARRY,RMAX2, Z(-1:L+1)
+    REAL(RP) ::  B2,CARRY, Z(-1:L+1)!,RMAX2
     INTEGER I
 
-    RMAX2 = 1._RP/RMAX
+    !RMAX2 = 1._RP/RMAX
     Z(-1) = SIGN(1._RP,B)*A(-1)
     B2=ABS(B)
     Z(L+1) = A(L+1)
@@ -893,7 +893,7 @@ CONTAINS
   !     ****************************************************************
 
   PURE SUBROUTINE CONV21(CAE,CN)
-    USE IEEE_ARITHMETIC ,ONLY: IEEE_IS_FINITE
+    !USE IEEE_ARITHMETIC ,ONLY: IEEE_IS_FINITE
     REAL(RP), INTENT(IN) ::  CAE(2,2)
     COMPLEX(RP), INTENT(OUT) :: CN
 

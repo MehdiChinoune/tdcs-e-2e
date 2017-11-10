@@ -15,8 +15,8 @@ CONTAINS
 
   ELEMENTAL REAL(KIND=RP) FUNCTION y1y2y3(l1, l2, l3, m1, m2, m3 )
     USE constants ,ONLY: pi
-    USE ieee_arithmetic ,ONLY: ieee_is_nan, ieee_is_finite
-    USE special_functions ,ONLY: fac_called, lnfac
+    !USE ieee_arithmetic ,ONLY: ieee_is_nan, ieee_is_finite
+    USE special_functions ,ONLY: lnfac!, fac_called
     INTEGER, INTENT(IN) :: l1, l2, l3, m1, m2, m3
     INTEGER :: t
     REAL(KIND=RP) :: s0, s1, cst_1, cst_0

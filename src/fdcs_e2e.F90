@@ -82,7 +82,7 @@ CONTAINS
 
       sigma=factor*sigma
 
-      PRINT'(1x,i4,1x,es15.8)',i,sigma
+      PRINT '(1x,i4,1x,es15.8)',i,sigma
       WRITE( out_unit, '(1x,i4,1x,es15.8)' ) i, sigma
     END DO
 
@@ -151,7 +151,7 @@ CONTAINS
 
       sigma=factor*sigma/(2*lo+1)
 
-      PRINT'(1x,i4,1x,es15.8)',i,sigma
+      PRINT '(1x,i4,1x,es15.8)',i,sigma
       WRITE( out_unit, '(1x,i4,1x,es15.8)' ) i, sigma
     END DO
 
@@ -160,7 +160,7 @@ CONTAINS
   SUBROUTINE fdcs_fba_dw(in_unit,out_unit)
     USE ieee_arithmetic ,only: ieee_is_nan
     USE constants ,ONLY: pi, deg, ev
-    USE special_functions ,ONLY: cgamma, spherical_harmonic, coul90, ricbes, symbol_3j, factorial
+    USE special_functions ,ONLY: cgamma, spherical_harmonic, ricbes, factorial!, coul90, symbol_3j
     USE utils ,ONLY: norm_fac, y1y2y3, calculate_U, ode_second_dw
     USE input ,ONLY: read_input, read_orbit
 #if defined(__FLANG) || defined(__PGI)
@@ -308,7 +308,7 @@ CONTAINS
 
       sigma = factor*sigma/(2*lo+1)
 
-      PRINT'(1x,i4,1x,es15.8)',i,sigma
+      PRINT '(1x,i4,1x,es15.8)',i,sigma
       WRITE(out_unit, '(1x,i4,1x,es15.8)' ) i, sigma
     END DO
 
@@ -507,7 +507,7 @@ CONTAINS
         CALL PCI_EFFECTS()
       END IF
 
-      PRINT'(1x,i4,1x,es15.8)', i, sigma
+      PRINT '(1x,i4,1x,es15.8)', i, sigma
       WRITE(out_unit, '(1x,i4,1x,es15.8)' ) i, sigma
     END DO
 
@@ -593,7 +593,7 @@ CONTAINS
 
       sigma=factor*sigma
 
-      PRINT'(1x,i4,1x,es15.8)',i,sigma
+      PRINT '(1x,i4,1x,es15.8)',i,sigma
       WRITE( out_unit, '(1x,i4,1x,es15.8)' ) i, sigma
     END DO
 
@@ -788,11 +788,7 @@ CONTAINS
 
   PURE COMPLEX(KIND=RP) FUNCTION tpw( n, l, m, e, ke, k)
     USE constants ,ONLY: pi
-#if defined(__FLANG) || defined(__PGI)
-    USE trigo ,ONLY: cartez2spher, nrm2
-#else
     USE trigo ,ONLY: cartez2spher
-#endif
     USE utils ,ONLY: norm_fac
     USE special_functions ,ONLY: spherical_harmonic, fac
     INTEGER      , INTENT(IN) :: n,l,m
@@ -919,11 +915,7 @@ CONTAINS
 
   PURE COMPLEX(KIND=RP) FUNCTION tcw0( n, l, m, e, alpha, ke)
     USE constants ,ONLY: pi
-#if defined(__FLANG) || defined(__PGI)
-    USE trigo ,ONLY: cartez2spher, nrm2
-#else
     USE trigo ,ONLY: cartez2spher
-#endif
     USE utils ,ONLY: norm_fac
     USE special_functions ,ONLY: spherical_harmonic, fac
     INTEGER      , INTENT(IN) :: n, l, m
