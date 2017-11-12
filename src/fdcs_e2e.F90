@@ -163,11 +163,8 @@ CONTAINS
     USE special_functions ,ONLY: cgamma, spherical_harmonic, ricbes, factorial!, coul90, symbol_3j
     USE utils ,ONLY: norm_fac, y1y2y3, calculate_U, ode_second_dw
     USE input ,ONLY: read_input, read_orbit
-#if defined(__FLANG) || defined(__PGI)
     USE trigo ,ONLY: spher2cartez, cartez2spher, nrm2
-#else
-    USE trigo ,ONLY: spher2cartez, cartez2spher
-#endif
+
     INTEGER, INTENT(IN) :: in_unit
     INTEGER, INTENT(IN) :: out_unit
 
@@ -319,12 +316,9 @@ CONTAINS
     USE special_functions ,ONLY: spherical_harmonic, cgamma, factorial
     USE utils ,ONLY: norm_fac, calculate_U
     USE input ,ONLY: read_input, read_orbit
-#if defined(__FLANG) || defined(__PGI)
     USE trigo ,ONLY: spher2cartez, nrm2
-#else
-    USE trigo ,ONLY: spher2cartez
-#endif
     USE integration ,ONLY: gauleg
+
     INTEGER, INTENT(IN) :: in_unit
     INTEGER, INTENT(IN) :: out_unit
 
@@ -442,8 +436,6 @@ CONTAINS
     END DO
     sigma_ls = sigma_ls +delta_ls
 
-    ALLOCATE( integ( 0:2*MAX(limax,lsmax,lemax),  0:limax ) )
-
     CALL dwb_integrals(chi_0, chi_a, chi_b, delta_li, sigma_ls, sigma_le, wf, x, w, lo, integral)
     IF(exchange==1) THEN
       CALL dwb_integrals(chi_0, chi_b, chi_a, delta_li, sigma_le, sigma_ls, wf, x, w, lo, integralx)
@@ -499,7 +491,7 @@ CONTAINS
           END DO
         END IF
 
-        sigma = sigma +(mo+1)*( ABS(termd)**2 +ABS(termx)**2 -REAL( CONJG(termd)*termx, rp ) )
+        sigma = sigma +(mo+1)*( ABS(termd)**2 +ABS(termx)**2 -REAL( CONJG(termd)*termx, RP ) )
       END DO
 
       sigma = factor*sigma/(2*lo+1)
