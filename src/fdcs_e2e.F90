@@ -496,7 +496,7 @@ CONTAINS
 
       sigma = factor*sigma/(2*lo+1)
       IF(PCI>=1) THEN
-        CALL PCI_EFFECTS()
+        CALL PCI_EFFECTS(i,sigma)
       END IF
 
       PRINT '(1x,i4,1x,es15.8)', i, sigma
@@ -505,22 +505,18 @@ CONTAINS
 
   CONTAINS
 
-    SUBROUTINE PCI_EFFECTS()
+    ELEMENTAL SUBROUTINE PCI_EFFECTS(i,sigma)
       USE special_functions ,ONLY: conhyp_opt
-      USE trigo ,ONLY: nrm2
-      ! USE conhyp_m ,ONLY: conhyp
-      REAL(RP) :: kesm, ke(3), ks(3)
+      INTEGER, INTENT(IN) :: i
+      REAL(RP), INTENT(INOUT) :: sigma
+      REAL(RP) :: kesm
       REAL(RP) :: r12_av, Et
-      CALL spher2cartez(kem, thetas, pi, ks)
-      CALL spher2cartez(ksm, i*deg, phie, ke)
-      kesm = nrm2(ke-ks)/2._RP
+      kesm = SQRT( kem**2 +ksm**2 -2*kem*ksm*COS( (thetas+i)*deg ) )/2._RP
       sigma = pi/(kesm*(EXP(pi/kesm) -1._RP ) ) *sigma
       IF(PCI==2) THEN
         Et = (Es +Ee)*eV
         r12_av = pi**2/(16.*Et) *( 1._RP +(0.627/pi)*SQRT(Et)*LOG(Et) )**2
         sigma = ABS( conhyp_opt( 0.5/kesm, -2.*kesm*r12_av  ) )**2 *sigma
-        !sigma = ABS( conhyp( CMPLX(0._RP, 0.5/kesm, RP), (1._RP,0._RP), &
-          !  CMPLX(0._RP, -2.*kesm*r12_av, RP ), 0, 10) )**2 *sigma
       END IF
     END SUBROUTINE
 
