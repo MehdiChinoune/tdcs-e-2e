@@ -356,7 +356,7 @@ CONTAINS
 
     REAL(KIND=RP), ALLOCATABLE :: r(:), wf(:)
     REAL(KIND=RP) :: rc, h
-    COMPLEX(KIND=RP), ALLOCATABLE :: integral(:,:,:,:), integ(:,:), integralx(:,:,:,:)
+    COMPLEX(KIND=RP), ALLOCATABLE :: integral(:,:,:,:), integralx(:,:,:,:)
     COMPLEX(KIND=RP) :: tmp_z
 
     REAL(KIND=RP) :: factor, sigma
