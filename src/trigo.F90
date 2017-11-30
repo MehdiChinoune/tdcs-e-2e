@@ -9,7 +9,7 @@ CONTAINS
 
   PURE REAL(RP) FUNCTION nrm2(a)
     REAL(RP), INTENT(IN) :: a(:)
-#if !defined(__GNUC) || !defined(__INTEL)
+#if defined(__FLANG) || defined(__PGI)
     nrm2 = SQRT( SUM(ABS(a)**2) )
 #else
     nrm2 = NORM2(a)

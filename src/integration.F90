@@ -101,8 +101,8 @@ CONTAINS
 
   PURE SUBROUTINE pd(sx,sw,n)
     INTEGER, INTENT(IN) :: n
-    REAL(rp), INTENT(OUT) :: sw(:)!,CONTIGUOUS :: sw(:)
-    REAL(rp), INTENT(INOUT) :: sx(:) !,CONTIGUOUS :: sx(:)
+    REAL(rp), INTENT(OUT), CONTIGUOUS :: sw(:)
+    REAL(rp), INTENT(INOUT), CONTIGUOUS :: sx(:)
 
     REAL(RP),PARAMETER :: eps=EPSILON(eps)
     REAL(rp), DIMENSION((n+1)/2) :: dp0,dp1,dp2,dp
