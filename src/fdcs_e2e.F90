@@ -100,8 +100,8 @@ CONTAINS
     REAL(RP) :: Ei, Es, Ee
     REAL(RP) :: thetas
     INTEGER :: step(3), exchange
-    INTEGER       :: nelec, ze, zs
-    INTEGER       :: lo, no
+    INTEGER :: nelec, ze, zs
+    INTEGER :: lo, no
     REAL(RP), ALLOCATABLE :: a(:), e(:)
     INTEGER, ALLOCATABLE :: n(:)
 
@@ -172,8 +172,8 @@ CONTAINS
     REAL(RP) :: Ei, Es, Ee
     REAL(RP) :: thetas
     INTEGER :: step(3), exchange
-    INTEGER       :: nelec
-    INTEGER       :: lo, no
+    INTEGER :: nelec
+    INTEGER :: lo, no
     REAL(RP), ALLOCATABLE :: a(:), e(:)
     INTEGER, ALLOCATABLE :: n(:)
 
@@ -326,8 +326,8 @@ CONTAINS
     REAL(RP) :: Ei, Es, Ee
     REAL(RP) :: thetas
     INTEGER :: step(3), exchange, PCI = 2
-    INTEGER       :: nelec
-    INTEGER       :: lo, no
+    INTEGER :: nelec
+    INTEGER :: lo, no
     REAL(RP), ALLOCATABLE :: a(:), e(:)
     INTEGER, ALLOCATABLE :: n(:)
 
@@ -780,13 +780,13 @@ CONTAINS
     USE trigo ,ONLY: cartez2spher
     USE utils ,ONLY: norm_fac
     USE special_functions ,ONLY: spherical_harmonic, fac
-    INTEGER      , INTENT(IN) :: n,l,m
+    INTEGER, INTENT(IN) :: n,l,m
     REAL(RP), INTENT(IN) :: e,ke(3)
     REAL(RP), INTENT(IN),OPTIONAL :: k(3)
 
-    REAL(RP)    :: q(3)
-    INTEGER          :: j
-    REAL(RP)    :: kem,thetae,phie,A
+    REAL(RP) :: q(3)
+    INTEGER :: j
+    REAL(RP) :: kem,thetae,phie,A
     COMPLEX(RP) :: kec
 
     IF(PRESENT(k)) THEN
@@ -815,7 +815,7 @@ CONTAINS
     USE utils ,ONLY: norm_fac
     USE trigo ,ONLY: nrm2
 
-    INTEGER      , INTENT(IN) :: n, l, m
+    INTEGER, INTENT(IN) :: n, l, m
     REAL(RP), INTENT(IN) :: e, alpha, ke(3), k(3)
 
     REAL(RP)    :: kem, km, a, aj1, ke_t(3)
@@ -823,7 +823,7 @@ CONTAINS
     COMPLEX(RP) :: tmp_j, tmp_j1, tmp_m1, cst_j, cst_j1, cst_m1
     REAL(RP)    :: tmp_s, tmp_s3, tmp_s1, cst_s, cst_s3, cst_s1, cst_s2
     COMPLEX(RP), PARAMETER :: zi = (0._RP, 1._RP)
-    INTEGER          :: j, j1, ma, m1, s, s1, s2, s3
+    INTEGER :: j, j1, ma, m1, s, s1, s2, s3
 
     ma = ABS(m)
     kem = nrm2(ke)
@@ -907,12 +907,12 @@ CONTAINS
     USE trigo ,ONLY: cartez2spher
     USE utils ,ONLY: norm_fac
     USE special_functions ,ONLY: spherical_harmonic, fac
-    INTEGER      , INTENT(IN) :: n, l, m
+    INTEGER, INTENT(IN) :: n, l, m
     REAL(RP), INTENT(IN) :: e, alpha, ke(3)
 
-    REAL(RP)    :: kem, thetae, phie, a, aj1
+    REAL(RP) :: kem, thetae, phie, a, aj1
     COMPLEX(RP) :: w, kec, ekec, gam(0:n), f21(0:n,0:(n-l)), alphac, w1m, tmp
-    INTEGER          :: j, j1
+    INTEGER :: j, j1
 
     CALL cartez2spher( -ke, kem, thetae, phie)
 

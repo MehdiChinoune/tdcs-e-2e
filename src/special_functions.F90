@@ -55,9 +55,9 @@ CONTAINS
       , .179644372368831_RP    , -1.39243221690590_RP    , 13.4028640441684_RP      &
       , -156.848284626002_RP ], pi = 3.14159265358979_RP, pi2  = 6.28318530717959_RP &
       , alpi = 1.14472988584940_RP, hl2p = .918938533204673_RP, half = 0.5_RP
-    REAL(RP)  :: a, a1, a2, c, cn, cut, d, eps, et, e2t, h1, h2, s, sn, &
+    REAL(RP) :: a, a1, a2, c, cn, cut, d, eps, et, e2t, h1, h2, s, sn, &
       s1, s2, t, t1, t2, u, u1, u2, v1, v2, w1, w2, x, y, y2
-    INTEGER    :: j, k, l, m, n, nm1
+    INTEGER :: j, k, l, m, n, nm1
     !---------------------------
     !     ALPI = LOG(PI)
     !     HL2P = 0.5*LOG(2*PI)
@@ -293,7 +293,7 @@ CONTAINS
   !! 0 <= m <= l,  while x lies in the range −1 <= x <= 1.
   ELEMENTAL REAL(RP) FUNCTION assoc_legendre(l,m,x)
     USE ieee_arithmetic ,only: ieee_is_finite
-    INTEGER      , INTENT(IN) :: l, m
+    INTEGER, INTENT(IN) :: l, m
     REAL(RP), INTENT(IN) :: x
 
     INTEGER :: i, l1
@@ -333,7 +333,7 @@ CONTAINS
 
   ELEMENTAL COMPLEX(RP) FUNCTION spherical_harmonic( l, m, theta, phi )
     use constants ,only: pi
-    INTEGER      , INTENT(IN) :: l, m
+    INTEGER, INTENT(IN) :: l, m
     REAL(RP), INTENT(IN) :: theta, phi
     REAL(RP), PARAMETER :: Tinye = log(tiny(1._RP))
     INTEGER :: ma
@@ -433,8 +433,8 @@ CONTAINS
     REAL(RP) :: accur, acch, xinv, pk, cf1, c, d, pk1, etak, rk2, tk, dcf1, den, xlm, xll &
       , el, xl, rl, sl, f, fcmaxl, fcminl, gcminl, omega, wi, a, b, ar, ai, br, bi, dr &
       , di, dp, dq, alpha, beta, e2mm1, fjwkb,  gjwkb, p, q, GAMMA, gammai, ERR
-    INTEGER  :: l, maxl, idum2, idum3
-    LOGICAL  :: etane0, xlturn
+    INTEGER :: l, maxl, idum2, idum3
+    LOGICAL :: etane0, xlturn
     !----------------------------------------------------------------------
     !     COUL90 HAS CALLS TO: SQRT,ABS,MAX,INT,SIGN,DBLE,MIN
     !----------------------------------------------------------------------

@@ -6,8 +6,8 @@ CONTAINS
 
   SUBROUTINE read_input(in_unit, Ei, Es, Ee, thetas, step, Atom, Orbit, exchange)
     INTEGER, INTENT(IN) :: in_unit
-    REAL(RP)   , INTENT(OUT) :: Ei, Es, Ee, thetas
-    INTEGER         , INTENT(OUT) :: step(3)
+    REAL(RP), INTENT(OUT) :: Ei, Es, Ee, thetas
+    INTEGER, INTENT(OUT) :: step(3)
     INTEGER, OPTIONAL, INTENT(OUT) :: exchange
     CHARACTER(LEN=2), INTENT(OUT) :: Atom, Orbit
 
@@ -22,7 +22,7 @@ CONTAINS
 
   SUBROUTINE read_orbit(orbit_file, nelec, lo, no, n, a, e )
     CHARACTER(LEN=5), INTENT(IN)  :: orbit_file
-    INTEGER         , INTENT(OUT) :: nelec, lo, no
+    INTEGER, INTENT(OUT) :: nelec, lo, no
     INTEGER, ALLOCATABLE, INTENT(OUT) :: n(:)
     REAL(RP), ALLOCATABLE, INTENT(OUT) :: a(:), e(:)
 

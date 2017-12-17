@@ -7,7 +7,7 @@ CONTAINS
   ELEMENTAL REAL(RP) FUNCTION norm_fac(e,n)
     USE special_functions ,ONLY: fac
     REAL(RP), INTENT(IN) :: e
-    INTEGER      , INTENT(IN) :: n
+    INTEGER , INTENT(IN) :: n
 
     norm_fac = SQRT( (2.*e)**(2*n+1) / fac(2*n) )
 
@@ -110,7 +110,7 @@ CONTAINS
   ELEMENTAL REAL(RP) FUNCTION Uij(ni, ei, nj, ej, r)
     USE special_functions ,ONLY: fac
     REAL(RP), INTENT(IN) :: ei, ej, r
-    INTEGER      , INTENT(IN) :: ni, nj
+    INTEGER, INTENT(IN) :: ni, nj
     INTEGER :: k
     REAL(RP) :: a
 

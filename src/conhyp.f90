@@ -28,7 +28,7 @@ CONTAINS
   !     *    and a single final division.  LNCHF is a variable which   *
   !     *    selects how the result should be represented.  A '0' will *
   !     *    return the value in standard exponential form.  A '1'     *
-  !     *    will return the LOG of the result.  IP is an integer      *
+  !     *    will return the LOG of the result.  IP is an INTEGER      *
   !     *    variable that specifies how many array positions are      *
   !     *    desired (usually 10 is sufficient).  Setting IP = 0 causes  *
   !     *    the program to estimate the number of array positions.    *
