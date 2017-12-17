@@ -11,7 +11,7 @@ CONTAINS
   !    The integral to approximate:
   !      Integral ( -1 <= X <= 1 ) F(X) dX
   !    The quadrature rule:
-  !      Sum ( 1 <= I <= n ) W(I) * F ( X(I) )
+  !      Sum ( 1 <= I <= n ) W(I)*F ( X(I) )
   !
   !  Licensing:
   !    This code is distributed under the GNU LGPL license.
@@ -30,39 +30,39 @@ CONTAINS
 
   SUBROUTINE clenshaw_curtis( a, b, x, w, n )
     USE constants ,ONLY: pi
-    REAL(KIND=RP), INTENT(IN) :: a, b
+    REAL(RP), INTENT(IN) :: a, b
     INTEGER, INTENT(IN) :: n
-    REAL(KIND=RP), INTENT(OUT), ALLOCATABLE :: w(:), x(:)
+    REAL(RP), INTENT(OUT), ALLOCATABLE :: w(:), x(:)
 
-    REAL(KIND=RP) :: theta !,bj
+    REAL(RP) :: theta !,bj
     INTEGER :: i, j
 
-!    IF ( n < 3 ) THEN
-!      ERROR STOP 'clenashaw_curtis  error : n < 3 '
+!    IF ( n<3 ) THEN
+!      ERROR STOP 'clenashaw_curtis  error : n<3 '
 !    END IF
 
     ALLOCATE(x(n),w(n))
 
     x(1) = -1._RP
-    x(2:n-1) = [ ( COS( (n-i)*pi/(n-1) ), i=2,n-1 ) ]
+    x(2:n-1) = [ ( COS( (n-i)*pi/(n-1) ), i = 2,n-1 ) ]
     x(n) = 1._RP
 
-    IF ( MOD(n,2) == 1 ) THEN
+    IF ( MOD(n,2)==1 ) THEN
       x((n+1)/2) = 0._RP
     END IF
 
     w = 1._RP
     DO i = 1,n
-      theta = (i-1) *pi/(n-1)
+      theta = (i-1)*pi/(n-1)
 
       DO j = 1, (n-1) /2 -1
-        w(i) = w(i) - 2.*COS ( 2.*j *theta ) / (4*j*j - 1.)
+        w(i) = w(i) -2.*COS( 2.*j*theta ) / (4*j*j -1.)
       END DO
 
-      IF( MOD(n,2) == 0 ) THEN
-        w(i) = w(i) -2.*COS ( 2.*( (n-1)/2 ) *theta ) / (4*( (n-1)/2 )**2 - 1.)
+      IF( MOD(n,2)==0 ) THEN
+        w(i) = w(i) -2.*COS( 2.*( (n-1)/2 )*theta ) / (4*( (n-1)/2 )**2 -1.)
       ELSE
-        w(i) = w(i) -COS ( (n-1)*theta ) /( (n-1)**2 - 1.)
+        w(i) = w(i) -COS( (n-1)*theta ) /( (n-1)**2 -1.)
       END IF
 
     END DO
@@ -71,7 +71,7 @@ CONTAINS
 
     w = w /(n-1.)
 
-    x = ( (a+b) + (b-a)*x ) /2.
+    x = ( (a+b) +(b-a)*x ) /2.
     w = (b-a)*w/2.
 
   END SUBROUTINE clenshaw_curtis
@@ -85,13 +85,13 @@ CONTAINS
 
     ALLOCATE(x(n),w(n))
 
-    x(1:(n+1)/2) = [(COS(pi*(4.*i-1.)/(4.*n+2.)), i=1,(n+1)/2 )]
+    x(1:(n+1)/2) = [(COS(pi*(4.*i-1.)/(4.*n+2.)), i = 1,(n+1)/2 )]
 
     CALL pd(x(1:(n+1)/2),w(1:(n+1)/2),n)
 
-    DO i=1,(n+1)/2
-      x(n-i+1)=-x(i)
-      w(n-i+1)=w(i)
+    DO i = 1,(n+1)/2
+      x(n-i+1) = -x(i)
+      w(n-i+1) = w(i)
     END DO
 
     x = ( (a-b)*x +b+a )/2.
@@ -104,7 +104,7 @@ CONTAINS
     REAL(rp), INTENT(OUT), CONTIGUOUS :: sw(:)
     REAL(rp), INTENT(INOUT), CONTIGUOUS :: sx(:)
 
-    REAL(RP),PARAMETER :: eps=EPSILON(eps)
+    REAL(RP),PARAMETER :: eps = EPSILON(eps)
     REAL(rp), DIMENSION((n+1)/2) :: dp0,dp1,dp2,dp
     INTEGER :: i
 
@@ -112,7 +112,7 @@ CONTAINS
     DO
       dp0 = 1._RP
       dp1 = sx
-      DO i=1,n-1
+      DO i = 1,n-1
         dp2 = ((2.*i+1._RP)*sx*dp1-i*dp0)/(i+1._RP)
         dp0 = dp1
         dp1 = dp2

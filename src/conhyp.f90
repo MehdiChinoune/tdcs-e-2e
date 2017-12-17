@@ -30,13 +30,13 @@ CONTAINS
   !     *    return the value in standard exponential form.  A '1'     *
   !     *    will return the LOG of the result.  IP is an integer      *
   !     *    variable that specifies how many array positions are      *
-  !     *    desired (usually 10 is sufficient).  Setting IP=0 causes  *
+  !     *    desired (usually 10 is sufficient).  Setting IP = 0 causes  *
   !     *    the program to estimate the number of array positions.    *
   !     *                                                              *
   !     *    The confluent hypergeometric function is the solution to  *
   !     *    the differential equation:                                *
   !     *                                                              *
-  !     *             zf"(z) + (a-z)f'(z) - bf(z) = 0                  *
+  !     *             zf"(z) +(a-z)f'(z) -bf(z) = 0                  *
   !     *                                                              *
   !     *  Subprograms called: BITS, CHGF                              *
   !     *                                                              *
@@ -48,33 +48,33 @@ CONTAINS
     INTEGER :: I
     REAL(RP) ::  NTERM,FX,TERM1,MAX,TERM2,ANG
 
-    IF( ABS(Z) /= 0._RP) THEN
+    IF( ABS(Z)/=0._RP) THEN
       ANG = ATAN2(AIMAG(Z),REAL(Z,RP))
     ELSE
       ANG = 1._RP
     ENDIF
-    IF(ABS(ANG) < (3.14159_RP*0.5)) THEN
-      ANG=1._RP
+    IF(ABS(ANG)<(3.14159_RP*0.5)) THEN
+      ANG = 1._RP
     ELSE
-      ANG=SIN(ABS(ANG)-(3.14159265_RP*0.5_RP))+1._RP
+      ANG = SIN(ABS(ANG)-(3.14159265_RP*0.5_RP))+1._RP
     ENDIF
-    MAX=0
-    NTERM=0
-    FX=0
-    TERM1=0
+    MAX = 0
+    NTERM = 0
+    FX = 0
+    TERM1 = 0
     DO
-      NTERM=NTERM+1
-      TERM2=ABS((A+NTERM-1)*Z/((B+NTERM-1)*NTERM))
-      IF(TERM2 == 0._RP) EXIT
-      IF(TERM2 < 1._RP .AND. (REAL(A)+NTERM-1) > 1._RP .AND. (REAL(B)+NTERM-1) > 1._RP &
-        .AND. (TERM2-TERM1) < 0._RP) EXIT
-      FX=FX+LOG(TERM2)
-      IF(FX > MAX) MAX=FX
-      TERM1=TERM2
+      NTERM = NTERM+1
+      TERM2 = ABS((A+NTERM-1)*Z/((B+NTERM-1)*NTERM))
+      IF(TERM2==0._RP) EXIT
+      IF(TERM2<1._RP .AND. (REAL(A)+NTERM-1)>1._RP .AND. (REAL(B)+NTERM-1)>1._RP &
+        .AND. (TERM2-TERM1)<0._RP) EXIT
+      FX = FX+LOG(TERM2)
+      IF(FX>MAX) MAX = FX
+      TERM1 = TERM2
     END DO
     MAX = MAX*2/(BITS()*6.93147181E-1_RP)
     I = INT(MAX*ANG)+7
-    IF(I < 5) I = 5
+    IF(I<5) I = 5
 
     IF( PRESENT(LNCHF) ) THEN
       IF( PRESENT(IP) .AND. IP>I ) THEN
@@ -112,7 +112,7 @@ CONTAINS
     DO
       BITS = BITS +1
       BIT2 = BIT*2._RP
-      BIT = BIT2 + 1._RP
+      BIT = BIT2 +1._RP
       IF( (BIT-BIT2)==0._RP ) EXIT
     END DO
 
@@ -217,26 +217,26 @@ CONTAINS
     DENOMR(1) = 1._RP
     CNT = SIGFIG
     DO
-      IF(SUMR(1) < 0.5) THEN
-        MX1=SUMI(L+1)
-      ELSEIF(SUMI(1) < 0.5) THEN
-        MX1=SUMR(L+1)
+      IF(SUMR(1)<0.5) THEN
+        MX1 = SUMI(L+1)
+      ELSEIF(SUMI(1)<0.5) THEN
+        MX1 = SUMR(L+1)
       ELSE
         MX1 = MAX(SUMR(L+1),SUMI(L+1))
       ENDIF
-      IF(NUMR(1) < 0.5) THEN
-        MX2=NUMI(L+1)
-      ELSEIF(NUMI(1) < 0.5) THEN
-        MX2=NUMR(L+1)
+      IF(NUMR(1)<0.5) THEN
+        MX2 = NUMI(L+1)
+      ELSEIF(NUMI(1)<0.5) THEN
+        MX2 = NUMR(L+1)
       ELSE
         MX2 = MAX(NUMR(L+1),NUMI(L+1))
       ENDIF
-      IF(MX1-MX2 >  2._RP .AND. CR > 0._RP .AND. &
+      IF(MX1-MX2> 2._RP .AND. CR>0._RP .AND. &
         ABS( CMPLX(AR,AI,RP)*CMPLX(XR,XI,RP)/(CMPLX(CR,CI,RP)*CNT)) <= 1._RP) EXIT
       CALL CMPMUL(SUMR,SUMI,CR,CI,QR1,QI1,L,RMAX)
       CALL CMPMUL(SUMR,SUMI,CR2,CI2,QR2,QI2,L,RMAX)
-      QR2(L+1)=QR2(L+1)-1
-      QI2(L+1)=QI2(L+1)-1
+      QR2(L+1) = QR2(L+1)-1
+      QI2(L+1) = QI2(L+1)-1
       CALL CMPADD(QR1,QI1,QR2,QI2,SUMR,SUMI,L,RMAX)
 
       CALL ARMULT(SUMR,CNT,SUM_tmp,L,RMAX)
@@ -245,8 +245,8 @@ CONTAINS
       SUMI = SUM_tmp
       CALL CMPMUL(DENOMR,DENOMI,CR,CI,QR1,QI1,L,RMAX)
       CALL CMPMUL(DENOMR,DENOMI,CR2,CI2,QR2,QI2,L,RMAX)
-      QR2(L+1)=QR2(L+1)-1
-      QI2(L+1)=QI2(L+1)-1
+      QR2(L+1) = QR2(L+1)-1
+      QI2(L+1) = QI2(L+1)-1
       CALL CMPADD(QR1,QI1,QR2,QI2,DENOMR,DENOMI,L,RMAX)
 
       CALL ARMULT(DENOMR,CNT,SUM_tmp,L,RMAX)
@@ -255,25 +255,25 @@ CONTAINS
       DENOMI = SUM_tmp
       CALL CMPMUL(NUMR,NUMI,AR,AI,QR1,QI1,L,RMAX)
       CALL CMPMUL(NUMR,NUMI,AR2,AI2,QR2,QI2,L,RMAX)
-      QR2(L+1)=QR2(L+1)-1
-      QI2(L+1)=QI2(L+1)-1
+      QR2(L+1) = QR2(L+1)-1
+      QI2(L+1) = QI2(L+1)-1
       CALL CMPADD(QR1,QI1,QR2,QI2,NUMR,NUMI,L,RMAX)
 
       CALL CMPMUL(NUMR,NUMI,XR,XI,QR1,QI1,L,RMAX)
       CALL CMPMUL(NUMR,NUMI,XR2,XI2,QR2,QI2,L,RMAX)
-      QR2(L+1)=QR2(L+1)-1
-      QI2(L+1)=QI2(L+1)-1
+      QR2(L+1) = QR2(L+1)-1
+      QI2(L+1) = QI2(L+1)-1
       CALL CMPADD(QR1,QI1,QR2,QI2,NUMR,NUMI,L,RMAX)
 
       CALL CMPADD(SUMR,SUMI,NUMR,NUMI,SUM_tmp,SUM_tmp2,L,RMAX)
       SUMR = SUM_tmp
       SUMI = SUM_tmp2
-      CNT=CNT+SIGFIG
-      AR=AR+SIGFIG
-      CR=CR+SIGFIG
+      CNT = CNT+SIGFIG
+      AR = AR+SIGFIG
+      CR = CR+SIGFIG
     END DO
     CALL ARYDIV(SUMR,SUMI,DENOMR,DENOMI,FINAL,L,LNCHF,RMAX,BIT)
-    CHGF=FINAL
+    CHGF = FINAL
     RETURN
   END FUNCTION CHGF
 
@@ -306,7 +306,7 @@ CONTAINS
     IF( ABS(A(1))<0.5_RP .OR. EDIFF<=-L ) THEN
       C = B
       GOTO 311
-    ELSEIF( ABS(B(1)) < 0.5_RP .OR. EDIFF>=L ) THEN
+    ELSEIF( ABS(B(1))<0.5_RP .OR. EDIFF>=L ) THEN
       C = A
       GOTO 311
     ENDIF
@@ -318,11 +318,11 @@ CONTAINS
         GOTO 233
       ENDIF
       IF( EDIFF<0 ) THEN
-        Z(L+1)=B(L+1)
-        Z(-1)=B(-1)
+        Z(L+1) = B(L+1)
+        Z(-1) = B(-1)
         GOTO 266
       ENDIF
-      DO I=1,L
+      DO I = 1,L
         IF( A(I)>B(I) ) THEN
           Z(L+1) = A(L+1)
           GOTO 233
@@ -334,94 +334,94 @@ CONTAINS
       END DO
       GOTO 300
     ELSEIF( EDIFF==0 ) THEN
-      Z(L+1)=A(L+1)
-      DO I=L,1,-1
-        Z(I)=A(I)+B(I)+Z(I)
-        IF(Z(I) >= RMAX) THEN
-          Z(I)=Z(I)-RMAX
-          Z(I-1)=1._RP
+      Z(L+1) = A(L+1)
+      DO I = L,1,-1
+        Z(I) = A(I)+B(I)+Z(I)
+        IF(Z(I)>=RMAX) THEN
+          Z(I) = Z(I)-RMAX
+          Z(I-1) = 1._RP
         ENDIF
       END DO
-      IF(Z(0) > 0.5) THEN
-        DO I=L,1,-1
-          Z(I)=Z(I-1)
+      IF(Z(0)>0.5) THEN
+        DO I = L,1,-1
+          Z(I) = Z(I-1)
         END DO
-        Z(L+1)=Z(L+1)+1._RP
-        Z(0)=0._RP
+        Z(L+1) = Z(L+1)+1._RP
+        Z(0) = 0._RP
       ENDIF
       GOTO 300
     ELSEIF( EDIFF>0 ) THEN
-      Z(L+1)=A(L+1)
-      DO I=L,1+EDIFF,-1
-        Z(I)=A(I)+B(I-EDIFF)+Z(I)
-        IF(Z(I) >= RMAX) THEN
-          Z(I)=Z(I)-RMAX
-          Z(I-1)=1._RP
+      Z(L+1) = A(L+1)
+      DO I = L,1+EDIFF,-1
+        Z(I) = A(I)+B(I-EDIFF)+Z(I)
+        IF(Z(I)>=RMAX) THEN
+          Z(I) = Z(I)-RMAX
+          Z(I-1) = 1._RP
         ENDIF
       END DO
-      DO I=EDIFF,1,-1
-        Z(I)=A(I)+Z(I)
-        IF(Z(I) >= RMAX) THEN
-          Z(I)=Z(I)-RMAX
-          Z(I-1)=1._RP
+      DO I = EDIFF,1,-1
+        Z(I) = A(I)+Z(I)
+        IF(Z(I)>=RMAX) THEN
+          Z(I) = Z(I)-RMAX
+          Z(I-1) = 1._RP
         ENDIF
       END DO
-      IF(Z(0) > 0.5) THEN
-        DO I=L,1,-1
-          Z(I)=Z(I-1)
+      IF(Z(0)>0.5) THEN
+        DO I = L,1,-1
+          Z(I) = Z(I-1)
         END DO
-        Z(L+1)=Z(L+1)+1
-        Z(0)=0._RP
+        Z(L+1) = Z(L+1)+1
+        Z(0) = 0._RP
       ENDIF
       GOTO 300
     ELSE
-      Z(L+1)=B(L+1)
-      DO I=L,1-EDIFF,-1
-        Z(I)=A(I+EDIFF)+B(I)+Z(I)
-        IF(Z(I) >= RMAX) THEN
-          Z(I)=Z(I)-RMAX
-          Z(I-1)=1._RP
+      Z(L+1) = B(L+1)
+      DO I = L,1-EDIFF,-1
+        Z(I) = A(I+EDIFF)+B(I)+Z(I)
+        IF(Z(I)>=RMAX) THEN
+          Z(I) = Z(I)-RMAX
+          Z(I-1) = 1._RP
         ENDIF
       END DO
-      DO I=0-EDIFF,1,-1
-        Z(I)=B(I)+Z(I)
-        IF(Z(I) >= RMAX) THEN
-          Z(I)=Z(I)-RMAX
-          Z(I-1)=1._RP
+      DO I = 0-EDIFF,1,-1
+        Z(I) = B(I)+Z(I)
+        IF(Z(I)>=RMAX) THEN
+          Z(I) = Z(I)-RMAX
+          Z(I-1) = 1._RP
         ENDIF
       END DO
-      IF(Z(0) > 0.5) THEN
-        DO I=L,1,-1
-          Z(I)=Z(I-1)
+      IF(Z(0)>0.5) THEN
+        DO I = L,1,-1
+          Z(I) = Z(I-1)
         END DO
-        Z(L+1)=Z(L+1)+1._RP
-        Z(0)=0._RP
+        Z(L+1) = Z(L+1)+1._RP
+        Z(0) = 0._RP
       ENDIF
       GOTO 300
     END IF
     233 CONTINUE
     IF( EDIFF<=0 ) THEN
-      DO I=L,1,-1
-        Z(I)=A(I)-B(I)+Z(I)
-        IF(Z(I) < 0._RP) THEN
-          Z(I)=Z(I)+RMAX
-          Z(I-1)=-1._RP
+      DO I = L,1,-1
+        Z(I) = A(I)-B(I)+Z(I)
+        IF(Z(I)<0._RP) THEN
+          Z(I) = Z(I)+RMAX
+          Z(I-1) = -1._RP
         ENDIF
       END DO
       GOTO 290
     ELSE
-      DO I=L,1+EDIFF,-1
-        Z(I)=A(I)-B(I-EDIFF)+Z(I)
-        IF(Z(I) < 0._RP) THEN
-          Z(I)=Z(I)+RMAX
-          Z(I-1)=-1._RP
+      DO I = L,1+EDIFF,-1
+        Z(I) = A(I)-B(I-EDIFF)+Z(I)
+        IF(Z(I)<0._RP) THEN
+          Z(I) = Z(I)+RMAX
+          Z(I-1) = -1._RP
         ENDIF
       END DO
-      DO I=EDIFF,1,-1
-        Z(I)=A(I)+Z(I)
-        IF(Z(I) < 0._RP) THEN
-          Z(I)=Z(I)+RMAX
-          Z(I-1)=-1._RP
+      DO I = EDIFF,1,-1
+        Z(I) = A(I)+Z(I)
+        IF(Z(I)<0._RP) THEN
+          Z(I) = Z(I)+RMAX
+          Z(I-1) = -1._RP
         ENDIF
       END DO
       GOTO 290
@@ -429,53 +429,53 @@ CONTAINS
 
     266 CONTINUE
     IF( EDIFF>=0 ) THEN
-      DO I=L,1,-1
-        Z(I)=B(I)-A(I)+Z(I)
-        IF(Z(I) < 0._RP) THEN
-          Z(I)=Z(I)+RMAX
-          Z(I-1)=-1._RP
+      DO I = L,1,-1
+        Z(I) = B(I)-A(I)+Z(I)
+        IF(Z(I)<0._RP) THEN
+          Z(I) = Z(I)+RMAX
+          Z(I-1) = -1._RP
         ENDIF
       END DO
     ELSE
-      DO I=L,1-EDIFF,-1
-        Z(I)=B(I)-A(I+EDIFF)+Z(I)
-        IF(Z(I) < 0._RP) THEN
-          Z(I)=Z(I)+RMAX
-          Z(I-1)=-1._RP
+      DO I = L,1-EDIFF,-1
+        Z(I) = B(I)-A(I+EDIFF)+Z(I)
+        IF(Z(I)<0._RP) THEN
+          Z(I) = Z(I)+RMAX
+          Z(I-1) = -1._RP
         ENDIF
       END DO
-      DO I=0-EDIFF,1,-1
-        Z(I)=B(I)+Z(I)
-        IF(Z(I) < 0._RP) THEN
-          Z(I)=Z(I)+RMAX
-          Z(I-1)=-1._RP
+      DO I = 0-EDIFF,1,-1
+        Z(I) = B(I)+Z(I)
+        IF(Z(I)<0._RP) THEN
+          Z(I) = Z(I)+RMAX
+          Z(I-1) = -1._RP
         ENDIF
       END DO
     END IF
-    290 IF(Z(1) > 0.5) GOTO 300
-    I=1
+    290 IF(Z(1)>0.5) GOTO 300
+    I = 1
     DO
-      I=I+1
+      I = I+1
       IF( Z(I)>=0.5 .OR. I>=L+1 ) EXIT
     END DO
     IF( I==L+1 ) THEN
-      Z(-1)=1._RP
-      Z(L+1)=0._RP
+      Z(-1) = 1._RP
+      Z(L+1) = 0._RP
       GOTO 300
     ENDIF
 
-    DO J=1,L+1-I
-      Z(J)=Z(J+I-1)
+    DO J = 1,L+1-I
+      Z(J) = Z(J+I-1)
     END DO
-    DO J=L+2-I,L
+    DO J = L+2-I,L
       Z(J) = 0._RP
     END DO
-    Z(L+1)=Z(L+1)-I+1
+    Z(L+1) = Z(L+1)-I+1
     300 C = Z
     311 CONTINUE
     IF( C(1)<0.5 ) THEN
-      C(-1)=1._RP
-      C(L+1)=0._RP
+      C(-1) = 1._RP
+      C(L+1) = 0._RP
     ENDIF
 
     RETURN
@@ -534,15 +534,15 @@ CONTAINS
 
     !RMAX2 = 1._RP/RMAX
     Z(-1) = SIGN(1._RP,B)*A(-1)
-    B2=ABS(B)
+    B2 = ABS(B)
     Z(L+1) = A(L+1)
     Z(0:L) = 0._RP
     IF( B2<=1.0E-10_RP .OR. A(1)<=1.0E-10_RP ) THEN
       Z(-1) = 1._RP
       Z(L+1) = 0._RP
     ELSE
-      DO I=L,1,-1
-        Z(I) = A(I)*B2 + Z(I)
+      DO I = L,1,-1
+        Z(I) = A(I)*B2 +Z(I)
         IF( Z(I)>=RMAX ) THEN
           CARRY = INT(Z(I)/RMAX)
           Z(I) = Z(I)-CARRY*RMAX
@@ -557,8 +557,8 @@ CONTAINS
     END IF
     C = Z
     IF( C(1)<0.5 ) THEN
-      C(-1)=1._RP
-      C(L+1)=0._RP
+      C(-1) = 1._RP
+      C(L+1) = 0._RP
     ENDIF
 
     RETURN
@@ -669,55 +669,55 @@ CONTAINS
     REAL(RP) ::  X1,X2,DUM1,DUM2
     REAL(RP) :: AE(2,2),BE(2,2),CE(2,2)
 
-    REXP=BIT/2
-    X=REXP*(AR(L+1)-2)
-    RR10=X*LOG10(2._RP)/LOG10(10._RP)
-    IR10=INT(RR10)
-    RR10=RR10-IR10
-    X=REXP*(AI(L+1)-2)
-    RI10=X*LOG10(2._RP)/LOG10(10._RP)
-    II10=INT(RI10)
-    RI10=RI10-II10
-    DUM1=SIGN(AR(1)*RMAX*RMAX+AR(2)*RMAX+AR(3),AR(-1))
-    DUM2=SIGN(AI(1)*RMAX*RMAX+AI(2)*RMAX+AI(3),AI(-1))
-    DUM1=DUM1*10**RR10
-    DUM2=DUM2*10**RI10
+    REXP = BIT/2
+    X = REXP*(AR(L+1)-2)
+    RR10 = X*LOG10(2._RP)/LOG10(10._RP)
+    IR10 = INT(RR10)
+    RR10 = RR10-IR10
+    X = REXP*(AI(L+1)-2)
+    RI10 = X*LOG10(2._RP)/LOG10(10._RP)
+    II10 = INT(RI10)
+    RI10 = RI10-II10
+    DUM1 = SIGN(AR(1)*RMAX*RMAX+AR(2)*RMAX+AR(3),AR(-1))
+    DUM2 = SIGN(AI(1)*RMAX*RMAX+AI(2)*RMAX+AI(3),AI(-1))
+    DUM1 = DUM1*10**RR10
+    DUM2 = DUM2*10**RI10
     CALL CONV12(CMPLX(DUM1,DUM2,RP),AE)
-    AE(1,2)=AE(1,2)+IR10
-    AE(2,2)=AE(2,2)+II10
-    X=REXP*(BR(L+1)-2)
-    RR10=X*LOG10(2._RP)/LOG10(10._RP)
-    IR10=INT(RR10)
-    RR10=RR10-IR10
-    X=REXP*(BI(L+1)-2)
-    RI10=X*LOG10(2._RP)/LOG10(10._RP)
-    II10=INT(RI10)
-    RI10=RI10-II10
+    AE(1,2) = AE(1,2)+IR10
+    AE(2,2) = AE(2,2)+II10
+    X = REXP*(BR(L+1)-2)
+    RR10 = X*LOG10(2._RP)/LOG10(10._RP)
+    IR10 = INT(RR10)
+    RR10 = RR10-IR10
+    X = REXP*(BI(L+1)-2)
+    RI10 = X*LOG10(2._RP)/LOG10(10._RP)
+    II10 = INT(RI10)
+    RI10 = RI10-II10
     DUM1 = SIGN(BR(1)*RMAX*RMAX+BR(2)*RMAX+BR(3),BR(-1))
     DUM2 = SIGN(BI(1)*RMAX*RMAX+BI(2)*RMAX+BI(3),BI(-1))
-    DUM1=DUM1*10**RR10
-    DUM2=DUM2*10**RI10
+    DUM1 = DUM1*10**RR10
+    DUM2 = DUM2*10**RI10
     CALL CONV12(CMPLX(DUM1,DUM2,RP),BE)
-    BE(1,2)=BE(1,2)+IR10
-    BE(2,2)=BE(2,2)+II10
+    BE(1,2) = BE(1,2)+IR10
+    BE(2,2) = BE(2,2)+II10
     CALL ECPDIV(AE,BE,CE)
-    IF(LNCHF == 0) THEN
+    IF(LNCHF==0) THEN
       CALL CONV21(CE,C)
     ELSE
       CALL EMULT(CE(1,1),CE(1,2),CE(1,1),CE(1,2),N1,E1)
       CALL EMULT(CE(2,1),CE(2,2),CE(2,1),CE(2,2),N2,E2)
       CALL EADD(N1,E1,N2,E2,N3,E3)
-      N1=CE(1,1)
-      E1=CE(1,2)-CE(2,2)
-      X2=CE(2,1)
-      IF(E1 > 74._RP) THEN
+      N1 = CE(1,1)
+      E1 = CE(1,2)-CE(2,2)
+      X2 = CE(2,1)
+      IF(E1>74._RP) THEN
         X1 = HUGE(1._RP) !1.E75_RP
-      ELSEIF(E1 < -74._RP) THEN
+      ELSEIF(E1<-74._RP) THEN
         X1 = 0._RP
       ELSE
         X1 = N1*(10**E1)
       ENDIF
-      PHI=ATAN2(X2,X1)
+      PHI = ATAN2(X2,X1)
       C = CMPLX(0.5_RP*(LOG(N3)+E3*LOG(10._RP)),PHI,RP)
     ENDIF
     RETURN
@@ -741,11 +741,11 @@ CONTAINS
     REAL(RP), INTENT(IN) ::  N1,E1,N2,E2
     REAL(RP), INTENT(OUT) :: NF,EF
 
-    NF=N1*N2
-    EF=E1+E2
-    IF(ABS(NF) >= 10._RP) THEN
-      NF=NF/10._RP
-      EF=EF+1._RP
+    NF = N1*N2
+    EF = E1 +E2
+    IF(ABS(NF)>=10._RP) THEN
+      NF = NF/10._RP
+      EF = EF +1._RP
     ENDIF
     RETURN
   END SUBROUTINE EMULT
@@ -767,11 +767,11 @@ CONTAINS
     REAL(RP), INTENT(IN) ::  N1,E1,N2,E2
     REAL(RP), INTENT(OUT) :: NF,EF
 
-    NF=N1/N2
-    EF=E1-E2
-    IF((ABS(NF) < 1._RP) .AND. (NF /= 0._RP)) THEN
-      NF=NF*10._RP
-      EF=EF-1._RP
+    NF = N1/N2
+    EF = E1-E2
+    IF((ABS(NF)<1._RP) .AND. (NF/=0._RP)) THEN
+      NF = NF*10._RP
+      EF = EF-1._RP
     ENDIF
     RETURN
   END SUBROUTINE EDIV
@@ -794,25 +794,25 @@ CONTAINS
     REAL(RP),INTENT(OUT) :: NF,EF
     REAL(RP) :: EDIFF
 
-    EDIFF=E1-E2
-    IF(EDIFF > 36._RP) THEN
-      NF=N1
-      EF=E1
+    EDIFF = E1-E2
+    IF(EDIFF>36._RP) THEN
+      NF = N1
+      EF = E1
     ELSEIF( EDIFF<-36._RP ) THEN
-      NF=N2
-      EF=E2
+      NF = N2
+      EF = E2
     ELSE
-      NF=N1*(10._RP**EDIFF)+N2
-      EF=E2
+      NF = N1*(10._RP**EDIFF)+N2
+      EF = E2
       DO
         IF( ABS(NF)<10._RP ) EXIT
-        NF=NF/10._RP
-        EF=EF+1._RP
+        NF = NF/10._RP
+        EF = EF+1._RP
       END DO
       DO
         IF( ABS(NF)>=1._RP .OR. NF==0._RP ) EXIT
-        NF=NF*10._RP
-        EF=EF-1._RP
+        NF = NF*10._RP
+        EF = EF-1._RP
       END DO
     ENDIF
 
@@ -857,25 +857,25 @@ CONTAINS
     COMPLEX(RP),INTENT(IN) ::  CN
     REAL(RP),INTENT(OUT) ::  CAE(2,2)
 
-    CAE(1,1)=REAL(CN)
-    CAE(1,2)=0._RP
-    300 IF(ABS(CAE(1,1)) < 10._RP) GOTO 310
-    CAE(1,1)=CAE(1,1)/10._RP
-    CAE(1,2)=CAE(1,2)+1._RP
+    CAE(1,1) = REAL(CN)
+    CAE(1,2) = 0._RP
+    300 IF(ABS(CAE(1,1))<10._RP) GOTO 310
+    CAE(1,1) = CAE(1,1)/10._RP
+    CAE(1,2) = CAE(1,2)+1._RP
     GOTO 300
-    310 IF((ABS(CAE(1,1)) >= 1._RP) .OR. (CAE(1,1) == 0._RP)) GOTO 320
-    CAE(1,1)=CAE(1,1)*10._RP
-    CAE(1,2)=CAE(1,2)-1._RP
+    310 IF((ABS(CAE(1,1))>=1._RP) .OR. (CAE(1,1)==0._RP)) GOTO 320
+    CAE(1,1) = CAE(1,1)*10._RP
+    CAE(1,2) = CAE(1,2)-1._RP
     GOTO 310
-    320 CAE(2,1)=AIMAG(CN)
-    CAE(2,2)=0._RP
-    330 IF(ABS(CAE(2,1)) < 10._RP) GOTO 340
-    CAE(2,1)=CAE(2,1)/10._RP
-    CAE(2,2)=CAE(2,2)+1._RP
+    320 CAE(2,1) = AIMAG(CN)
+    CAE(2,2) = 0._RP
+    330 IF(ABS(CAE(2,1))<10._RP) GOTO 340
+    CAE(2,1) = CAE(2,1)/10._RP
+    CAE(2,2) = CAE(2,2)+1._RP
     GOTO 330
-    340 IF((ABS(CAE(2,1)) >= 1._RP) .OR. (CAE(2,1) == 0._RP)) GOTO 350
-    CAE(2,1)=CAE(2,1)*10._RP
-    CAE(2,2)=CAE(2,2)-1._RP
+    340 IF((ABS(CAE(2,1))>=1._RP) .OR. (CAE(2,1)==0._RP)) GOTO 350
+    CAE(2,1) = CAE(2,1)*10._RP
+    CAE(2,2) = CAE(2,2)-1._RP
     GOTO 340
     350 RETURN
   END SUBROUTINE CONV12
@@ -897,10 +897,10 @@ CONTAINS
     REAL(RP), INTENT(IN) ::  CAE(2,2)
     COMPLEX(RP), INTENT(OUT) :: CN
 
-    IF( CAE(1,2) > 75 .OR. CAE(2,2) > 75) THEN
+    IF( CAE(1,2)>75 .OR. CAE(2,2)>75) THEN
 !      CN = CMPLX( CAE(1,1)*10._RP**75, CAE(2,1)*10._RP**75, RP)
       CN = CMPLX( CAE(1,1)*HUGE(1._RP), CAE(2,1)*HUGE(1._RP), RP)
-    ELSEIF(CAE(2,2) < -75) THEN
+    ELSEIF(CAE(2,2)<-75) THEN
       CN = CMPLX( CAE(1,1)*(10**CAE(1,2)), 0._RP, RP)
     ELSE
       CN = CMPLX( CAE(1,1)*(10**CAE(1,2)), CAE(2,1)*(10**CAE(2,2)), RP)
