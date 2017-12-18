@@ -5,6 +5,7 @@ CONTAINS
 
   SUBROUTINE fdcs_fba_pw(in_unit,out_unit)
     USE constants ,ONLY: pi, ev, deg
+    USE vectors ,ONLY: vec_s, operator(-)
     USE special_functions ,ONLY: factorial
     USE input ,ONLY: read_input, read_orbit
     USE trigo ,ONLY: spher2cartez, nrm2
@@ -21,15 +22,13 @@ CONTAINS
     REAL(RP), ALLOCATABLE :: a(:), e(:)
     INTEGER, ALLOCATABLE :: n(:)
 
-    REAL(RP), PARAMETER   :: phie = 0._RP
-    REAL(RP) :: kim, ksm, kem, km
-    REAL(RP) :: ki(3), ks(3), ke(3), k(3)
+    TYPE(vec_s) :: ki, ks, ke, k
 
     REAL(RP) :: factor, sigma
     COMPLEX(RP) :: D_term
     INTEGER :: i, io, mo
 
-    REAL(rp) :: k2(3), k2m = 0._RP
+    TYPE(vec_s) :: kx
     COMPLEX(rp) :: E_term = (0._RP, 0._RP)
 
     CALL factorial()
@@ -38,24 +37,27 @@ CONTAINS
 
     CALL read_orbit(Atom//'_'//Orbit, nelec, lo, no, n, a, e )
 
-    kim = SQRT(2.*Ei*eV)
-    ksm = SQRT(2.*Es*eV)
-    kem = SQRT(2.*Ee*eV)
+    ki%r = SQRT(2.*Ei*eV)
+    ki%theta = 0._RP
+    ki%phi = 0._RP
 
-    CALL spher2cartez( kim, 0._RP, 0._RP, ki )
-    CALL spher2cartez( ksm, thetas*deg, pi, ks )
+    ks%r = SQRT(2.*Es*eV)
+    ks%theta = thetas*deg
+    ks%phi = pi
+
+    ke%r = SQRT(2.*Ee*eV)
+    ke%phi = 0._RP
+
     k = ki -ks
-    km = nrm2(k)
 
-    factor = nelec*4._RP*ksm*kem/(kim)
+    factor = nelec*4._RP*ks%r*ke%r/(ki%r)
 
     DO i = step(1), step(2), step(3)
 
-      CALL spher2cartez( kem, i*deg, phie, ke )
+      ke%theta = i*deg
 
       IF(exchange==1) THEN
-        k2 = ki -ke
-        k2m = nrm2(k2)
+        kx = ki -ke
       END IF
 
       sigma = 0._RP
@@ -70,12 +72,12 @@ CONTAINS
           E_term = (0._RP,0._RP)
           DO io = 1, no
             E_term = E_term &
-              +a(io)*( tpw(n(io), lo, mo, e(io), ks, k2 ) -tpw(n(io), lo, mo, e(io), ks ) )
+              +a(io)*( tpw(n(io), lo, mo, e(io), ks, kx ) -tpw(n(io), lo, mo, e(io), ks ) )
           END DO
-          sigma = sigma +(1+mo)*( ABS(D_term/km**2)**2 +ABS(E_term/k2m**2)**2 &
-            -REAL( D_term*CONJG(E_term)/(km**2*k2m**2 ), rp ) )
+          sigma = sigma +(1+mo)*( ABS(D_term/k%r**2)**2 +ABS(E_term/kx%r**2)**2 &
+            -REAL( D_term*CONJG(E_term)/(k%r**2*kx%r**2 ), rp ) )
         ELSE
-          sigma = sigma +(1+mo)*ABS(D_term/km**2)**2
+          sigma = sigma +(1+mo)*ABS(D_term/k%r**2)**2
         END IF
 
       END DO
@@ -574,7 +576,7 @@ CONTAINS
 
         D_term = (0._RP,0._RP)
         DO io = 1, no
-          D_term = D_term +a(io)*( tpw(n(io), lo, mo, e(io), ke, k ) -tpw(n(io), lo, mo, e(io), ke ) )
+          D_term = D_term +a(io)!*( tpw(n(io), lo, mo, e(io), ke, k ) -tpw(n(io), lo, mo, e(io), ke ) )
         END DO
         sigma = sigma +(1+mo)*ABS(D_term/km**2)**2
       END DO
@@ -777,16 +779,18 @@ CONTAINS
 
   PURE COMPLEX(RP) FUNCTION tpw( n, l, m, e, ke, k)
     USE constants ,ONLY: pi
+    USE vectors ,ONLY: vec_s, operator(-)
     USE trigo ,ONLY: cartez2spher
     USE utils ,ONLY: norm_fac
     USE special_functions ,ONLY: spherical_harmonic, fac
     INTEGER      , INTENT(IN) :: n,l,m
-    REAL(RP), INTENT(IN) :: e,ke(3)
-    REAL(RP), INTENT(IN),OPTIONAL :: k(3)
+    REAL(RP), INTENT(IN) :: e
+    TYPE(vec_s), INTENT(IN) :: ke
+    TYPE(vec_s), INTENT(IN),OPTIONAL :: k
 
-    REAL(RP)    :: q(3)
-    INTEGER          :: j
-    REAL(RP)    :: kem,thetae,phie,A
+    TYPE(vec_s) :: q
+    INTEGER :: j
+    REAL(RP) :: A
     COMPLEX(RP) :: kec
 
     IF(PRESENT(k)) THEN
@@ -795,9 +799,8 @@ CONTAINS
       q = -ke
     ENDIF
 
-    CALL cartez2spher( q, kem, thetae, phie)
-    a = kem**2 +e**2
-    kec = CMPLX( 0._RP, kem, KIND=RP )
+    a = q%r**2 +e**2
+    kec = CMPLX( 0._RP, q%r, KIND=RP )
 
     tpw = 0._RP
     DO j = 0, (n-l)/2
@@ -805,7 +808,7 @@ CONTAINS
     END DO
 
     tpw = tpw*SQRT(2./pi)*norm_fac(e,n)*fac(n-l)*(kec/e)**l*(2.*e/a)**n /a &
-      *spherical_harmonic(l, m, thetae, phie )
+      *spherical_harmonic(l, m, q%theta, q%phi )
 
   END FUNCTION tpw
 

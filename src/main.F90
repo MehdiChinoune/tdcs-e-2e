@@ -27,11 +27,6 @@ PROGRAM main
     END IF
   ELSE
     call fdcs_fba_pw(in_unit,out_unit)
-    flush in_unit
-    rewind in_unit
-    call fdcs_fba_cw(in_unit,out_unit)
-    rewind in_unit
-    CALL fdcs_dwb(in_unit,out_unit)
   ENDIF
 
   CALL SYSTEM_CLOCK(finish)
