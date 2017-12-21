@@ -5,28 +5,28 @@ MODULE integration
 CONTAINS
 
   ! CLENSHAW_CURTIS_COMPUTE computes a Clenshaw Curtis quadrature rule.
-  !  Discussion:
-  !    Our convention is that the abscissas are numbered from left to right.
-  !    The rule is defined on [-1,1].
-  !    The integral to approximate:
-  !      Integral ( -1 <= X <= 1 ) F(X) dX
-  !    The quadrature rule:
-  !      Sum ( 1 <= I <= n ) W(I)*F ( X(I) )
+  ! Discussion:
+  ! Our convention is that the abscissas are numbered from left to right.
+  ! The rule is defined on [-1,1].
+  ! The integral to approximate:
+  ! Integral ( -1 <= X <= 1 ) F(X) dX
+  ! The quadrature rule:
+  ! Sum ( 1 <= I <= n ) W(I)*F ( X(I) )
   !
-  !  Licensing:
-  !    This code is distributed under the GNU LGPL license.
+  ! Licensing:
+  ! This code is distributed under the GNU LGPL license.
   !
-  !  Modified:
-  !    15 February 2009
+  ! Modified:
+  ! 15 February 2009
   !
-  !  Author:
-  !    John Burkardt
+  ! Author:
+  ! John Burkardt
 
-  !  Parameters:
-  !    Input, integer ( kind = 4 ) n, the order of the rule.
-  !    1 <= ORDER.
-  !    Output, real ( kind = 8 ) X(n), the abscissas.
-  !    Output, real ( kind = 8 ) W(n), the weights.
+  ! Parameters:
+  ! Input, integer ( kind = 4 ) n, the order of the rule.
+  ! 1 <= ORDER.
+  ! Output, real ( kind = 8 ) X(n), the abscissas.
+  ! Output, real ( kind = 8 ) W(n), the weights.
 
   SUBROUTINE clenshaw_curtis( a, b, x, w, n )
     USE constants ,ONLY: pi
@@ -37,9 +37,9 @@ CONTAINS
     REAL(RP) :: theta !,bj
     INTEGER :: i, j
 
-!    IF ( n<3 ) THEN
-!      ERROR STOP 'clenashaw_curtis  error : n<3 '
-!    END IF
+    ! IF ( n<3 ) THEN
+    ! ERROR STOP 'clenashaw_curtis error : n<3 '
+    ! END IF
 
     ALLOCATE(x(n),w(n))
 

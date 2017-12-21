@@ -3,50 +3,50 @@ MODULE conhyp_m
   IMPLICIT NONE
 
 CONTAINS
-  !      ALGORITHM 707, COLLECTED ALGORITHMS FROM ACM.
-  !      THIS WORK PUBLISHED IN TRANSACTIONS ON MATHEMATICAL SOFTWARE,
-  !      VOL. 18, NO. 3, SEPTEMBER, 1992, PP. 345-349.
-  !     ****************************************************************
-  !     *                                                              *
-  !     *      SOLUTION TO THE CONFLUENT HYPERGEOMETRIC FUNCTION       *
-  !     *                                                              *
-  !     *                           by                                 *
-  !     *                                                              *
-  !     *                      MARK NARDIN,                            *
-  !     *                                                              *
-  !     *              W. F. PERGER and ATUL BHALLA                    *
-  !     *                                                              *
-  !     *                                                              *
-  !     *  Michigan Technological University, Copyright 1989           *
-  !     *                                                              *
-  !     *                                                              *
-  !     *  Description : A numerical evaluator for the confluent       *
-  !     *    hypergeometric function for complex arguments with large  *
-  !     *    magnitudes using a direct summation of the Kummer series. *
-  !     *    The method used allows an accuracy of up to thirteen      *
-  !     *    decimal places through the use of large real arrays       *
-  !     *    and a single final division.  LNCHF is a variable which   *
-  !     *    selects how the result should be represented.  A '0' will *
-  !     *    return the value in standard exponential form.  A '1'     *
-  !     *    will return the LOG of the result.  IP is an integer      *
-  !     *    variable that specifies how many array positions are      *
-  !     *    desired (usually 10 is sufficient).  Setting IP = 0 causes  *
-  !     *    the program to estimate the number of array positions.    *
-  !     *                                                              *
-  !     *    The confluent hypergeometric function is the solution to  *
-  !     *    the differential equation:                                *
-  !     *                                                              *
-  !     *             zf"(z) +(a-z)f'(z) -bf(z) = 0                  *
-  !     *                                                              *
-  !     *  Subprograms called: BITS, CHGF                              *
-  !     *                                                              *
-  !     ****************************************************************
+  ! ALGORITHM 707, COLLECTED ALGORITHMS FROM ACM.
+  ! THIS WORK PUBLISHED IN TRANSACTIONS ON MATHEMATICAL SOFTWARE,
+  ! VOL. 18, NO. 3, SEPTEMBER, 1992, PP. 345-349.
+  ! ****************************************************************
+  ! * *
+  ! * SOLUTION TO THE CONFLUENT HYPERGEOMETRIC FUNCTION *
+  ! * *
+  ! * by *
+  ! * *
+  ! * MARK NARDIN, *
+  ! * *
+  ! * W. F. PERGER and ATUL BHALLA *
+  ! * *
+  ! * *
+  ! * Michigan Technological University, Copyright 1989 *
+  ! * *
+  ! * *
+  ! * Description : A numerical evaluator for the confluent *
+  ! * hypergeometric function for complex arguments with large *
+  ! * magnitudes using a direct summation of the Kummer series. *
+  ! * The method used allows an accuracy of up to thirteen *
+  ! * decimal places through the use of large real arrays *
+  ! * and a single final division. LNCHF is a variable which *
+  ! * selects how the result should be represented. A '0' will *
+  ! * return the value in standard exponential form. A '1' *
+  ! * will return the LOG of the result. IP is an integer *
+  ! * variable that specifies how many array positions are *
+  ! * desired (usually 10 is sufficient). Setting IP = 0 causes *
+  ! * the program to estimate the number of array positions. *
+  ! * *
+  ! * The confluent hypergeometric function is the solution to *
+  ! * the differential equation: *
+  ! * *
+  ! * zf"(z) +(a-z)f'(z) -bf(z) = 0 *
+  ! * *
+  ! * Subprograms called: BITS, CHGF *
+  ! * *
+  ! ****************************************************************
 
   COMPLEX(RP) FUNCTION CONHYP (A,B,Z,LNCHF,IP)
     COMPLEX(RP), INTENT(IN) :: A, B, Z
     INTEGER, INTENT(IN), OPTIONAL :: LNCHF, IP
     INTEGER :: I
-    REAL(RP) ::  NTERM,FX,TERM1,MAX,TERM2,ANG
+    REAL(RP) :: NTERM,FX,TERM1,MAX,TERM2,ANG
 
     IF( ABS(Z)/=0._RP) THEN
       ANG = ATAN2(AIMAG(Z),REAL(Z,RP))
@@ -90,22 +90,22 @@ CONTAINS
     RETURN
   END FUNCTION CONHYP
 
-  !     ****************************************************************
-  !     *                                                              *
-  !     *                   FUNCTION BITS                              *
-  !     *                                                              *
-  !     *                                                              *
-  !     *  Description : Determines the number of significant figures  *
-  !     *    of machine precision to arrive at the size of the array   *
-  !     *    the numbers must must be stored in to get the accuracy    *
-  !     *    of the solution.                                          *
-  !     *                                                              *
-  !     *  Subprogram called: STORE                                    *
-  !     *                                                              *
-  !     ****************************************************************
+  ! ****************************************************************
+  ! * *
+  ! * FUNCTION BITS *
+  ! * *
+  ! * *
+  ! * Description : Determines the number of significant figures *
+  ! * of machine precision to arrive at the size of the array *
+  ! * the numbers must must be stored in to get the accuracy *
+  ! * of the solution. *
+  ! * *
+  ! * Subprogram called: STORE *
+  ! * *
+  ! ****************************************************************
 
   INTEGER FUNCTION BITS()
-    REAL(RP) ::  BIT,BIT2
+    REAL(RP) :: BIT,BIT2
 
     BIT = 1._RP
     BITS = 0
@@ -122,7 +122,7 @@ CONTAINS
   !***********************************************************
   !
   !
-  !   This function forces its argument X to be stored in a
+  ! This function forces its argument X to be stored in a
   ! memory location, thus providing a means of determining
   ! floating point number characteristics (such as the machine
   ! precision) when it is necessary to avoid computation in
@@ -130,40 +130,40 @@ CONTAINS
   !
   ! On input:
   !
-  !       X = Value to be stored.
+  ! X = Value to be stored.
   !
   ! X is not altered by this function.
   !
   ! On output:
   !
-  !       STORE = Value of X after it has been stored and
-  !               possibly truncated or rounded to the double
-  !               precision word length.
+  ! STORE = Value of X after it has been stored and
+  ! possibly truncated or rounded to the double
+  ! precision word length.
   !
-  ! Modules required by STORE:  None
+  ! Modules required by STORE: None
   !
   !***********************************************************
   REAL(RP) FUNCTION STORE(X)
-    REAL(RP), INTENT(IN) ::  X
-    REAL(RP) ::  Y
+    REAL(RP), INTENT(IN) :: X
+    REAL(RP) :: Y
     COMMON/STCOM/Y
     Y = X
     STORE = Y
     RETURN
   END FUNCTION STORE
 
-  !     ****************************************************************
-  !     *                                                              *
-  !     *                   FUNCTION CHGF                              *
-  !     *                                                              *
-  !     *                                                              *
-  !     *  Description : Function that sums the Kummer series and      *
-  !     *    returns the solution of the confluent hypergeometric      *
-  !     *    function.                                                 *
-  !     *                                                              *
-  !     *  Subprograms called: ARMULT, ARYDIV, BITS, CMPADD, CMPMUL    *
-  !     *                                                              *
-  !     ****************************************************************
+  ! ****************************************************************
+  ! * *
+  ! * FUNCTION CHGF *
+  ! * *
+  ! * *
+  ! * Description : Function that sums the Kummer series and *
+  ! * returns the solution of the confluent hypergeometric *
+  ! * function. *
+  ! * *
+  ! * Subprograms called: ARMULT, ARYDIV, BITS, CMPADD, CMPMUL *
+  ! * *
+  ! ****************************************************************
 
   COMPLEX(RP) FUNCTION CHGF (A,B,Z,L,LNCHF)
     COMPLEX(RP), INTENT(IN) :: A, B, Z
@@ -277,21 +277,21 @@ CONTAINS
     RETURN
   END FUNCTION CHGF
 
-  !     ****************************************************************
-  !     *                                                              *
-  !     *                 SUBROUTINE ARADD                             *
-  !     *                                                              *
-  !     *                                                              *
-  !     *  Description : Accepts two arrays of numbers and returns     *
-  !     *    the sum of the array.  Each array is holding the value    *
-  !     *    of one number in the series.  The parameter L is the      *
-  !     *    size of the array representing the number and RMAX is     *
-  !     *    the actual number of digits needed to give the numbers    *
-  !     *    the desired accuracy.                                     *
-  !     *                                                              *
-  !     *  Subprograms called: none                                    *
-  !     *                                                              *
-  !     ****************************************************************
+  ! ****************************************************************
+  ! * *
+  ! * SUBROUTINE ARADD *
+  ! * *
+  ! * *
+  ! * Description : Accepts two arrays of numbers and returns *
+  ! * the sum of the array. Each array is holding the value *
+  ! * of one number in the series. The parameter L is the *
+  ! * size of the array representing the number and RMAX is *
+  ! * the actual number of digits needed to give the numbers *
+  ! * the desired accuracy. *
+  ! * *
+  ! * Subprograms called: none *
+  ! * *
+  ! ****************************************************************
 
   PURE SUBROUTINE ARADD(A,B,C,L,RMAX)
     INTEGER, INTENT(IN) :: L
@@ -481,27 +481,27 @@ CONTAINS
     RETURN
   END SUBROUTINE ARADD
 
-  !     ****************************************************************
-  !     *                                                              *
-  !     *                 SUBROUTINE ARSUB                             *
-  !     *                                                              *
-  !     *                                                              *
-  !     *  Description : Accepts two arrays and subtracts each element *
-  !     *    in the second array from the element in the first array   *
-  !     *    and returns the solution.  The parameters L and RMAX are  *
-  !     *    the size of the array and the number of digits needed for *
-  !     *    the accuracy, respectively.                               *
-  !     *                                                              *
-  !     *  Subprograms called: ARADD                                   *
-  !     *                                                              *
-  !     ****************************************************************
+  ! ****************************************************************
+  ! * *
+  ! * SUBROUTINE ARSUB *
+  ! * *
+  ! * *
+  ! * Description : Accepts two arrays and subtracts each element *
+  ! * in the second array from the element in the first array *
+  ! * and returns the solution. The parameters L and RMAX are *
+  ! * the size of the array and the number of digits needed for *
+  ! * the accuracy, respectively. *
+  ! * *
+  ! * Subprograms called: ARADD *
+  ! * *
+  ! ****************************************************************
 
   PURE SUBROUTINE ARSUB(A,B,C,L,RMAX)
     INTEGER, INTENT(IN) :: L
     REAL(RP), INTENT(IN) :: A(-1:L+1), B(-1:L+1), RMAX
     REAL(RP), INTENT(OUT) :: C(-1:L+1)
 
-    REAL(RP) ::  B2(-1:L+1)
+    REAL(RP) :: B2(-1:L+1)
 
     B2 = B
     B2(-1) = (-1._RP)*B2(-1)
@@ -510,26 +510,26 @@ CONTAINS
     RETURN
   END SUBROUTINE ARSUB
 
-  !     ****************************************************************
-  !     *                                                              *
-  !     *                 SUBROUTINE ARMULT                            *
-  !     *                                                              *
-  !     *                                                              *
-  !     *  Description : Accepts two arrays and returns the product.   *
-  !     *    L and RMAX are the size of the arrays and the number of   *
-  !     *    digits needed to represent the numbers with the required  *
-  !     *    accuracy.                                                 *
-  !     *                                                              *
-  !     *  Subprograms called: none                                    *
-  !     *                                                              *
-  !     ****************************************************************
+  ! ****************************************************************
+  ! * *
+  ! * SUBROUTINE ARMULT *
+  ! * *
+  ! * *
+  ! * Description : Accepts two arrays and returns the product. *
+  ! * L and RMAX are the size of the arrays and the number of *
+  ! * digits needed to represent the numbers with the required *
+  ! * accuracy. *
+  ! * *
+  ! * Subprograms called: none *
+  ! * *
+  ! ****************************************************************
 
   PURE SUBROUTINE ARMULT(A,B,C,L,RMAX)
     INTEGER, INTENT(IN) :: L
     REAL(RP), INTENT(IN) :: A(-1:L+1), B, RMAX
     REAL(RP), INTENT(OUT) :: C(-1:L+1)
 
-    REAL(RP) ::  B2,CARRY, Z(-1:L+1)!,RMAX2
+    REAL(RP) :: B2,CARRY, Z(-1:L+1)!,RMAX2
     INTEGER I
 
     !RMAX2 = 1._RP/RMAX
@@ -564,20 +564,20 @@ CONTAINS
     RETURN
   END SUBROUTINE ARMULT
 
-  !     ****************************************************************
-  !     *                                                              *
-  !     *                 SUBROUTINE CMPADD                            *
-  !     *                                                              *
-  !     *                                                              *
-  !     *  Description : Takes two arrays representing one real and    *
-  !     *    one imaginary part, and adds two arrays representing      *
-  !     *    another complex number and returns two array holding the  *
-  !     *    complex sum.                                              *
-  !     *              (CR,CI) = (AR+BR, AI+BI)                        *
-  !     *                                                              *
-  !     *  Subprograms called: ARADD                                   *
-  !     *                                                              *
-  !     ****************************************************************
+  ! ****************************************************************
+  ! * *
+  ! * SUBROUTINE CMPADD *
+  ! * *
+  ! * *
+  ! * Description : Takes two arrays representing one real and *
+  ! * one imaginary part, and adds two arrays representing *
+  ! * another complex number and returns two array holding the *
+  ! * complex sum. *
+  ! * (CR,CI) = (AR+BR, AI+BI) *
+  ! * *
+  ! * Subprograms called: ARADD *
+  ! * *
+  ! ****************************************************************
 
   PURE SUBROUTINE CMPADD(AR,AI,BR,BI,CR,CI,L,RMAX)
     INTEGER, INTENT(IN) :: L
@@ -589,20 +589,20 @@ CONTAINS
     RETURN
   END SUBROUTINE CMPADD
 
-  !     ****************************************************************
-  !     *                                                              *
-  !     *                 SUBROUTINE CMPSUB                            *
-  !     *                                                              *
-  !     *                                                              *
-  !     *  Description : Takes two arrays representing one real and    *
-  !     *    one imaginary part, and subtracts two arrays representing *
-  !     *    another complex number and returns two array holding the  *
-  !     *    complex sum.                                              *
-  !     *              (CR,CI) = (AR+BR, AI+BI)                        *
-  !     *                                                              *
-  !     *  Subprograms called: ARADD                                   *
-  !     *                                                              *
-  !     ****************************************************************
+  ! ****************************************************************
+  ! * *
+  ! * SUBROUTINE CMPSUB *
+  ! * *
+  ! * *
+  ! * Description : Takes two arrays representing one real and *
+  ! * one imaginary part, and subtracts two arrays representing *
+  ! * another complex number and returns two array holding the *
+  ! * complex sum. *
+  ! * (CR,CI) = (AR+BR, AI+BI) *
+  ! * *
+  ! * Subprograms called: ARADD *
+  ! * *
+  ! ****************************************************************
 
   SUBROUTINE CMPSUB(AR,AI,BR,BI,CR,CI,L,RMAX)
     INTEGER, INTENT(IN) :: L
@@ -614,19 +614,19 @@ CONTAINS
     RETURN
   END SUBROUTINE CMPSUB
 
-  !     ****************************************************************
-  !     *                                                              *
-  !     *                 SUBROUTINE CMPMUL                            *
-  !     *                                                              *
-  !     *                                                              *
-  !     *  Description : Takes two arrays representing one real and    *
-  !     *    one imaginary part, and multiplies it with two arrays     *
-  !     *    representing another complex number and returns the       *
-  !     *    complex product.                                          *
-  !     *                                                              *
-  !     *  Subprograms called: ARMULT, ARSUB, ARADD                    *
-  !     *                                                              *
-  !     ****************************************************************
+  ! ****************************************************************
+  ! * *
+  ! * SUBROUTINE CMPMUL *
+  ! * *
+  ! * *
+  ! * Description : Takes two arrays representing one real and *
+  ! * one imaginary part, and multiplies it with two arrays *
+  ! * representing another complex number and returns the *
+  ! * complex product. *
+  ! * *
+  ! * Subprograms called: ARMULT, ARSUB, ARADD *
+  ! * *
+  ! ****************************************************************
 
   PURE SUBROUTINE CMPMUL(AR,AI,BR,BI,CR,CI,L,RMAX)
     INTEGER, INTENT(IN) :: L
@@ -644,20 +644,20 @@ CONTAINS
     RETURN
   END SUBROUTINE CMPMUL
 
-  !     ****************************************************************
-  !     *                                                              *
-  !     *                 SUBROUTINE ARYDIV                            *
-  !     *                                                              *
-  !     *                                                              *
-  !     *  Description : Returns the REAL(RP) ::  complex number   *
-  !     *    resulting from the division of four arrays, representing  *
-  !     *    two complex numbers.  The number returned will be in one  *
-  !     *    two different forms.  Either standard scientific or as    *
-  !     *    the log of the number.                                    *
-  !     *                                                              *
-  !     *  Subprograms called: CONV21, CONV12, EADD, ECPDIV, EMULT     *
-  !     *                                                              *
-  !     ****************************************************************
+  ! ****************************************************************
+  ! * *
+  ! * SUBROUTINE ARYDIV *
+  ! * *
+  ! * *
+  ! * Description : Returns the REAL(RP) :: complex number *
+  ! * resulting from the division of four arrays, representing *
+  ! * two complex numbers. The number returned will be in one *
+  ! * two different forms. Either standard scientific or as *
+  ! * the log of the number. *
+  ! * *
+  ! * Subprograms called: CONV21, CONV12, EADD, ECPDIV, EMULT *
+  ! * *
+  ! ****************************************************************
 
   PURE SUBROUTINE ARYDIV(AR,AI,BR,BI,C,L,LNCHF,RMAX,BIT)
     INTEGER, INTENT(IN) :: L, LNCHF, BIT
@@ -665,8 +665,8 @@ CONTAINS
     COMPLEX(RP), INTENT(OUT) :: C
 
     INTEGER :: REXP,IR10,II10
-    REAL(RP) ::  PHI,N1,N2,N3,E1,E2,E3,RR10,RI10,X
-    REAL(RP) ::  X1,X2,DUM1,DUM2
+    REAL(RP) :: PHI,N1,N2,N3,E1,E2,E3,RR10,RI10,X
+    REAL(RP) :: X1,X2,DUM1,DUM2
     REAL(RP) :: AE(2,2),BE(2,2),CE(2,2)
 
     REXP = BIT/2
@@ -723,22 +723,22 @@ CONTAINS
     RETURN
   END SUBROUTINE ARYDIV
 
-  !     ****************************************************************
-  !     *                                                              *
-  !     *                 SUBROUTINE EMULT                             *
-  !     *                                                              *
-  !     *                                                              *
-  !     *  Description : Takes one base and exponent and multiplies it *
-  !     *    by another numbers base and exponent to give the product  *
-  !     *    in the form of base and exponent.                         *
-  !     *                                                              *
-  !     *  Subprograms called: none                                    *
-  !     *                                                              *
-  !     ****************************************************************
+  ! ****************************************************************
+  ! * *
+  ! * SUBROUTINE EMULT *
+  ! * *
+  ! * *
+  ! * Description : Takes one base and exponent and multiplies it *
+  ! * by another numbers base and exponent to give the product *
+  ! * in the form of base and exponent. *
+  ! * *
+  ! * Subprograms called: none *
+  ! * *
+  ! ****************************************************************
 
   PURE SUBROUTINE EMULT(N1,E1,N2,E2,NF,EF)
 
-    REAL(RP), INTENT(IN) ::  N1,E1,N2,E2
+    REAL(RP), INTENT(IN) :: N1,E1,N2,E2
     REAL(RP), INTENT(OUT) :: NF,EF
 
     NF = N1*N2
@@ -750,21 +750,21 @@ CONTAINS
     RETURN
   END SUBROUTINE EMULT
 
-  !     ****************************************************************
-  !     *                                                              *
-  !     *                 SUBROUTINE EDIV                              *
-  !     *                                                              *
-  !     *                                                              *
-  !     *  Description : returns the solution in the form of base and  *
-  !     *    exponent of the division of two exponential numbers.      *
-  !     *                                                              *
-  !     *  Subprograms called: none                                    *
-  !     *                                                              *
-  !     ****************************************************************
+  ! ****************************************************************
+  ! * *
+  ! * SUBROUTINE EDIV *
+  ! * *
+  ! * *
+  ! * Description : returns the solution in the form of base and *
+  ! * exponent of the division of two exponential numbers. *
+  ! * *
+  ! * Subprograms called: none *
+  ! * *
+  ! ****************************************************************
 
   PURE SUBROUTINE EDIV(N1,E1,N2,E2,NF,EF)
 
-    REAL(RP), INTENT(IN) ::  N1,E1,N2,E2
+    REAL(RP), INTENT(IN) :: N1,E1,N2,E2
     REAL(RP), INTENT(OUT) :: NF,EF
 
     NF = N1/N2
@@ -776,17 +776,17 @@ CONTAINS
     RETURN
   END SUBROUTINE EDIV
 
-  !     ****************************************************************
-  !     *                                                              *
-  !     *                 SUBROUTINE EADD                              *
-  !     *                                                              *
-  !     *                                                              *
-  !     *  Description : Returns the sum of two numbers in the form    *
-  !     *    of a base and an exponent.                                *
-  !     *                                                              *
-  !     *  Subprograms called: none                                    *
-  !     *                                                              *
-  !     ****************************************************************
+  ! ****************************************************************
+  ! * *
+  ! * SUBROUTINE EADD *
+  ! * *
+  ! * *
+  ! * Description : Returns the sum of two numbers in the form *
+  ! * of a base and an exponent. *
+  ! * *
+  ! * Subprograms called: none *
+  ! * *
+  ! ****************************************************************
 
   PURE SUBROUTINE EADD(N1,E1,N2,E2,NF,EF)
 
@@ -819,43 +819,43 @@ CONTAINS
     RETURN
   END SUBROUTINE EADD
 
-  !     ****************************************************************
-  !     *                                                              *
-  !     *                 SUBROUTINE ESUB                              *
-  !     *                                                              *
-  !     *                                                              *
-  !     *  Description : Returns the solution to the subtraction of    *
-  !     *    two numbers in the form of base and exponent.             *
-  !     *                                                              *
-  !     *  Subprograms called: EADD                                    *
-  !     *                                                              *
-  !     ****************************************************************
+  ! ****************************************************************
+  ! * *
+  ! * SUBROUTINE ESUB *
+  ! * *
+  ! * *
+  ! * Description : Returns the solution to the subtraction of *
+  ! * two numbers in the form of base and exponent. *
+  ! * *
+  ! * Subprograms called: EADD *
+  ! * *
+  ! ****************************************************************
 
   PURE SUBROUTINE ESUB(N1,E1,N2,E2,NF,EF)
 
-    REAL(RP),INTENT(IN) ::  N1,E1,N2,E2
+    REAL(RP),INTENT(IN) :: N1,E1,N2,E2
     REAL(RP),INTENT(OUT) :: NF,EF
 
     CALL EADD(N1,E1,N2*(-1._RP),E2,NF,EF)
     RETURN
   END SUBROUTINE ESUB
 
-  !     ****************************************************************
-  !     *                                                              *
-  !     *                 SUBROUTINE CONV12                            *
-  !     *                                                              *
-  !     *                                                              *
-  !     *  Description : Converts a number from complex notation to a  *
-  !     *    form of a 2x2 real array.                                 *
-  !     *                                                              *
-  !     *  Subprograms called: none                                    *
-  !     *                                                              *
-  !     ****************************************************************
+  ! ****************************************************************
+  ! * *
+  ! * SUBROUTINE CONV12 *
+  ! * *
+  ! * *
+  ! * Description : Converts a number from complex notation to a *
+  ! * form of a 2x2 real array. *
+  ! * *
+  ! * Subprograms called: none *
+  ! * *
+  ! ****************************************************************
 
   PURE SUBROUTINE CONV12(CN,CAE)
 
-    COMPLEX(RP),INTENT(IN) ::  CN
-    REAL(RP),INTENT(OUT) ::  CAE(2,2)
+    COMPLEX(RP),INTENT(IN) :: CN
+    REAL(RP),INTENT(OUT) :: CAE(2,2)
 
     CAE(1,1) = REAL(CN)
     CAE(1,2) = 0._RP
@@ -880,25 +880,25 @@ CONTAINS
     350 RETURN
   END SUBROUTINE CONV12
 
-  !     ****************************************************************
-  !     *                                                              *
-  !     *                 SUBROUTINE CONV21                            *
-  !     *                                                              *
-  !     *                                                              *
-  !     *  Description : Converts a number represented in a 2x2 real   *
-  !     *    array to the form of a complex number.                    *
-  !     *                                                              *
-  !     *  Subprograms called: none                                    *
-  !     *                                                              *
-  !     ****************************************************************
+  ! ****************************************************************
+  ! * *
+  ! * SUBROUTINE CONV21 *
+  ! * *
+  ! * *
+  ! * Description : Converts a number represented in a 2x2 real *
+  ! * array to the form of a complex number. *
+  ! * *
+  ! * Subprograms called: none *
+  ! * *
+  ! ****************************************************************
 
   PURE SUBROUTINE CONV21(CAE,CN)
     !USE IEEE_ARITHMETIC ,ONLY: IEEE_IS_FINITE
-    REAL(RP), INTENT(IN) ::  CAE(2,2)
+    REAL(RP), INTENT(IN) :: CAE(2,2)
     COMPLEX(RP), INTENT(OUT) :: CN
 
     IF( CAE(1,2)>75 .OR. CAE(2,2)>75) THEN
-!      CN = CMPLX( CAE(1,1)*10._RP**75, CAE(2,1)*10._RP**75, RP)
+      ! CN = CMPLX( CAE(1,1)*10._RP**75, CAE(2,1)*10._RP**75, RP)
       CN = CMPLX( CAE(1,1)*HUGE(1._RP), CAE(2,1)*HUGE(1._RP), RP)
     ELSEIF(CAE(2,2)<-75) THEN
       CN = CMPLX( CAE(1,1)*(10**CAE(1,2)), 0._RP, RP)
@@ -909,24 +909,24 @@ CONTAINS
     RETURN
   END SUBROUTINE CONV21
 
-  !     ****************************************************************
-  !     *                                                              *
-  !     *                 SUBROUTINE ECPMUL                            *
-  !     *                                                              *
-  !     *                                                              *
-  !     *  Description : Multiplies two numbers which are each         *
-  !     *    represented in the form of a two by two array and returns *
-  !     *    the solution in the same form.                            *
-  !     *                                                              *
-  !     *  Subprograms called: EMULT, ESUB, EADD                       *
-  !     *                                                              *
-  !     ****************************************************************
+  ! ****************************************************************
+  ! * *
+  ! * SUBROUTINE ECPMUL *
+  ! * *
+  ! * *
+  ! * Description : Multiplies two numbers which are each *
+  ! * represented in the form of a two by two array and returns *
+  ! * the solution in the same form. *
+  ! * *
+  ! * Subprograms called: EMULT, ESUB, EADD *
+  ! * *
+  ! ****************************************************************
 
   PURE SUBROUTINE ECPMUL(A,B,C)
-    REAL(RP),INTENT(IN) ::  A(2,2),B(2,2)
-    REAL(RP),INTENT(OUT) ::  C(2,2)
+    REAL(RP),INTENT(IN) :: A(2,2),B(2,2)
+    REAL(RP),INTENT(OUT) :: C(2,2)
 
-    REAL(RP) ::  N1,E1,N2,E2
+    REAL(RP) :: N1,E1,N2,E2
     REAL(RP) :: C2(2,2)
 
     CALL EMULT(A(1,1),A(1,2),B(1,1),B(1,2),N1,E1)
@@ -940,24 +940,24 @@ CONTAINS
     RETURN
   END SUBROUTINE ECPMUL
 
-  !     ****************************************************************
-  !     *                                                              *
-  !     *                 SUBROUTINE ECPDIV                            *
-  !     *                                                              *
-  !     *                                                              *
-  !     *  Description : Divides two numbers and returns the solution. *
-  !     *    All numbers are represented by a 2x2 array.               *
-  !     *                                                              *
-  !     *  Subprograms called: EADD, ECPMUL, EDIV, EMULT               *
-  !     *                                                              *
-  !     ****************************************************************
+  ! ****************************************************************
+  ! * *
+  ! * SUBROUTINE ECPDIV *
+  ! * *
+  ! * *
+  ! * Description : Divides two numbers and returns the solution. *
+  ! * All numbers are represented by a 2x2 array. *
+  ! * *
+  ! * Subprograms called: EADD, ECPMUL, EDIV, EMULT *
+  ! * *
+  ! ****************************************************************
 
   PURE SUBROUTINE ECPDIV(A,B,C)
-    REAL(RP),INTENT(IN) ::  A(2,2),B(2,2)
-    REAL(RP),INTENT(OUT) ::  C(2,2)
+    REAL(RP),INTENT(IN) :: A(2,2),B(2,2)
+    REAL(RP),INTENT(OUT) :: C(2,2)
 
-    REAL(RP) ::  N1,E1,N2,E2,N3,E3
-    REAL(RP) ::  B2(2,2),C2(2,2)
+    REAL(RP) :: N1,E1,N2,E2,N3,E3
+    REAL(RP) :: B2(2,2),C2(2,2)
 
     B2(1,1) = B(1,1)
     B2(1,2) = B(1,2)

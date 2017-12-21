@@ -7,11 +7,11 @@ CONTAINS
   ELEMENTAL REAL(RP) FUNCTION norm_fac(e,n)
     USE special_functions ,ONLY: fac
     REAL(RP), INTENT(IN) :: e
-    INTEGER      , INTENT(IN) :: n
+    INTEGER , INTENT(IN) :: n
 
     norm_fac = SQRT( (2.*e)**(2*n+1) / fac(2*n) )
 
-  END FUNCTION
+  END FUNCTION norm_fac
 
   ELEMENTAL REAL(RP) FUNCTION y1y2y3(l1, l2, l3, m1, m2, m3 )
     USE constants ,ONLY: pi
@@ -25,11 +25,11 @@ CONTAINS
 
     y1y2y3 = 0._RP
     IF( MOD(l1+l2+l3,2)/=0 .or. m1+m2+m3/=0 .or. l3<ABS(l1-l2) .or. l3>l1+l2 .or. ABS(m1)>l1 &
-      .or. ABS(m2)>l2 .or. ABS(m3)>l3  ) RETURN
+      .or. ABS(m2)>l2 .or. ABS(m3)>l3 ) RETURN
 
-    !  / l_1 l_2 l_3 \
-    !  |             |
-    !  \ m_1 m_2 m_3 /
+    ! / l_1 l_2 l_3 \
+    ! | |
+    ! \ m_1 m_2 m_3 /
     s1 = 0._RP
     cst_1 = 0.5_RP*(lnfac(l1+m1) +lnfac(l1-m1) +lnfac(l2+m2) +lnfac(l2-m2) +lnfac(l3+m3) &
       +lnfac(l3-m3) +lnfac(l2+l3-l1) +lnfac(l3+l1-l2) -0.7*lnfac(l1+l2+l3+1) )
@@ -39,8 +39,8 @@ CONTAINS
     END DO
 
     ! / l_1 l_2 l_3 \
-    ! |             |
-    ! \ 0   0   0   /
+    ! | |
+    ! \ 0 0 0 /
     s0 = 0._RP
     cst_0 = lnfac(l1) +lnfac(l2) +lnfac(l3) +0.5_RP*( lnfac(l2+l3-l1) &
       +lnfac(l3+l1-l2) -0.7*lnfac(l1+l2+l3+1) )
@@ -50,7 +50,7 @@ CONTAINS
     END DO
 
     y1y2y3 = (-1)**m3*SQRT( (2*l1+1)*(2*l2+1)*(2*l3+1)/(4.*pi) )*s1 &
-     *( EXP(lnfac(l1+l2-l3)-0.3*lnfac(l1+l2+l3+1) )*s0 )
+      *( EXP(lnfac(l1+l2-l3)-0.3*lnfac(l1+l2+l3+1) )*s0 )
     !IF( ieee_is_nan(y1y2y3) .or. (.NOT. ieee_is_finite(y1y2y3)) ) ERROR STOP 'y1y2y3 overflow'
 
   END FUNCTION y1y2y3
@@ -63,7 +63,7 @@ CONTAINS
   SUBROUTINE ode_second_dw(km, lmax, rc, z, f, s, delta )
     USE special_functions ,ONLY: coul90, ricbes
     INTEGER, INTENT(IN) :: lmax, z
-    REAL(RP), INTENT(IN)  :: f(0:,0:), rc, km
+    REAL(RP), INTENT(IN) :: f(0:,0:), rc, km
     REAL(RP), INTENT(OUT) :: s(0:,0:), delta(0:lmax)
     REAL(RP) :: Big = SQRT(HUGE(1._RP)), eps = EPSILON(1._RP)
     REAL(RP) :: h, rho, eta
@@ -110,7 +110,7 @@ CONTAINS
   ELEMENTAL REAL(RP) FUNCTION Uij(ni, ei, nj, ej, r)
     USE special_functions ,ONLY: fac
     REAL(RP), INTENT(IN) :: ei, ej, r
-    INTEGER      , INTENT(IN) :: ni, nj
+    INTEGER , INTENT(IN) :: ni, nj
     INTEGER :: k
     REAL(RP) :: a
 
@@ -126,8 +126,8 @@ CONTAINS
   SUBROUTINE calculate_U(Atom, Orbit, r, U, state )
     USE input ,ONLY: read_orbit
     CHARACTER(LEN=2), INTENT(IN) :: Atom, Orbit
-    REAL(RP)   , INTENT(IN) :: r(:)
-    REAL(RP)   , INTENT(OUT) :: U(:)
+    REAL(RP) , INTENT(IN) :: r(:)
+    REAL(RP) , INTENT(OUT) :: U(:)
     INTEGER :: state
 
     INTEGER :: IN
@@ -170,25 +170,23 @@ CONTAINS
     REAL(RP), INTENT(IN) :: X(:), Y(:), U(:)
     REAL(RP), INTENT(OUT) :: V(:)
     !
-    !  REAL(WP) INTERPOLATION OF A SINGLE VALUED FUNCTION
-    !  THIS SUBROUTINE INTERPOLATES, FROM VALUES OF THE FUNCTION
-    !  GIVEN  AS ORDINATES OF INPUT DATA POINTS IN AN X-Y PLANE
-    !  AND FOR A GIVEN SET OF X VALUES(ABSCISSAE),THE VALUES OF
-    !  A SINGLE VALUED FUNCTION Y = Y(X).
+    ! REAL(RP) INTERPOLATION OF A SINGLE VALUED FUNCTION
+    ! THIS SUBROUTINE INTERPOLATES, FROM VALUES OF THE FUNCTION
+    ! GIVEN AS ORDINATES OF INPUT DATA POINTS IN AN X-Y PLANE
+    ! AND FOR A GIVEN SET OF X VALUES(ABSCISSAE),THE VALUES OF
+    ! A SINGLE VALUED FUNCTION Y = Y(X).
     !
-    !  THE INPUT PARAMETERS ARE:
+    ! THE INPUT PARAMETERS ARE:
+    !   L = NUMBER OF DATA POINTS (MUST BE TWO OR GREATER)
+    !   X = ARRAY OF DIMENSION L STORING THE X VALUES OF INPUT DATA POINTS (IN ASCENDING ORDER)
+    !   Y = ARRAY OF DIMENSION L STORING THE Y VALUES OF INPUT DATA POINTS
+    !   N = NUMBER OF POINTS AT WHICH INTERPOLATION OF THE Y-VALUES IS REQUIRED (MUST BE 1 OR GREATER)
+    !   U = ARRAY OF DIMENSION N STORING THE X VALUES OF THE DESIRED POINTS
     !
-    !  L = NUMBER OF DATA POINTS (MUST BE TWO OR GREATER)
-    !  X = ARRAY OF DIMENSION L STORING THE X VALUES OF INPUT DATA POINTS (IN ASCENDING ORDER)
-    !  Y = ARRAY OF DIMENSION L STORING THE Y VALUES OF INPUT DATA POINTS
-    !  N = NUMBER OF POINTS AT WHICH INTERPOLATION OF THE Y-VALUES IS REQUIRED (MUST BE 1 OR GREATER)
-    !  U = ARRAY OF DIMENSION N STORING THE X VALUES OF THE DESIRED POINTS
+    ! THE OUTPUT PARAMETER IS:
+    !   V = ARRAY OF DIMENSION N WHERE THE INTERPOLATED Y VALUES ARE TO BE DISPLAYED
     !
-    !  THE OUTPUT PARAMETER IS:
-    !
-    !  V = ARRAY OF DIMENSION N WHERE THE INTERPOLATED Y VALUES ARE TO BE DISPLAYED
-    !
-    !  DECLARATION STATEMENTS
+    ! DECLARATION STATEMENTS
     REAL(RP) :: A2, A3, A4, T4, TM2, TM3, TM4, X4, Y4
     INTEGER :: I, IMN, IMX, IPV, J, K, L, N
     REAL(RP), TARGET :: P0, Q0, Q1, UK, X2, X5, SW, Y2, Y5
@@ -212,7 +210,7 @@ CONTAINS
     Y5 = 0._RP
 
 
-    !  PRELIMINARY PROCESSING
+    ! PRELIMINARY PROCESSING
     L = SIZE(X)
     !IF(SIZE(Y)/=L) ERROR STOP 'size(Y)/=size(X)'
     N = SIZE(U)
@@ -223,10 +221,10 @@ CONTAINS
     A2 = 0._RP
 
     IPV = 0
-    !  MAIN LOOP
+    ! MAIN LOOP
     DO K = 1,N
       UK = U(K)
-      !  ROUTINE TO LOCATE THE DESIRED POINT
+      ! ROUTINE TO LOCATE THE DESIRED POINT
       IF(UK<X(1)) THEN
         I = 1
       ELSEIF(UK>=X(L)) THEN
@@ -245,10 +243,10 @@ CONTAINS
         END DO
         I = IMX
       END IF
-      !  CHECK IF I = IPV
+      ! CHECK IF I = IPV
       IF(I/=IPV) THEN
         IPV = I
-        !  ROUTINES TO PICK UP NECESSARY X AND Y VALUES AND TO ESTIMATE THEM IF NECESSARY
+        ! ROUTINES TO PICK UP NECESSARY X AND Y VALUES AND TO ESTIMATE THEM IF NECESSARY
         J = I
         IF(J==1) J = 2
         IF(J==L+1) J = L
@@ -290,7 +288,7 @@ CONTAINS
         ELSE
           TM5 = TM4+TM4-TM3
         END IF
-        !  NUMERICAL DIFFERENTIATION
+        ! NUMERICAL DIFFERENTIATION
         IF(I/=L+1) THEN
           W2 = ABS(TM4-TM3)
           W3 = ABS(TM2-TM1)
@@ -330,7 +328,7 @@ CONTAINS
             TM3 = TM4
           END IF
         END IF
-        !  COMPUTATION OF THE POLYNOMIAL
+        ! COMPUTATION OF THE POLYNOMIAL
         Q2 = (2._RP*(TM3-T3)+TM3-T4)/A3
         Q3 = (-TM3-TM3+T3+T4)/(A3*A3)
       END IF

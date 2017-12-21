@@ -6,11 +6,11 @@ MODULE vectors
     REAL(RP) :: x, y, z
   CONTAINS
     PROCEDURE :: norm
-  END TYPE
+  END TYPE vec_c
 
   TYPE vec_s
     REAL(RP) :: r, theta, phi
-  END TYPE
+  END TYPE vec_s
 
   INTERFACE OPERATOR(+)
     MODULE PROCEDURE :: add_vec_c, add_vec_s
@@ -92,7 +92,7 @@ CONTAINS
   ELEMENTAL TYPE(vec_s) FUNCTION neg_vec_s(vec)
     TYPE(vec_s), INTENT(IN) :: vec
 
-    neg_vec_s =  spher(-cartez(vec))
+    neg_vec_s = spher(-cartez(vec))
 
   END FUNCTION neg_vec_s
 

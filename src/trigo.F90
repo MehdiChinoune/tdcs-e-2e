@@ -17,13 +17,13 @@ CONTAINS
   END FUNCTION
 
   PURE SUBROUTINE spher2cartez( km, theta, phi, k )
-    REAL(RP), INTENT(IN)  :: km, phi, theta
+    REAL(RP), INTENT(IN) :: km, phi, theta
     REAL(RP), INTENT(OUT) :: k(3)
     k = km*[ SIN(theta)*COS(phi), SIN(theta)*SIN(phi), COS(theta) ]
   END SUBROUTINE spher2cartez
 
   PURE SUBROUTINE cartez2spher( k, km, theta, phi )
-    REAL(RP), INTENT(IN)  :: k(3)
+    REAL(RP), INTENT(IN) :: k(3)
     REAL(RP), INTENT(OUT) :: km, theta, phi
     km = nrm2(k)
     theta = ACOS( k(3)/km )

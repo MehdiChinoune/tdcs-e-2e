@@ -1,6 +1,6 @@
 PROGRAM main
-  USE constants        ,ONLY: RP
-  USE fdcs_e2e         ,ONLY: fdcs_fba_dw, fdcs_fba_cw, fdcs_fba_pw, fdcs_dwb
+  USE constants ,ONLY: RP
+  USE fdcs_e2e ,ONLY: fdcs_fba_dw, fdcs_fba_cw, fdcs_fba_pw, fdcs_dwb
 
   IMPLICIT NONE
   INTEGER(KIND = SELECTED_INT_KIND(6)) :: start, finish
