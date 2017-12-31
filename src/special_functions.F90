@@ -21,7 +21,7 @@ CONTAINS
       lnfac(i) = lnfac(i-1) +LOG( REAL(i,KIND=RP) )
     END DO
 
-    fac_called = .true.
+    fac_called = .TRUE.
 
   END SUBROUTINE
 
@@ -48,7 +48,7 @@ CONTAINS
     INTEGER, INTENT(IN),OPTIONAL  :: mo
 
     ! Local variables
-    COMPLEX(RP) :: eta, eta2, SUM
+    COMPLEX(RP) :: eta, eta2, sum_
     REAL(RP), PARAMETER :: c0(12) = [ .833333333333333E-01_RP, -.277777777777778E-02_RP &
       , .793650793650794E-03_RP, -.595238095238095E-03_RP,  .841750841750842E-03_RP &
       , -.191752691752692E-02_RP,  .641025641025641E-02_RP, -.295506535947712E-01_RP &
@@ -75,7 +75,7 @@ CONTAINS
     x = REAL(z, KIND=RP)
     y = AIMAG(z)
     !IF( ABS(x)>=MIN( REAL(MAX,RP), 1._RP/eps ) ) THEN! GO TO 70
-    w =  CMPLX(0.,0.,rp)
+    w = CMPLX(0.,0.,RP)
 
     s2 = 0._RP
     s1 = 0._RP
@@ -85,16 +85,13 @@ CONTAINS
     ! RETURN
     !END IF
     IF( x<0._RP ) THEN
-      !-----------------------------------------------------------------------
-      !            CASE WHEN THE REAL PART OF Z IS NEGATIVE
-      !-----------------------------------------------------------------------
+      ! CASE WHEN THE REAL PART OF Z IS NEGATIVE
       y = ABS(y)
       t = -pi*y
       et = EXP(t)
       e2t = et*et
 
-      !     SET  A1 = (1 +E2T)/2  AND  A2 = (1 -E2T)/2
-
+      ! SET A1 = (1 +E2T)/2  AND  A2 = (1 -E2T)/2
       a1 = half*(1._RP +e2t)
       t2 = t +t
       IF(t2>=-0.15_RP) THEN
@@ -103,8 +100,7 @@ CONTAINS
         a2 = half*(half +(half -e2t))
       END IF
 
-      !     COMPUTE SIN(PI*X) AND COS(PI*X)
-
+      !  COMPUTE SIN(PI*X) AND COS(PI*X)
       !IF(ABS(x)>=MIN(REAL(MAX,RP), 1._RP/eps)) GO TO 70
       k = INT( ABS(x) )
       u = x +k
@@ -120,7 +116,7 @@ CONTAINS
         sn = -sn
         cn = -cn
       END IF
-      !     SET  H1 +H2*I  TO  PI/SIN(PI*Z)  OR  LOG(PI/SIN(PI*Z))
+      !  SET  H1 +H2*I  TO  PI/SIN(PI*Z)  OR  LOG(PI/SIN(PI*Z))
       a1 = sn*a1
       a2 = cn*a2
       a = a1*a1 +a2*a2
@@ -135,7 +131,7 @@ CONTAINS
         h1 = (alpi+t) -half*LOG(a)
         h2 = -ATAN2(a2,a1)
       END IF
-      IF(AIMAG(z)>=0._RP) THEN
+      IF( AIMAG(z)>=0._RP ) THEN
         x = 1._RP -x
         y = -y
       ELSE
@@ -203,15 +199,15 @@ CONTAINS
     m = 12
     IF( a>=289._RP ) m = 6
     IF( eps>1.e-8_RP ) m = m / 2
-    SUM = CMPLX(c0(m), 0._RP, KIND=RP)
+    sum_ = CMPLX(c0(m), 0._RP, KIND=RP)
     l = m
     DO j = 2, m
       l = l -1
-      SUM = CMPLX(c0(l), 0._RP, KIND=RP) +SUM*eta2
+      sum_ = CMPLX(c0(l), 0._RP, KIND=RP) +sum_*eta2
     END DO
-    SUM = SUM*eta
-    a1 = REAL(SUM, KIND=RP)
-    a2 = AIMAG(SUM)
+    sum_ = sum_*eta
+    a1 = REAL(sum_, KIND=RP)
+    a2 = AIMAG(sum_)
     !-----------------------------------------------------------------------
     !                 GATHERING TOGETHER THE RESULTS
     !-----------------------------------------------------------------------
@@ -268,8 +264,8 @@ CONTAINS
       REAL(RP), INTENT(IN) :: x
       ! Local variables
       REAL(RP), PARAMETER  :: p1 = .914041914819518E-9_RP, p2 = .238082361044469E-1_RP, &
-        q1 = -.499999999085958_RP, q2 = .107141568980644_RP, q3 = -.119041179760821E-1_RP,  &
-        q4 = .595130811860248E-3_RP
+        q1 = -.499999999085958_RP, q2 = .107141568980644_RP, q3 = -.119041179760821E-1_RP, &
+        q4 = 0.595130811860248E-3_RP
       REAL(RP) :: e
       !-----------------------
       IF( ABS(x)<=0.15_RP ) THEN
@@ -366,30 +362,30 @@ CONTAINS
   !!
   !!   CALLING VARIABLES; ALL REALS ARE REAL (REAL*8)
   !!
-  !! @param[in]  X       -REAL ARGUMENT FOR COULOMB FUNCTIONS>0.0 [ X>SQRT(ACCUR) :
-  !!                       ACCUR IS TARGET ACCURACY 1.0D-14 ]
-  !! @param[out] ETA     -REAL SOMMERFELD PARAMETER, UNRESTRICTED>=< 0.0
-  !! @param[in]  XLMIN   -REAL MINIMUM LAMBDA-VALUE (L-VALUE OR ORDER), GENERALLY IN RANGE
-  !!                         0.0 -1.0 AND MOST  USUALLY 0.0
-  !! @param[in]  LRANGE  -INTEGER NUMBER OF ADDITIONAL L-VALUES : RESULTS RETURNED FOR L-VALUES
-  !!                         XLMIN TO XLMIN +LRANGE INCLUSIVE
-  !! @param[out] FC      -REAL VECTORS F OF REGULAR COULOMB FUNCTIONS
-  !! @param[out] GC      -REAL VECTORS G OF IRREGULAR COULOMB FUNCTIONS
-  !! @param[out] FCP     -REAL VECTOR FOR THE X-DERIVATIVES OF  F THIS VECTOR TO BE OF LENGTH
-  !!                         AT LEAST IDUM3 +LRANGE STARTING ELEMENT IDUM3 = MAX( INT(XLMIN+ACCUR),0 )
-  !! @param[out] GCP     -REAL VECTOR FOR THE X-DERIVATIVES OF  G THIS VECTOR TO BE OF LENGTH
-  !!                         AT LEAST IDUM3 +LRANGE STARTING ELEMENT IDUM3 = MAX( INT(XLMIN+ACCUR),0 )
-  !! @param[in]  KFN     -INTEGER CHOICE OF FUNCTIONS TO BE COMPUTED :
-  !!                       = 0      REAL COULOMB FUNCTIONS AND DERIVATIVES F & G
-  !!                       = 1    SPHERICAL BESSEL      "      "     "      J & Y
-  !!                       = 2  CYLINDRICAL BESSEL      "      "     "      J & Y
+  !! @param[in]  X     -REAL ARGUMENT FOR COULOMB FUNCTIONS>0.0 [ X>SQRT(ACCUR) :
+  !!                     ACCUR IS TARGET ACCURACY 1.0D-14 ]
+  !! @param[out] ETA   -REAL SOMMERFELD PARAMETER, UNRESTRICTED>=< 0.0
+  !! @param[in] XLMIN  -REAL MINIMUM LAMBDA-VALUE (L-VALUE OR ORDER), GENERALLY IN RANGE
+  !!                      0.0 -1.0 AND MOST  USUALLY 0.0
+  !! @param[in] LRANGE -INTEGER NUMBER OF ADDITIONAL L-VALUES : RESULTS RETURNED FOR L-VALUES
+  !!                      XLMIN TO XLMIN +LRANGE INCLUSIVE
+  !! @param[out] FC    -REAL VECTORS F OF REGULAR COULOMB FUNCTIONS
+  !! @param[out] GC    -REAL VECTORS G OF IRREGULAR COULOMB FUNCTIONS
+  !! @param[out] FCP   -REAL VECTOR FOR THE X-DERIVATIVES OF  F THIS VECTOR TO BE OF LENGTH
+  !!                      AT LEAST IDUM3 +LRANGE STARTING ELEMENT IDUM3 = MAX( INT(XLMIN+ACCUR),0 )
+  !! @param[out] GCP   -REAL VECTOR FOR THE X-DERIVATIVES OF  G THIS VECTOR TO BE OF LENGTH
+  !!                      AT LEAST IDUM3 +LRANGE STARTING ELEMENT IDUM3 = MAX( INT(XLMIN+ACCUR),0 )
+  !! @param[in]  KFN   -INTEGER CHOICE OF FUNCTIONS TO BE COMPUTED :
+  !!                     = 0      REAL COULOMB FUNCTIONS AND DERIVATIVES F & G
+  !!                     = 1    SPHERICAL BESSEL      "      "     "      J & Y
+  !!                     = 2  CYLINDRICAL BESSEL      "      "     "      J & Y
   !! @param[in]   IFAIL ON INPUT IS SET TO 0 (LIMIT = 20000)
   !! @param[out]  IFAIL IN OUTPUT
-  !!                      =  0 : CALCULATIONS SATISFACTORY
-  !!                      =  1 : CF1 DID NOT CONVERGE AFTER LIMIT ITERATIONS
-  !!                      =  2 : CF2 DID NOT CONVERGE AFTER LIMIT ITERATIONS
-  !!                      = -1 : X<1D-7 = SQRT(ACCUR)
-  !!                      = -2 : INCONSISTENCY IN ORDER VALUES (L-VALUES)
+  !!                =  0 : CALCULATIONS SATISFACTORY
+  !!                =  1 : CF1 DID NOT CONVERGE AFTER LIMIT ITERATIONS
+  !!                =  2 : CF2 DID NOT CONVERGE AFTER LIMIT ITERATIONS
+  !!                = -1 : X<1D-7 = SQRT(ACCUR)
+  !!                = -2 : INCONSISTENCY IN ORDER VALUES (L-VALUES)
   !!
   !!   PRECISION:  RESULTS TO WITHIN 2-3 DECIMALS OF "MACHINE ACCURACY"
   !!   IN OSCILLATING REGION X .GE. [ETA +SQRT{ETA**2 +XLM*(XLM+1)}]
@@ -432,7 +428,7 @@ CONTAINS
     !!---- ARRAYS INDEXED FROM 0 INSIDE SUBROUTINE: STORAGE FROM IDUM3
     REAL(RP) :: accur, acch, xinv, pk, cf1, c, d, pk1, etak, rk2, tk, dcf1, den, xlm, xll &
       , el, xl, rl, sl, f, fcmaxl, fcminl, gcminl, omega, wi, a, b, ar, ai, br, bi, dr &
-      , di, dp, dq, alpha, beta, e2mm1, fjwkb,  gjwkb, p, q, GAMMA, gammai, ERR
+      , di, dp, dq, alpha, beta, e2mm1, fjwkb,  gjwkb, p, q, gamma_, gammai, ERR
     INTEGER :: l, maxl, idum2, idum3
     LOGICAL :: etane0, xlturn
     !----------------------------------------------------------------------
@@ -450,7 +446,7 @@ CONTAINS
     !idum1 = 0
     gjwkb = 0._RP
     ERR = 1._RP
-    !    IF(KFN/=0) ETA = 0._RP
+    ! IF(KFN/=0) ETA = 0._RP
     etane0 = ( eta/=0._RP .and. kfn==0 )
     acch = SQRT(accur)
     gammai = 0._RP
@@ -458,8 +454,8 @@ CONTAINS
     IF( x <= acch .and. present(ifail) ) THEN
       ifail = -1
       !WRITE(6,1000) X,ACCH
-      !1000   FORMAT(' FOR X = ',1P,D12.3,'     TRY SMALL-X  SOLUTIONS',' OR X IS NEGATIVE'/ &
-        !      , ' SQUARE ROOT (ACCURACY) =  ',D12.3/)
+      !1000 FORMAT(' FOR X = ',1P,D12.3,'     TRY SMALL-X  SOLUTIONS',' OR X IS NEGATIVE'/ &
+      ! , ' SQUARE ROOT (ACCURACY) =  ',D12.3/)
       RETURN
     ENDIF
 
@@ -468,10 +464,10 @@ CONTAINS
     ELSE
       xlm = lmin
     ENDIF
-    IF( xlm <= -1._RP .or. lrange<0 .and. present(ifail) ) THEN
+    IF( xlm <= -1._RP .OR. lrange<0 .and. present(ifail) ) THEN
       ifail = -2
-      !       WRITE (6,1001) LRANGE,LMIN,XLM
-      !1001   FORMAT(/' PROBLEM WITH INPUT ORDER VALUES: LRANGE, XLMIN, XLM = ',2I10,1P,D15.6/)
+      !  WRITE (6,1001) LRANGE,LMIN,XLM
+      !1001 FORMAT(/' PROBLEM WITH INPUT ORDER VALUES: LRANGE, XLMIN, XLM = ',2I10,1P,D15.6/)
       RETURN
     ENDIF
     e2mm1 = xlm*xlm +xlm
@@ -521,7 +517,8 @@ CONTAINS
     IF( ABS(dcf1-1._RP)>=accur .and. present(ifail) ) THEN
       ifail = 1
       !WRITE (6,1002) LIMIT, CF1,DCF1, PK,ACCUR
-      !1002  FORMAT('CF1 HAS FAILED TO CONVERGE AFTER',I10,'ITERATIONS',/'CF1,DCF1,PK,ACCUR = ',1P,4D12.3/)
+      !1002  FORMAT('CF1 HAS FAILED TO CONVERGE AFTER',I10,'ITERATIONS',/'CF1,DCF1,PK
+      !,ACCUR = ',1P,4D12.3/)
       RETURN
     ENDIF
 
@@ -558,9 +555,9 @@ CONTAINS
     !---- EVALUATE CF2 = P +I.Q  USING STEED'S ALGORITHM (NO ZEROS)
     !---------------------------------------------------------------------
     IF( xlturn ) CALL jwkb(x,eta,MAX(xlm,0._RP),fjwkb,gjwkb,idum2)
-    IF( idum2>1 .or. gjwkb>1._RP/(acch*ten2) ) THEN
+    IF( idum2>1 .OR. gjwkb>1._RP/(acch*ten2) ) THEN
       omega = fjwkb
-      GAMMA = gjwkb*omega
+      gamma_ = gjwkb*omega
       p = f
       q = 1._RP
     ELSE
@@ -611,15 +608,15 @@ CONTAINS
       !---------------------------------------------------------------------
       !    SOLVE FOR FCMINL = F AT LAMBDA = XLM AND NORMALISING FACTOR OMEGA
       !---------------------------------------------------------------------
-      GAMMA = (f -p) / q
-      gammai = 1._RP / GAMMA
-      IF( ABS(GAMMA) <= 1._RP ) THEN
-        omega = SQRT( 1._RP +GAMMA*GAMMA )
+      gamma_ = (f -p)/q
+      gammai = 1._RP/gamma_
+      IF( ABS(gamma_) <= 1._RP ) THEN
+        omega = SQRT( 1._RP +gamma_*gamma_ )
       ELSE
-        omega = SQRT( 1._RP +gammai* gammai)*ABS(GAMMA)
+        omega = SQRT( 1._RP +gammai* gammai)*ABS(gamma_)
       ENDIF
       omega = 1._RP / ( omega*SQRT(q) )
-     ! wronsk = omega
+      ! wronsk = omega
     ENDIF
     !---------------------------------------------------------------------
     !---- RENORMALISE IF SPHERICAL OR CYLINDRICAL BESSEL FUNCTIONS
@@ -638,7 +635,7 @@ CONTAINS
     IF( xlturn ) THEN
       gcminl = gjwkb*beta
     ELSE
-      gcminl = fcminl*GAMMA
+      gcminl = fcminl*gamma_
     ENDIF
     !---- BESSEL SIGN
     IF( kfn/=0 ) gcminl = -gcminl
@@ -691,8 +688,7 @@ CONTAINS
 
     REAL(RP) :: phi, phi10, gh2, xll1, hll, hl, sl, rl2, gh
     !----------------------------------------------------------------------
-    !---- CHOOSE MAXEXP NEAR MAX EXPONENT RANGE
-    !---- E.G. 1.D300 FOR REAL
+    !---- CHOOSE MAXEXP NEAR MAX EXPONENT RANGE E.G. 1.D300 FOR REAL
     !----------------------------------------------------------------------
     gh2   = x*(eta +eta -x)
     xll1  = MAX( xl*xl +xl, dzero )
@@ -713,6 +709,7 @@ CONTAINS
       iexp = 0
     ENDIF
     fjwkb = half / (gh*gjwkb)
+
     RETURN
   END SUBROUTINE  jwkb
 
@@ -767,12 +764,12 @@ CONTAINS
     psid(0) = -chi(0)
     chid(0) = psi(0)
     accur = EPSILON(1._RP)!1.E-17
-    if(present(ifail)) ifail = -1
-    IF(x<SQRT(accur) ) GOTO 50
+    IF( present(ifail) ) ifail = -1
+    IF( x<SQRT(accur) ) GOTO 50
     !!---- TAKES CARE OF NEGATIVE X ... USE REFLECTION FORMULA
     !!---- BEGIN CALCULATION OF CF1 UNLESS LMAX = 0, WHEN SOLUTIONS BELOW
     xinv = 1._RP / x
-    IF(lmax>0) THEN
+    IF( lmax>0 ) THEN
       twoxi = xinv +xinv
       sl = REAL(lmax,KIND=RP)* xinv
       tk = 2._RP*sl +xinv*three
@@ -792,12 +789,12 @@ CONTAINS
         dcf1 =  d*c
         cf1 = cf1*dcf1
         IF( d<0._RP ) den = -den
-        IF( ABS(dcf1 -1._RP) <= accur ) GOTO 20
+        IF( ABS(dcf1 -1._RP)<=accur ) EXIT
         tk = tk +twoxi
       END DO
       !!---- ERROR EXIT, NO CONVERGENCE
-      GOTO 50
-      20 continue !   nfp = l
+      IF( l>=limit ) GOTO 50
+      ! 20 CONTINUE !   nfp = l
       !!---- ERROR ESTIMATE
       !ERR = accur*SQRT(REAL(nfp,KIND=RP))
       psi (lmax) = den
@@ -827,21 +824,23 @@ CONTAINS
     !!---------------------------------------------------------------------
     !!---- ERROR TRAPS
     !!---------------------------------------------------------------------
-    50  IF(x<0._RP) THEN
-    !    WRITE(6,1000) x
-    !    1000   FORMAT(' X NEGATIVE !',1p,e15.5,' ... USE REFLECTION FORMULA'/)
-  ELSE IF( x==0._RP ) THEN
-    ifail = 0
-    chi(0) = 1._RP
-    DO l = 1, lmax
-      chi(l) = 0._RP
-    END DO
-  ELSE
-    !    WRITE(6,1001) x
-    !    1001   FORMAT(' WITH X = ',1p,e15.5,'    TRY SMALL-X SOLUTIONS',/ &
-    !   , '  PSI/L/(X)  ->   X**(L+1) / (2L+1)!!      AND',/,'  CHI/L/(X)  ->  -(2L-1)!! / X**L'/)
-  ENDIF
-  RETURN
+    50 CONTINUE
+    IF( x<0._RP ) THEN
+      !    WRITE(6,1000) x
+      !    1000   FORMAT(' X NEGATIVE !',1p,e15.5,' ... USE REFLECTION FORMULA'/)
+    ELSE IF( x==0._RP ) THEN
+      ifail = 0
+      chi(0) = 1._RP
+      DO l = 1, lmax
+        chi(l) = 0._RP
+      END DO
+    ELSE
+      ! WRITE(6,1001) x
+      ! 1001   FORMAT(' WITH X = ',1p,e15.5,'    TRY SMALL-X SOLUTIONS',/ &
+        !   , '  PSI_L(X)=>X**(L+1)/(2L+1) AND',/,'  CHI/L/(X)-> -(2L-1)/X**L'/)
+    ENDIF
+
+    RETURN
   END SUBROUTINE ricbes
 
   ELEMENTAL REAL(RP) FUNCTION symbol_3j(l1, l2, l3, m1, m2, m3)
@@ -855,8 +854,8 @@ CONTAINS
       .OR. M1+M2+M3/=0 ) RETURN
 
     s = 0._RP
-    cst = 0.5_RP*(lnfac(l1+m1) +lnfac(l1-m1) +lnfac(l2+m2) +lnfac(l2-m2) +lnfac(l3+m3) +lnfac(l3-m3) &
-      +lnfac(l2+l3-l1) +lnfac(l3+l1-l2) +lnfac(l1+l2-l3) -lnfac(l1+l2+l3+1) )
+    cst = 0.5_RP*(lnfac(l1+m1) +lnfac(l1-m1) +lnfac(l2+m2) +lnfac(l2-m2) +lnfac(l3+m3) &
+      +lnfac(l3-m3) +lnfac(l2+l3-l1) +lnfac(l3+l1-l2) +lnfac(l1+l2-l3) -lnfac(l1+l2+l3+1) )
 
     ti = MAX(0, l2-l3-m1, l1-l3+m2 )
     tf = MIN(l1+l2-l3, l1-m1, l2+m2 )
@@ -872,7 +871,8 @@ CONTAINS
 
   !> Conhyp_opt
   !!
-  !> Optimized Confulent Hypergeometric Function when b = 1. and (a and z) are pure imaginary
+  !> Optimized Confulent Hypergeometric Function when b = 1.
+  !! and (a and z) are pure imaginary
   !! @param[in] a the imaginary part of the original A
   !! @param[in] z the imaginary part of the original Z
   ELEMENTAL COMPLEX(RP) FUNCTION conhyp_opt(a,z)

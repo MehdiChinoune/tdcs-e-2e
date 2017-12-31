@@ -28,7 +28,8 @@ CONTAINS
 
     INTEGER :: INPUT
 
-    OPEN( newunit = INPUT, FILE = 'Data/'//orbit_file//'.dat', STATUS = 'old', ACTION = 'read')
+    OPEN( newunit = INPUT, FILE = 'Data/'//orbit_file//'.dat', STATUS = 'old' &
+      , ACTION = 'read')
 
     READ( INPUT, * ) nelec
     READ( INPUT, * ) lo

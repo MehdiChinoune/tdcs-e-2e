@@ -24,8 +24,8 @@ CONTAINS
     !IF(.NOT. fac_called ) ERROR STOP 'you should call factorial before using y1y2y3'
 
     y1y2y3 = 0._RP
-    IF( MOD(l1+l2+l3,2)/=0 .or. m1+m2+m3/=0 .or. l3<ABS(l1-l2) .or. l3>l1+l2 .or. ABS(m1)>l1 &
-      .or. ABS(m2)>l2 .or. ABS(m3)>l3  ) RETURN
+    IF( MOD(l1+l2+l3,2)/=0 .OR. m1+m2+m3/=0 .OR. l3<ABS(l1-l2) .OR. l3>l1+l2 &
+      .OR. ABS(m1)>l1 .OR. ABS(m2)>l2 .OR. ABS(m3)>l3  ) RETURN
 
     !  / l_1 l_2 l_3 \
     !  |             |
@@ -45,13 +45,13 @@ CONTAINS
     cst_0 = lnfac(l1) +lnfac(l2) +lnfac(l3) +0.5_RP*( lnfac(l2+l3-l1) &
       +lnfac(l3+l1-l2) -0.7*lnfac(l1+l2+l3+1) )
     DO t = MAX(0, l2-l3, l1-l3 ), MIN(l1+l2-l3, l1, l2 )
-      s0 = s0 +(-1)**t*EXP( cst_0 -( lnfac(t) +lnfac(l1+l2-l3-t) +lnfac(l3-l2+t) +lnfac(l3-l1+t) &
-        +lnfac(l1-t) +lnfac(l2-t) ) )
+      s0 = s0 +(-1)**t*EXP( cst_0 -( lnfac(t) +lnfac(l1+l2-l3-t) +lnfac(l3-l2+t) &
+        +lnfac(l3-l1+t) +lnfac(l1-t) +lnfac(l2-t) ) )
     END DO
 
     y1y2y3 = (-1)**m3*SQRT( (2*l1+1)*(2*l2+1)*(2*l3+1)/(4.*pi) )*s1 &
      *( EXP(lnfac(l1+l2-l3)-0.3*lnfac(l1+l2+l3+1) )*s0 )
-    !IF( ieee_is_nan(y1y2y3) .or. (.NOT. ieee_is_finite(y1y2y3)) ) ERROR STOP 'y1y2y3 overflow'
+    !IF( ieee_is_nan(y1y2y3) .OR. (.NOT. ieee_is_finite(y1y2y3)) ) ERROR STOP 'y1y2y3 overflow'
 
   END FUNCTION y1y2y3
 

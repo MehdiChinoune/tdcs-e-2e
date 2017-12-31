@@ -1,6 +1,6 @@
 PROGRAM main
   USE constants        ,ONLY: RP
-  USE fdcs_e2e         ,ONLY: fdcs_fba_dw, fdcs_fba_cw, fdcs_fba_pw, fdcs_dwb
+  USE fdcs_e2e         ,ONLY: fdcs_fba_dw, fdcs_fba_cw, fdcs_fba_pw, fdcs_dwb, fdcs_bbk
 
   IMPLICIT NONE
   INTEGER(KIND = SELECTED_INT_KIND(6)) :: start, finish
@@ -24,7 +24,12 @@ PROGRAM main
       CALL fdcs_fba_cw(in_unit,out_unit)
     ELSEIF(TRIM(arg1)=='pw') THEN
       CALL fdcs_fba_pw(in_unit,out_unit)
+    ELSEIF(TRIM(arg1)=='dwb') THEN
+      CALL fdcs_dwb(in_unit,out_unit)
+    ELSEIF(TRIM(arg1)=='bbk') THEN
+      CALL fdcs_bbk(in_unit,out_unit)
     END IF
+
   ELSE
     CALL fdcs_fba_pw(in_unit,out_unit)
   ENDIF

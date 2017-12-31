@@ -63,14 +63,16 @@ CONTAINS
 
         D_term = (0._RP,0._RP)
         DO io = 1, no
-          D_term = D_term +a(io)*( tpw(n(io), lo, mo, e(io), ke, k ) -tpw(n(io), lo, mo, e(io), ke ) )
+          D_term = D_term +a(io)*( tpw(n(io), lo, mo, e(io), ke, k ) &
+            -tpw(n(io), lo, mo, e(io), ke ) )
         END DO
 
         IF(exchange==1) THEN
           E_term = (0._RP,0._RP)
           DO io = 1, no
             E_term = E_term &
-              +a(io)*( tpw(n(io), lo, mo, e(io), ks, k2 ) -tpw(n(io), lo, mo, e(io), ks ) )
+              +a(io)*( tpw(n(io), lo, mo, e(io), ks, k2 ) &
+                -tpw(n(io), lo, mo, e(io), ks ) )
           END DO
           sigma = sigma +(1+mo)*( ABS(D_term/km**2)**2 +ABS(E_term/k2m**2)**2 &
             -REAL( D_term*CONJG(E_term)/(km**2*k2m**2 ), rp ) )
@@ -291,15 +293,18 @@ CONTAINS
             DO me = -le,le
               IF( ABS(me-mo)>l ) CYCLE
               tmp_z = tmp_z +y1y2y3(le, l, lo, -me, me-mo, mo) &
-                *spherical_harmonic(le, me, i*deg, phie)*spherical_harmonic(l, mo-me, theta, phi)
+                *spherical_harmonic(le, me, i*deg, phie) &
+                *spherical_harmonic(l, mo-me, theta, phi)
             END DO
-            term = term +zi**(l-le)*EXP( CMPLX(0._RP, -(sigma_le(le)+delta(le)), KIND=RP ) ) &
-              *integral(le, l)*tmp_z
+            term = term +zi**(l-le)*integral(le, l)*tmp_z &
+              *EXP( CMPLX(0._RP, -(sigma_le(le)+delta(le)), KIND=RP ) )
+
           END DO
         END DO
         term = 4.*pi*term
 
-        sigma = sigma +(mo+1)*ABS( term -spherical_harmonic(lo, mo, i*deg, phie)*term0 )**2
+        sigma = sigma +(mo+1)*ABS( term &
+          -spherical_harmonic(lo, mo, i*deg, phie)*term0 )**2
 
       END DO
 
@@ -436,9 +441,11 @@ CONTAINS
     END DO
     sigma_ls = sigma_ls +delta_ls
 
-    CALL dwb_integrals(chi_0, chi_a, chi_b, delta_li, sigma_ls, sigma_le, wf, x, w, lo, integral)
+    CALL dwb_integrals(chi_0, chi_a, chi_b, delta_li, sigma_ls, sigma_le &
+      , wf, x, w, lo, integral)
     IF(exchange==1) THEN
-      CALL dwb_integrals(chi_0, chi_b, chi_a, delta_li, sigma_le, sigma_ls, wf, x, w, lo, integralx)
+      CALL dwb_integrals(chi_0, chi_b, chi_a, delta_li, sigma_le, sigma_ls &
+        , wf, x, w, lo, integralx)
     END IF
 
     ylms = (0._RP, 0._RP)
@@ -474,7 +481,8 @@ CONTAINS
           DO ls = 0,lsmax
             DO me = -le,le
               IF( ABS(me+mo)>ls ) CYCLE
-              termd = termd +ylme(le,me,i/step(3))*ylms(ls,mo+me)*integral(ls, le, me, mo )
+              termd = termd +ylme(le,me,i/step(3))*ylms(ls,mo+me) &
+                *integral(ls, le, me, mo )
             END DO
           END DO
         END DO
@@ -485,13 +493,15 @@ CONTAINS
             DO le = 0,lsmax
               DO me = -le,le
                 IF( ABS(me+mo)>ls ) CYCLE
-                termx = termx +ylms(le,me)*ylme(ls,mo+me,i/step(3))*integralx(ls, le, me, mo )
+                termx = termx +ylms(le,me)*ylme(ls,mo+me,i/step(3)) &
+                  *integralx(ls, le, me, mo )
               END DO
             END DO
           END DO
         END IF
 
-        sigma = sigma +(mo+1)*( ABS(termd)**2 +ABS(termx)**2 -REAL( CONJG(termd)*termx, RP ) )
+        sigma = sigma +(mo+1)*( ABS(termd)**2 +ABS(termx)**2 &
+          -REAL( CONJG(termd)*termx, RP ) )
       END DO
 
       sigma = factor*sigma/(2*lo+1)
@@ -574,7 +584,8 @@ CONTAINS
 
         D_term = (0._RP,0._RP)
         DO io = 1, no
-          D_term = D_term +a(io)*( tpw(n(io), lo, mo, e(io), ke, k ) -tpw(n(io), lo, mo, e(io), ke ) )
+          D_term = D_term +a(io)*( tpw(n(io), lo, mo, e(io), ke, k ) &
+            -tpw(n(io), lo, mo, e(io), ke ) )
         END DO
         sigma = sigma +(1+mo)*ABS(D_term/km**2)**2
       END DO
@@ -631,17 +642,19 @@ CONTAINS
       q2m = nrm2(q2)
       lam33 = CMPLX(lam3, -t3(i)*k3m, RP )
 
-      sig0_a = [ CMPLX( (lam1+lam2)**2+nrm2(q1-q2)**2, 0._RP, RP), 2*(lam2*(lam1**2+lam33**2+q1m**2) &
-        +lam1*(lam2**2+lam33**2+q2m**2) ), ( (lam1+lam33)**2+q1m**2)*((lam2+lam33)**2+q2m**2) ]
-      sig1_a = -2*[ DOT_PRODUCT(q1-q2,k1) +zi*(lam1+lam2)*k1m, &
-        2*lam2*DOT_PRODUCT(q1,k1) +zi*( (lam2**2+lam33**2+q2m**2)*k1m+2*lam1*lam2*k1m ), &
-        ((lam2+lam33)**2 +q2m**2)*( DOT_PRODUCT(q1,k1) +zi*(lam1+lam33)*k1m ) ]
-      sig2_a = -2*[ DOT_PRODUCT(q2-q1,k2) +zi*(lam1+lam2)*k2m, &
-        2*lam1*DOT_PRODUCT(q2,k2) +zi*( (lam1**2+lam33**2+q1m**2)*k2m+2*lam1*lam2*k2m ), &
-        ((lam1+lam33)**2 +q1m**2)*( DOT_PRODUCT(q2,k2) +zi*(lam2+lam33)*k2m ) ]
-      sig12_a = -2*[ CMPLX( k1m*k2m +DOT_PRODUCT(k1,k2), 0._RP, RP), &
-        2*( (lam1*k1m-zi*DOT_PRODUCT(q1,k1))*k2m +(lam2*k2m-zi*DOT_PRODUCT(q2,k2))*k1m), &
-        -2*( DOT_PRODUCT(q1,k1)+zi*(lam1+lam33)*k1m)*( DOT_PRODUCT(q2,k2)+zi*(lam2+lam33)*k2m) ]
+      sig0_a = [ CMPLX( (lam1+lam2)**2+nrm2(q1-q2)**2, 0._RP, RP) &
+        , 2*(lam2*(lam1**2+lam33**2+q1m**2) +lam1*(lam2**2+lam33**2+q2m**2) ) &
+        , ( (lam1+lam33)**2+q1m**2)*((lam2+lam33)**2+q2m**2) ]
+      sig1_a = -2*[ DOT_PRODUCT(q1-q2,k1) +zi*(lam1+lam2)*k1m &
+        , 2*lam2*DOT_PRODUCT(q1,k1) +zi*( (lam2**2+lam33**2+q2m**2)*k1m+2*lam1*lam2*k1m ) &
+        , ((lam2+lam33)**2 +q2m**2)*( DOT_PRODUCT(q1,k1) +zi*(lam1+lam33)*k1m ) ]
+      sig2_a = -2*[ DOT_PRODUCT(q2-q1,k2) +zi*(lam1+lam2)*k2m &
+        , 2*lam1*DOT_PRODUCT(q2,k2) +zi*( (lam1**2+lam33**2+q1m**2)*k2m+2*lam1*lam2*k2m ) &
+        , ((lam1+lam33)**2 +q1m**2)*( DOT_PRODUCT(q2,k2) +zi*(lam2+lam33)*k2m ) ]
+      sig12_a = -2*[ CMPLX( k1m*k2m +DOT_PRODUCT(k1,k2), 0._RP, RP) &
+        , 2*( (lam1*k1m-zi*DOT_PRODUCT(q1,k1))*k2m +(lam2*k2m-zi*DOT_PRODUCT(q2,k2))*k1m) &
+        , -2*( DOT_PRODUCT(q1,k1)+zi*(lam1+lam33)*k1m) &
+          *( DOT_PRODUCT(q2,k2)+zi*(lam2+lam33)*k2m) ]
 
       N_t3 = (0._RP, 0._RP)
       DO j = 1,64
@@ -649,7 +662,8 @@ CONTAINS
         sig1 = sig1_a(1)*(s(j)+2*lam33)*s(j) +sig1_a(2)*s(j) +sig1_a(3)
         sig2 = sig2_a(1)*(s(j)+2*lam33)*s(j) +sig2_a(2)*s(j) +sig2_a(3)
         sig12 = sig12_a(1)*(s(j)+2*lam33)*s(j) +sig12_a(2)*s(j) +sig12_a(3)
-        N_t3 = N_t3 +(sig0/(sig0+sig1) )**(-zi*alpha1)*(sig0/(sig0+sig2) )**(-zi*alpha2) /sig0
+        N_t3 = (sig0/(sig0+sig1) )**(-zi*alpha1)*(sig0/(sig0+sig2) )**(-zi*alpha2)/sig0 &
+          +N_t3
       END DO
       Integ = Integ +SINH(pi*alpha3)/(2*pi*zi)*(4*pi)**2*N_t3
     END DO
@@ -692,7 +706,8 @@ CONTAINS
 
   END SUBROUTINE calculate_chi
 
-  SUBROUTINE dwb_integrals( chi_0, chi_a, chi_b, sig_0, sig_a, sig_b, wf, x, w, lo, integral )
+  SUBROUTINE dwb_integrals( chi_0, chi_a, chi_b, sig_0, sig_a, sig_b, wf, x, w, lo &
+    , integral )
     USE special_functions ,ONLY: symbol_3j
     REAL(RP), INTENT(IN) :: chi_0(:,0:), chi_a(:,0:), chi_b(:,0:), wf(:)
     REAL(RP), INTENT(IN) :: x(:), w(:)
@@ -749,7 +764,8 @@ CONTAINS
             Ti = Ti +w(i)*chi_a(i,ls)*chi_0(i,li)*xil
             xil1 = xil*x(i)
             IF( xil1<VSmall ) CYCLE
-            integ0 = integ0 +( Ti*w(i)*wf(i)*chi_b(i,le) +Si*w(i)*chi_a(i,ls)*chi_0(i,li) )/xil1
+            integ0 = integ0 +( Ti*w(i)*wf(i)*chi_b(i,le) &
+              +Si*w(i)*chi_a(i,ls)*chi_0(i,li) )/xil1
           END DO
 
           integ(l, li ) = integ(l, li ) +integ0*symbol_3j(ls, l, li, 0, 0, 0 ) &
@@ -763,13 +779,14 @@ CONTAINS
           DO l = MAX(ABS(ls-li), ABS(le-lo)), MIN(ls+li, le+lo)
             IF( MOD(ls+l+li,2)/=0 .OR. MOD(le+l+lo,2)/=0 ) CYCLE
             integral(ls,le,me,mo) = integral(ls,le,me,mo) +integ(l, li ) &
-              *symbol_3j(ls, l, li, mo+me, -me-mo, 0 )*symbol_3j(lo, l, le, mo, -me-mo, me)
+              *symbol_3j(ls, l, li, mo+me, -me-mo, 0 ) &
+              *symbol_3j(lo, l, le, mo, -me-mo, me)
           END DO
         END DO
       END DO; END DO
 
-      integral(ls,le,:,:) = integral(ls,le,:,:)*zi**(-ls-le)*SQRT((2*lo+1)*(2*ls+1)*(2*le+1._RP) ) &
-        *EXP( zi*( sig_b(le) +sig_a(ls) ) )
+      integral(ls,le,:,:) = integral(ls,le,:,:)*zi**(-ls-le)*SQRT((2*lo+1)*(2*ls+1) &
+        *(2*le+1._RP) )*EXP( zi*( sig_b(le) +sig_a(ls) ) )
 
     END DO; END DO
 
@@ -853,7 +870,7 @@ CONTAINS
       aj1 = j1 +1._RP
       f21(j1, 0) = 1._RP
       f21(j1, 1) = 1. +alphac*w / ( aj1*w1m )
-      IF( n<2 .or. j1>n-2 ) CYCLE
+      IF( n<2 .OR. j1>n-2 ) CYCLE
       DO j = 1, n -j1 -1
         f21( j1,  j +1 ) = (1. +( j +alphac*w) / ( (aj1 +j)*w1m ) )*f21(j1, j) &
           -j/( (aj1 +j)*w1m )*f21(j1, j-1)
@@ -869,7 +886,8 @@ CONTAINS
     cst_s1 = kem/km
     cst_s2 = 2.*DOT_PRODUCT(k,ke_t)
     DO j = 0,(n-l)/2
-      tmp_j = fac(n-j) /fac(j)*cst_j**j!tmp_j = fac(n-j)/fac(j)*(-0.25*a/ekec**2)**j
+      tmp_j = fac(n-j) /fac(j)*cst_j**j
+      !tmp_j = fac(n-j)/fac(j)*(-0.25*a/ekec**2)**j
       DO j1 = 0,(n-l-2*j)
         !tmp_j1 = (kec/ekec)**j1 /( fac(j1)*fac(n-l-2*j-j1) )*tmp_j
         tmp_j1 = cst_j1**j1 /( fac(j1)*fac(n-l-2*j-j1) )*tmp_j
@@ -877,15 +895,17 @@ CONTAINS
           tmp_m1 = cst_m1**m1 /( fac(ma-m1)*fac(m1) )*tmp_j1
           !tmp_m1 = (kep/kp)**m1 /( fac(ma-m1)*fac(m1) )*tmp_j1
           DO s = 0,(l-ma)/2
-            tmp_s = cst_s**s /( fac(l-s) )!tmp_s = (-1)**s*(km/k(3))**(2*s) /( fac(l-s) )
+            tmp_s = cst_s**s /( fac(l-s) )
+            !tmp_s = (-1)**s*(km/k(3))**(2*s) /( fac(l-s) )
             DO s3 = 0,l-ma-2*s
               tmp_s3 = cst_s3**s3 /( fac(s3)*fac(l-ma-2*s-s3) )*tmp_s
               !tmp_s3 = (ke_t(3)/k(3))**s3 /( fac(s3)*fac(l-ma-2*s-s3) )*tmp_s
               DO s1 = 0,s
-                tmp_s1 = cst_s1**s1 /fac(s-s1)*tmp_s3!tmp_s1 = (kem/km)**s1 /fac(s-s1)*tmp_s3
+                tmp_s1 = cst_s1**s1 /fac(s-s1)*tmp_s3
+                !tmp_s1 = (kem/km)**s1 /fac(s-s1)*tmp_s3
                 DO s2 = 0,s1
-                  tcw = tcw +gam(m1+s3+2*s1-s2+j1)*f21(m1+s3+2*s1-s2+j1, n -j -(m1+s3+2*s1-s2+j1) ) &
-                    /( fac(s2)*fac(s1-s2)*fac(m1+s3+2*s1-s2+j1) ) &
+                  tcw = tcw +gam(m1+s3+2*s1-s2+j1)*f21(m1+s3+2*s1-s2+j1, n -j &
+                    -(m1+s3+2*s1-s2+j1) )/( fac(s2)*fac(s1-s2)*fac(m1+s3+2*s1-s2+j1) ) &
                     *tmp_m1*tmp_s1*cst_s2**s2
                 END DO
               END DO
@@ -895,9 +915,10 @@ CONTAINS
       END DO
     END DO
 
-    tcw = tcw*norm_fac(e, n )*SQRT(l+0.5_RP)*fac(n-l)*SQRT( fac(l-ma)/fac(l+ma) )*(-1)**ma &
-      *fac(ma)*(zi*k(3)/ekec)**l*(2.*ekec/a)**n/a*(kp/k(3))**ma*w1m**(-alphac) /pi
-    !*powcc(w1m,-alpha)/pi
+    tcw = tcw*norm_fac(e, n )*SQRT(l+0.5_RP)*fac(n-l)*SQRT( fac(l-ma)/fac(l+ma) ) &
+      *(-1)**ma*fac(ma)*(zi*k(3)/ekec)**l*(2.*ekec/a)**n/a*(kp/k(3))**ma &
+      *w1m**(-alphac) /pi
+      !*powcc(w1m,-alpha)/pi
     IF( MOD(m,2)<0 ) tcw = -tcw
 
   END FUNCTION tcw

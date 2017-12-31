@@ -45,8 +45,8 @@ CONTAINS
   COMPLEX(RP) FUNCTION CONHYP (A,B,Z,LNCHF,IP)
     COMPLEX(RP), INTENT(IN) :: A, B, Z
     INTEGER, INTENT(IN), OPTIONAL :: LNCHF, IP
-    INTEGER :: I
-    REAL(RP) ::  NTERM,FX,TERM1,MAX,TERM2,ANG
+    INTEGER :: I, NTERM
+    REAL(RP) ::  FX, TERM1, MAX_, TERM2, ANG
 
     IF( ABS(Z)/=0._RP) THEN
       ANG = ATAN2(AIMAG(Z),REAL(Z,RP))
@@ -58,22 +58,22 @@ CONTAINS
     ELSE
       ANG = SIN(ABS(ANG)-(3.14159265_RP*0.5_RP))+1._RP
     ENDIF
-    MAX = 0
+    MAX_ = 0._RP
     NTERM = 0
-    FX = 0
+    FX = 0._RP
     TERM1 = 0
     DO
       NTERM = NTERM+1
       TERM2 = ABS((A+NTERM-1)*Z/((B+NTERM-1)*NTERM))
-      IF(TERM2==0._RP) EXIT
-      IF(TERM2<1._RP .AND. (REAL(A)+NTERM-1)>1._RP .AND. (REAL(B)+NTERM-1)>1._RP &
-        .AND. (TERM2-TERM1)<0._RP) EXIT
-      FX = FX+LOG(TERM2)
-      IF(FX>MAX) MAX = FX
+      IF( TERM2==0._RP ) EXIT
+      IF( TERM2<1._RP .AND. (REAL(A)+NTERM-1)>1._RP .AND. (REAL(B)+NTERM-1)>1._RP &
+        .AND. (TERM2-TERM1)<0._RP ) EXIT
+      FX = FX +LOG(TERM2)
+      IF(FX>MAX_) MAX_ = FX
       TERM1 = TERM2
     END DO
-    MAX = MAX*2/(BITS()*6.93147181E-1_RP)
-    I = INT(MAX*ANG)+7
+    MAX_ = MAX_*2/(BITS()*6.93147181E-1_RP)
+    I = INT(MAX_*ANG) +7
     IF(I<5) I = 5
 
     IF( PRESENT(LNCHF) ) THEN
