@@ -263,9 +263,9 @@ CONTAINS
     ELEMENTAL REAL(RP) FUNCTION rexp(x)
       REAL(RP), INTENT(IN) :: x
       ! Local variables
-      REAL(RP), PARAMETER  :: p1 = .914041914819518E-9_RP, p2 = .238082361044469E-1_RP, &
-        q1 = -.499999999085958_RP, q2 = .107141568980644_RP, q3 = -.119041179760821E-1_RP, &
-        q4 = 0.595130811860248E-3_RP
+      REAL(RP), PARAMETER  :: p1 = .914041914819518E-9_RP, p2 = .238082361044469E-1_RP &
+        , q1 = -.499999999085958_RP, q2 = .107141568980644_RP &
+        , q3 = -.119041179760821E-1_RP, q4 = 0.595130811860248E-3_RP
       REAL(RP) :: e
       !-----------------------
       IF( ABS(x)<=0.15_RP ) THEN
@@ -285,8 +285,8 @@ CONTAINS
   END FUNCTION cgamma
 
   !> assoc_legendre
-  !! Computes the associated Legendre polynomial P_l^m (x). Here m and l are integers satisfying
-  !! 0 <= m <= l,  while x lies in the range −1 <= x <= 1.
+  !! Computes the associated Legendre polynomial P_l^m (x). Here m and l are integers
+  !! satisfying 0 <= m <= l,  while x lies in the range −1 <= x <= 1.
   ELEMENTAL REAL(RP) FUNCTION assoc_legendre(l,m,x)
     USE ieee_arithmetic ,only: ieee_is_finite
     INTEGER, INTENT(IN) :: l, m
@@ -334,7 +334,8 @@ CONTAINS
     REAL(RP), PARAMETER :: Tinye = log(tiny(1._RP))
     INTEGER :: ma
 
-    !if(.not. fac_called ) error stop 'you should call factorial before using y_l^m(\theta,\phi)'
+    !if(.not. fac_called ) error stop 'you should call factorial before using &
+    !  &y_l^m(\theta,\phi)'
 
     ma = ABS(m)
     if( (lnfac(l-ma)-lnfac(l+ma))<2*Tinye ) then
@@ -367,18 +368,20 @@ CONTAINS
   !! @param[out] ETA   -REAL SOMMERFELD PARAMETER, UNRESTRICTED>=< 0.0
   !! @param[in] XLMIN  -REAL MINIMUM LAMBDA-VALUE (L-VALUE OR ORDER), GENERALLY IN RANGE
   !!                      0.0 -1.0 AND MOST  USUALLY 0.0
-  !! @param[in] LRANGE -INTEGER NUMBER OF ADDITIONAL L-VALUES : RESULTS RETURNED FOR L-VALUES
-  !!                      XLMIN TO XLMIN +LRANGE INCLUSIVE
+  !! @param[in] LRANGE -INTEGER NUMBER OF ADDITIONAL L-VALUES : RESULTS RETURNED FOR
+  !!                      L-VALUES XLMIN TO XLMIN +LRANGE INCLUSIVE
   !! @param[out] FC    -REAL VECTORS F OF REGULAR COULOMB FUNCTIONS
   !! @param[out] GC    -REAL VECTORS G OF IRREGULAR COULOMB FUNCTIONS
-  !! @param[out] FCP   -REAL VECTOR FOR THE X-DERIVATIVES OF  F THIS VECTOR TO BE OF LENGTH
-  !!                      AT LEAST IDUM3 +LRANGE STARTING ELEMENT IDUM3 = MAX( INT(XLMIN+ACCUR),0 )
-  !! @param[out] GCP   -REAL VECTOR FOR THE X-DERIVATIVES OF  G THIS VECTOR TO BE OF LENGTH
-  !!                      AT LEAST IDUM3 +LRANGE STARTING ELEMENT IDUM3 = MAX( INT(XLMIN+ACCUR),0 )
+  !! @param[out] FCP   -REAL VECTOR FOR THE X-DERIVATIVES OF  F THIS VECTOR TO BE OF
+  !!                      LENGTH AT LEAST IDUM3 +LRANGE STARTING ELEMENT
+  !!                      IDUM3 = MAX( INT(XLMIN+ACCUR),0 )
+  !! @param[out] GCP   -REAL VECTOR FOR THE X-DERIVATIVES OF  G THIS VECTOR TO BE OF
+  !!                      LENGTH AT LEAST IDUM3 +LRANGE STARTING ELEMENT
+  !!                      IDUM3 = MAX( INT(XLMIN+ACCUR),0 )
   !! @param[in]  KFN   -INTEGER CHOICE OF FUNCTIONS TO BE COMPUTED :
   !!                     = 0      REAL COULOMB FUNCTIONS AND DERIVATIVES F & G
-  !!                     = 1    SPHERICAL BESSEL      "      "     "      J & Y
-  !!                     = 2  CYLINDRICAL BESSEL      "      "     "      J & Y
+  !!                     = 1    SPHERICAL BESSEL      "      "     "     J & Y
+  !!                     = 2  CYLINDRICAL BESSEL      "      "     "     J & Y
   !! @param[in]   IFAIL ON INPUT IS SET TO 0 (LIMIT = 20000)
   !! @param[out]  IFAIL IN OUTPUT
   !!                =  0 : CALCULATIONS SATISFACTORY
@@ -423,12 +426,12 @@ CONTAINS
     REAL(RP), INTENT(OUT), DIMENSION(lmin:lmin+lrange) :: fc,  gc,  fcp, gcp
 
     INTEGER, PARAMETER :: limit = 20000
-    REAL(RP), PARAMETER :: small = SQRT(TINY(1._RP)), ten2 = 100._RP, half = 0.5_RP, &
-      rt2dpi = 0.797884560802865_RP
+    REAL(RP), PARAMETER :: small = SQRT(TINY(1._RP)), ten2 = 100._RP, half = 0.5_RP &
+      , rt2dpi = 0.797884560802865_RP
     !!---- ARRAYS INDEXED FROM 0 INSIDE SUBROUTINE: STORAGE FROM IDUM3
-    REAL(RP) :: accur, acch, xinv, pk, cf1, c, d, pk1, etak, rk2, tk, dcf1, den, xlm, xll &
-      , el, xl, rl, sl, f, fcmaxl, fcminl, gcminl, omega, wi, a, b, ar, ai, br, bi, dr &
-      , di, dp, dq, alpha, beta, e2mm1, fjwkb,  gjwkb, p, q, gamma_, gammai, ERR
+    REAL(RP) :: accur, acch, xinv, pk, cf1, c, d, pk1, etak, rk2, tk, dcf1, den, xlm &
+      , xll, el, xl, rl, sl, f, fcmaxl, fcminl, gcminl, omega, wi, a, b, ar, ai, br &
+      , bi, dr, di, dp, dq, alpha, beta, e2mm1, fjwkb,  gjwkb, p, q, gamma_, gammai, ERR
     INTEGER :: l, maxl, idum2, idum3
     LOGICAL :: etane0, xlturn
     !----------------------------------------------------------------------
@@ -454,8 +457,8 @@ CONTAINS
     IF( x <= acch .and. present(ifail) ) THEN
       ifail = -1
       !WRITE(6,1000) X,ACCH
-      !1000 FORMAT(' FOR X = ',1P,D12.3,'     TRY SMALL-X  SOLUTIONS',' OR X IS NEGATIVE'/ &
-      ! , ' SQUARE ROOT (ACCURACY) =  ',D12.3/)
+      !1000 FORMAT(' FOR X = ',1P,D12.3,'     TRY SMALL-X  SOLUTIONS' &
+      ! ,' OR X IS NEGATIVE'/, ' SQUARE ROOT (ACCURACY) =  ',D12.3/)
       RETURN
     ENDIF
 
@@ -854,8 +857,9 @@ CONTAINS
       .OR. M1+M2+M3/=0 ) RETURN
 
     s = 0._RP
-    cst = 0.5_RP*(lnfac(l1+m1) +lnfac(l1-m1) +lnfac(l2+m2) +lnfac(l2-m2) +lnfac(l3+m3) &
-      +lnfac(l3-m3) +lnfac(l2+l3-l1) +lnfac(l3+l1-l2) +lnfac(l1+l2-l3) -lnfac(l1+l2+l3+1) )
+    cst = 0.5_RP*(lnfac(l1+m1) +lnfac(l1-m1) +lnfac(l2+m2) +lnfac(l2-m2) &
+      +lnfac(l3+m3) +lnfac(l3-m3) +lnfac(l2+l3-l1) +lnfac(l3+l1-l2) +lnfac(l1+l2-l3) &
+      -lnfac(l1+l2+l3+1) )
 
     ti = MAX(0, l2-l3-m1, l1-l3+m2 )
     tf = MIN(l1+l2-l3, l1-m1, l2+m2 )

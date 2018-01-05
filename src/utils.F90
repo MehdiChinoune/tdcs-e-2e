@@ -90,8 +90,8 @@ CONTAINS
         IF(s(i1,l)>0._RP) EXIT
       END DO
       DO i = i1,ns-1
-        s(i+1,l) = ( (2._RP+f(i,l)*5._RP*h**2/6.)*s(i,l) -(1._RP-f(i-1,l)*h**2/12.)*s(i-1,l) ) &
-          /( 1._RP-f(i+1,l)*h**2/12. )
+        s(i+1,l) = ( (2._RP+f(i,l)*5._RP*h**2/6.)*s(i,l) &
+          -(1._RP-f(i-1,l)*h**2/12.)*s(i-1,l) )/( 1._RP-f(i+1,l)*h**2/12. )
         IF(ABS(s(i+1,l))>=Big) s(1:i+1,l) = s(1:i+1,l)*eps
       END DO
     END DO
@@ -181,7 +181,8 @@ CONTAINS
     !  L = NUMBER OF DATA POINTS (MUST BE TWO OR GREATER)
     !  X = ARRAY OF DIMENSION L STORING THE X VALUES OF INPUT DATA POINTS (IN ASCENDING ORDER)
     !  Y = ARRAY OF DIMENSION L STORING THE Y VALUES OF INPUT DATA POINTS
-    !  N = NUMBER OF POINTS AT WHICH INTERPOLATION OF THE Y-VALUES IS REQUIRED (MUST BE 1 OR GREATER)
+    !  N = NUMBER OF POINTS AT WHICH INTERPOLATION OF THE Y-VALUES IS REQUIRED
+    !      (MUST BE 1 OR GREATER)
     !  U = ARRAY OF DIMENSION N STORING THE X VALUES OF THE DESIRED POINTS
     !
     !  THE OUTPUT PARAMETER IS:

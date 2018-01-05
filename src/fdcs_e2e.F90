@@ -162,7 +162,8 @@ CONTAINS
   SUBROUTINE fdcs_fba_dw(in_unit,out_unit)
     USE ieee_arithmetic ,only: ieee_is_nan
     USE constants ,ONLY: pi, deg, ev
-    USE special_functions ,ONLY: cgamma, spherical_harmonic, ricbes, factorial!, coul90, symbol_3j
+    USE special_functions ,ONLY: cgamma, spherical_harmonic, ricbes, factorial !&
+      !, coul90, symbol_3j
     USE utils ,ONLY: norm_fac, y1y2y3, calculate_U, ode_second_dw
     USE input ,ONLY: read_input, read_orbit
     USE trigo ,ONLY: spher2cartez, cartez2spher, nrm2
@@ -598,7 +599,8 @@ CONTAINS
 
   END SUBROUTINE fdcs_bbk
 
-  COMPLEX(RP) FUNCTION U_bbk(alpha1, alpha2, alpha3, k1, k2, k3, lam1, lam2, lam3, p1, p2)
+  COMPLEX(RP) FUNCTION U_bbk(alpha1, alpha2, alpha3, k1, k2, k3, lam1, lam2, lam3 &
+    , p1, p2)
     USE constants ,ONLY: pi
     USE integration ,ONLY: gauleg
     USE trigo ,ONLY: nrm2
