@@ -1,61 +1,38 @@
-SUBMODULE (utils) utils
+MODULE utils
+  USE constants ,ONLY: RP
   IMPLICIT NONE
 
 CONTAINS
 
-  MODULE SUBROUTINE factorial()
-    INTEGER :: i
-
-    IF(fac_called) RETURN
-
-    fac(0) = 1._RP
-    DO i=1,34
-      fac(i) = i*fac(i-1)
-    END DO
-
-    lnfac(0:34) = LOG( fac )
-    DO i = 35, 400
-      lnfac(i) = lnfac(i-1) +LOG( REAL(i,KIND=RP) )
-    END DO
-
-    fak(0) = 0._rp
-    fak(1) = 0._rp
-    do i = 2, 400
-      fak(i) = lnfac(i-1) +(i-1)*log(0.05_rp)
-    end do
-
-    fac_called = .true.
-
-  END SUBROUTINE
-
-  ELEMENTAL REAL(KIND=RP) MODULE FUNCTION norm_fac(e,n)
-    REAL(KIND=RP), INTENT(IN) :: e
-    INTEGER      , INTENT(IN) :: n
+  ELEMENTAL REAL(RP) FUNCTION norm_fac(e,n)
+    USE special_functions ,ONLY: fac
+    REAL(RP), INTENT(IN) :: e
+    INTEGER , INTENT(IN) :: n
 
     norm_fac = SQRT( (2.*e)**(2*n+1) / fac(2*n) )
 
   END FUNCTION
 
-  ELEMENTAL REAL(KIND=RP) MODULE FUNCTION y1y2y3(l1, l2, l3, m1, m2, m3 )
+  ELEMENTAL REAL(RP) FUNCTION y1y2y3(l1, l2, l3, m1, m2, m3 )
     USE constants ,ONLY: pi
-    USE ieee_arithmetic ,ONLY: ieee_is_nan, ieee_is_finite
+    !USE ieee_arithmetic ,ONLY: ieee_is_nan, ieee_is_finite
+    USE special_functions ,ONLY: lnfac!, fac_called
     INTEGER, INTENT(IN) :: l1, l2, l3, m1, m2, m3
     INTEGER :: t
-    REAL(KIND=RP) :: s0, s1, cst_1, cst_0
+    REAL(RP) :: s0, s1, cst_1, cst_0
 
-    IF(.NOT. fac_called ) ERROR STOP 'you should call factorial before using y1y2y3'
+    !IF(.NOT. fac_called ) ERROR STOP 'you should call factorial before using y1y2y3'
 
-    y1y2y3=0._RP
-    IF( MOD(l1+l2+l3,2)/=0 .or. m1+m2+m3/=0 .or. l3<ABS(l1-l2) .or. l3>l1+l2 .or. ABS(m1)>l1 &
-      .or. ABS(m2)>l2 .or. ABS(m3)>l3  ) RETURN
+    y1y2y3 = 0._RP
+    IF( MOD(l1+l2+l3,2)/=0 .OR. m1+m2+m3/=0 .OR. l3<ABS(l1-l2) .OR. l3>l1+l2 &
+      .OR. ABS(m1)>l1 .OR. ABS(m2)>l2 .OR. ABS(m3)>l3  ) RETURN
 
     !  / l_1 l_2 l_3 \
     !  |             |
     !  \ m_1 m_2 m_3 /
     s1 = 0._RP
-    cst_1 = 0.5_rp*(lnfac(l1+m1) +lnfac(l1-m1) +lnfac(l2+m2) +lnfac(l2-m2) +lnfac(l3+m3) &
-      +lnfac(l3-m3) +lnfac(l2+l3-l1) +lnfac(l3+l1-l2) &
-      -0.7*lnfac(l1+l2+l3+1) )
+    cst_1 = 0.5_RP*(lnfac(l1+m1) +lnfac(l1-m1) +lnfac(l2+m2) +lnfac(l2-m2) +lnfac(l3+m3) &
+      +lnfac(l3-m3) +lnfac(l2+l3-l1) +lnfac(l3+l1-l2) -0.7*lnfac(l1+l2+l3+1) )
     DO t = MAX(0, l2-l3-m1, l1-l3+m2 ), MIN(l1+l2-l3, l1-m1, l2+m2 )
       s1 = s1 +(-1)**t* EXP( cst_1 -( lnfac(t) +lnfac(l1+l2-l3-t) +lnfac(l3-l2+m1+t) &
         +lnfac(l3-l1-m2+t) +lnfac(l1-m1-t) +lnfac(l2+m2-t) ) )
@@ -65,57 +42,57 @@ CONTAINS
     ! |             |
     ! \ 0   0   0   /
     s0 = 0._RP
-    cst_0 = lnfac(l1) +lnfac(l2) +lnfac(l3) +0.5_rp*( lnfac(l2+l3-l1) &
+    cst_0 = lnfac(l1) +lnfac(l2) +lnfac(l3) +0.5_RP*( lnfac(l2+l3-l1) &
       +lnfac(l3+l1-l2) -0.7*lnfac(l1+l2+l3+1) )
     DO t = MAX(0, l2-l3, l1-l3 ), MIN(l1+l2-l3, l1, l2 )
-      s0 = s0 +(-1)**t *EXP( cst_0 -( lnfac(t) +lnfac(l1+l2-l3-t) +lnfac(l3-l2+t) +lnfac(l3-l1+t) &
-        +lnfac(l1-t) +lnfac(l2-t) ) )
+      s0 = s0 +(-1)**t*EXP( cst_0 -( lnfac(t) +lnfac(l1+l2-l3-t) +lnfac(l3-l2+t) &
+        +lnfac(l3-l1+t) +lnfac(l1-t) +lnfac(l2-t) ) )
     END DO
 
-    y1y2y3 = (-1)**m3 *SQRT( (2*l1+1)*(2*l2+1)*(2*l3+1)/(4.*pi) ) *s1 &
-      *( EXP(lnfac(l1+l2-l3)-0.3*lnfac(l1+l2+l3+1) ) *s0 )
-    IF( ieee_is_nan(y1y2y3) .or. (.NOT. ieee_is_finite(y1y2y3)) ) ERROR STOP 'y1y2y3 overflow'
+    y1y2y3 = (-1)**m3*SQRT( (2*l1+1)*(2*l2+1)*(2*l3+1)/(4.*pi) )*s1 &
+     *( EXP(lnfac(l1+l2-l3)-0.3*lnfac(l1+l2+l3+1) )*s0 )
+    !IF( ieee_is_nan(y1y2y3) .OR. (.NOT. ieee_is_finite(y1y2y3)) ) ERROR STOP 'y1y2y3 overflow'
 
   END FUNCTION y1y2y3
 
   !> ode_second_dw
   !!
   !! This subroutine solve Equation of the form
-  !! s_l''(r) + f_l(r) *s_l(r) = km**2 *s_l(r)
+  !! s_l''(r) +f_l(r)*s_l(r) = km**2*s_l(r)
 
-  MODULE SUBROUTINE ode_second_dw(km, lmax, rc, z, f, s, delta )
-    USE special_functions ,ONLY: coul90
+  SUBROUTINE ode_second_dw(km, lmax, rc, z, f, s, delta )
+    USE special_functions ,ONLY: coul90, ricbes
     INTEGER, INTENT(IN) :: lmax, z
-    REAL(KIND=RP), INTENT(IN)  :: f(0:,0:), rc, km
-    REAL(KIND=RP), INTENT(OUT) :: s(0:,0:), delta(0:lmax)
-    REAL(KIND=RP) :: h, rho, eta
-    REAL(KIND=RP), DIMENSION(0:lmax) :: jl, gl, jpl, gpl, fn, betap, beta
-    INTEGER :: i, ns, ifail, l
+    REAL(RP), INTENT(IN)  :: f(0:,0:), rc, km
+    REAL(RP), INTENT(OUT) :: s(0:,0:), delta(0:lmax)
+    REAL(RP) :: Big = SQRT(HUGE(1._RP)), eps = EPSILON(1._RP)
+    REAL(RP) :: h, rho, eta
+    REAL(RP), DIMENSION(0:lmax) :: jl, gl, jpl, gpl, fn, betap, beta
+    INTEGER :: i, ns, l, i1
 
     ns = SIZE(s,1)-1
     h = rc/ns
 
     rho = km*h*(ns-2)
 
-    if(z/=0) then
+    IF(z/=0) THEN
       eta = -z/km
-      CALL coul90(rho, eta, 0, lmax, jl, gl, jpl, gpl, 0, ifail )
-    else
-      CALL coul90(rho, 0._rp, 0, lmax, jl, gl, jpl, gpl, 1, ifail )
-      jpl = rho*jpl +jl
-      gpl = rho*gpl +gl
-      jl = rho*jl
-      gl = rho*gl
-    end if
+      CALL coul90(rho, eta, 0, lmax, jl, gl, jpl, gpl, 0 )
+    ELSE
+      CALL ricbes(rho, lmax, jl, gl, jpl, gpl )
+    END IF
 
 
-    DO l=0,lmax
-      s(0,l) = 0.
-      s(1,l) = h**(l+1)
-      DO i=1,ns-1
-        s(i+1,l) = ( (2.+f(i,l)*5.*h**2/6.)*s(i,l) - (1.-f(i-1,l)*h**2/12.)*s(i-1,l) ) &
-          /( 1.-f(i+1,l)*h**2/12. )
-        !if(abs(s(i+1,l))>1._rp) s(1:i+1,l) = s(1:i+1,l)*1.e-5_rp
+    DO l = 0,lmax
+      s(0,l) = 0._RP
+      DO i1 = 1,ns-1
+        s(i1,l) = (i1*h)**(l+1)
+        IF(s(i1,l)>0._RP) EXIT
+      END DO
+      DO i = i1,ns-1
+        s(i+1,l) = ( (2._RP+f(i,l)*5._RP*h**2/6.)*s(i,l) &
+          -(1._RP-f(i-1,l)*h**2/12.)*s(i-1,l) )/( 1._RP-f(i+1,l)*h**2/12. )
+        IF(ABS(s(i+1,l))>=Big) s(1:i+1,l) = s(1:i+1,l)*eps
       END DO
     END DO
 
@@ -124,65 +101,70 @@ CONTAINS
     delta = ATAN( (-jl*betap+jpl*beta) /(gl*betap-gpl*beta ) )
     fn = (COS(delta)*jl+SIN(delta)*gl) /beta
 
-    DO l=0,lmax
+    DO l = 0,lmax
       s(:,l) = s(:,l)*fn(l)
     END DO
 
   END SUBROUTINE ode_second_dw
 
-  ELEMENTAL REAL(KIND=RP) MODULE FUNCTION Uij(ni, ei, nj, ej, r)
-    REAL(KIND=RP), INTENT(IN) :: ei, ej, r
-    INTEGER      , INTENT(IN) :: ni, nj
+  ELEMENTAL REAL(RP) FUNCTION Uij(ni, ei, nj, ej, r)
+    USE special_functions ,ONLY: fac
+    REAL(RP), INTENT(IN) :: ei, ej, r
+    INTEGER, INTENT(IN) :: ni, nj
     INTEGER :: k
-    REAL(KIND=RP) :: a
+    REAL(RP) :: a
 
     a = 1._RP
-    DO CONCURRENT( k = 1:ni+nj-1 )
-      a = a + ((ei+ej)*r)**k *(ni+nj-k) /( (ni+nj)*fac(k) )
+    DO k = 1,ni+nj-1
+      a = a +((ei+ej)*r)**k*(ni+nj-k) /( (ni+nj)*fac(k) )
     END DO
-    Uij = a *EXP(-(ei+ej)*r) *fac(ni+nj) *ei**ni *ej**nj *SQRT(ei*ej) &
-      /( SQRT( fac(2*ni) *fac(2*nj) ) *( (ei+ej)/2. )**(ni+nj+1) )
+    Uij = a*EXP(-(ei+ej)*r)*fac(ni+nj)*ei**ni*ej**nj*SQRT(ei*ej) &
+      /( SQRT( fac(2*ni)*fac(2*nj) )*( (ei+ej)/2. )**(ni+nj+1) )
 
   END FUNCTION Uij
 
-  MODULE SUBROUTINE calculate_U(Atom, Orbit, r, U )
-    use input ,only: read_orbit
+  SUBROUTINE calculate_U(Atom, Orbit, r, U, state )
+    USE input ,ONLY: read_orbit
     CHARACTER(LEN=2), INTENT(IN) :: Atom, Orbit
-    REAL(KIND=RP)   , INTENT(IN) :: r(:)
-    REAL(KIND=RP)   , INTENT(OUT) :: U(:)
+    REAL(RP)   , INTENT(IN) :: r(:)
+    REAL(RP)   , INTENT(OUT) :: U(:)
+    INTEGER :: state
 
     INTEGER :: IN
 
-    OPEN( newunit=IN, FILE='Data/'//Atom//'.dat', STATUS='old', ACTION='read')
+    REAL(RP), ALLOCATABLE :: a(:),e(:)
+    INTEGER, ALLOCATABLE :: n(:)
+    INTEGER :: nelec, lo, no, i1, i2, nocup
+    CHARACTER(LEN=2) :: orbit_i
+
+    OPEN( newunit = IN, FILE = 'Data/'//Atom//'.dat', STATUS = 'old', ACTION = 'read')
 
     U = 0._RP
     DO
-      BLOCK
-        REAL(KIND=rp), ALLOCATABLE :: a(:),e(:)
-        INTEGER, ALLOCATABLE :: n(:)
-        INTEGER :: nelec, lo, no, i1, i2, nocup
-        CHARACTER(LEN=2) :: orbit_i
+      READ(IN, FMT=*, IOSTAT = lo ) orbit_i
+      IF(lo<0) EXIT
 
-        READ(IN, FMT=*, IOSTAT=lo ) orbit_i
-        IF(lo<0) EXIT
+      CALL read_orbit(Atom//'_'//orbit_i, nelec, lo, no, n, a, e)
+      nocup = nelec*(2*lo+1)
+      IF(orbit_i==Orbit ) nocup = nocup -state
 
-        CALL read_orbit(Atom//'_'//orbit_i, nelec, lo, no, n, a, e)
-        nocup = 2*(2*lo+1)
-        IF(orbit_i==Orbit) nocup = nocup -1
+      IF(nocup==0) CYCLE
 
-        DO CONCURRENT( i1 = 1:no, i2 = 1:no )
-          U = U + nocup *a(i1) *a(i2) *Uij( n(i1), e(i1), n(i2), e(i2), r )
+      DO i1 = 1,no
+        U = U +nocup*a(i1)**2*Uij( n(i1), e(i1), n(i1), e(i1), r )
+        if(i1==1) cycle
+        DO i2 = 1,i1-1
+          U = U +2*nocup*a(i1)*a(i2)*Uij( n(i1), e(i1), n(i2), e(i2), r )
         END DO
+      END DO
 
-      END BLOCK
     END DO
 
     CLOSE(IN)
 
   END SUBROUTINE calculate_U
 
-
-  MODULE SUBROUTINE INTRPL(X, Y, U, V )
+  PURE SUBROUTINE INTRPL(X, Y, U, V )
     USE CONSTANTS ,ONLY: RP
     IMPLICIT NONE
     REAL(RP), INTENT(IN) :: X(:), Y(:), U(:)
@@ -192,14 +174,15 @@ CONTAINS
     !  THIS SUBROUTINE INTERPOLATES, FROM VALUES OF THE FUNCTION
     !  GIVEN  AS ORDINATES OF INPUT DATA POINTS IN AN X-Y PLANE
     !  AND FOR A GIVEN SET OF X VALUES(ABSCISSAE),THE VALUES OF
-    !  A SINGLE VALUED FUNCTION Y=Y(X).
+    !  A SINGLE VALUED FUNCTION Y = Y(X).
     !
     !  THE INPUT PARAMETERS ARE:
     !
     !  L = NUMBER OF DATA POINTS (MUST BE TWO OR GREATER)
     !  X = ARRAY OF DIMENSION L STORING THE X VALUES OF INPUT DATA POINTS (IN ASCENDING ORDER)
     !  Y = ARRAY OF DIMENSION L STORING THE Y VALUES OF INPUT DATA POINTS
-    !  N = NUMBER OF POINTS AT WHICH INTERPOLATION OF THE Y-VALUES IS REQUIRED (MUST BE 1 OR GREATER)
+    !  N = NUMBER OF POINTS AT WHICH INTERPOLATION OF THE Y-VALUES IS REQUIRED
+    !      (MUST BE 1 OR GREATER)
     !  U = ARRAY OF DIMENSION N STORING THE X VALUES OF THE DESIRED POINTS
     !
     !  THE OUTPUT PARAMETER IS:
@@ -232,15 +215,15 @@ CONTAINS
 
     !  PRELIMINARY PROCESSING
     L = SIZE(X)
-    IF(SIZE(Y)/=L) print*,'size(Y)/=size(X)'
+    !IF(SIZE(Y)/=L) ERROR STOP 'size(Y)/=size(X)'
     N = SIZE(U)
-    IF(SIZE(V)/=N) error stop 'INTRPL : size(V)/=size(U)'
+    !IF(SIZE(V)/=N) ERROR STOP 'INTRPL : size(V)/=size(U)'
 
     TM4 = 0._RP
     A4 = 0._RP
     A2 = 0._RP
 
-    IPV=0
+    IPV = 0
     !  MAIN LOOP
     DO K = 1,N
       UK = U(K)
@@ -263,7 +246,7 @@ CONTAINS
         END DO
         I = IMX
       END IF
-      !  CHECK IF I=IPV
+      !  CHECK IF I = IPV
       IF(I/=IPV) THEN
         IPV = I
         !  ROUTINES TO PICK UP NECESSARY X AND Y VALUES AND TO ESTIMATE THEM IF NECESSARY
@@ -360,5 +343,4 @@ CONTAINS
     RETURN
   END SUBROUTINE INTRPL
 
-
-END SUBMODULE utils
+END MODULE utils

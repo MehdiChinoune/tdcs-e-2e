@@ -3,7 +3,7 @@ MODULE utils
   IMPLICIT NONE
   ! Common Variables
   !REAL(KIND=RP), PROTECTED :: fac(0:34), lnfac(0:400)
-  REAL(KIND=RP) :: fac(0:34), lnfac(0:400), fak(0:400)
+  REAL(KIND=RP) :: fac(0:34), lnfac(0:400)!, fak(0:400)
   logical :: fac_called = .false.
 
   INTERFACE
@@ -31,13 +31,14 @@ MODULE utils
       INTEGER      , INTENT(IN) :: ni, nj
     END FUNCTION Uij
 
-    MODULE SUBROUTINE calculate_U(Atom, Orbit, r, U )
+    MODULE SUBROUTINE calculate_U(Atom, Orbit, r, U, state )
       CHARACTER(LEN=2), INTENT(IN) :: Atom, Orbit
       REAL(KIND=RP)   , INTENT(IN) :: r(:)
       REAL(KIND=RP)   , INTENT(OUT) :: U(:)
+      INTEGER :: state
     END SUBROUTINE calculate_U
 
-    MODULE SUBROUTINE INTRPL(X, Y, U, V )
+    PURE MODULE SUBROUTINE INTRPL(X, Y, U, V )
       REAL(RP), INTENT(IN) :: X(:), Y(:), U(:)
       REAL(RP), INTENT(OUT) :: V(:)
     END SUBROUTINE INTRPL

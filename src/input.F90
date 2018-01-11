@@ -1,12 +1,14 @@
-SUBMODULE (input) input
-  implicit none
+MODULE input
+  USE constants ,ONLY: RP
+  IMPLICIT NONE
 
 CONTAINS
 
-  MODULE SUBROUTINE read_input(in_unit, Ei, Es, Ee, thetas, step, Atom, Orbit, exchange)
+  SUBROUTINE read_input(in_unit, Ei, Es, Ee, thetas, step, Atom, Orbit, exchange)
     INTEGER, INTENT(IN) :: in_unit
-    REAL(KIND=RP)   , INTENT(OUT) :: Ei, Es, Ee, thetas
-    INTEGER         , INTENT(OUT) :: exchange, step(3)
+    REAL(RP), INTENT(OUT) :: Ei, Es, Ee, thetas
+    INTEGER, INTENT(OUT) :: step(3)
+    INTEGER, OPTIONAL, INTENT(OUT) :: exchange
     CHARACTER(LEN=2), INTENT(OUT) :: Atom, Orbit
 
     READ( in_unit, * ) Atom
@@ -18,25 +20,27 @@ CONTAINS
 
   END SUBROUTINE read_input
 
-  MODULE SUBROUTINE read_orbit(orbit_file, nelec, lo, no, n, a, e )
+  SUBROUTINE read_orbit(orbit_file, nelec, lo, no, n, a, e )
     CHARACTER(LEN=5), INTENT(IN)  :: orbit_file
-    INTEGER         , INTENT(OUT) :: nelec, lo, no
+    INTEGER, INTENT(OUT) :: nelec, lo, no
     INTEGER, ALLOCATABLE, INTENT(OUT) :: n(:)
-    REAL(KIND=RP), ALLOCATABLE, INTENT(OUT) :: a(:), e(:)
+    REAL(RP), ALLOCATABLE, INTENT(OUT) :: a(:), e(:)
 
-    INTEGER :: IN
+    INTEGER :: INPUT
 
-    OPEN( newunit=IN, FILE='Data/'//orbit_file//'.dat', STATUS='old', ACTION='read')
+    OPEN( newunit = INPUT, FILE = 'Data/'//orbit_file//'.dat', STATUS = 'old' &
+      , ACTION = 'read')
 
-    READ( IN, * ) nelec
-    READ( IN, * ) lo
-    READ( IN, * ) no
+    READ( INPUT, * ) nelec
+    READ( INPUT, * ) lo
+    READ( INPUT, * ) no
     ALLOCATE ( a(no), e(no), n(no) )
-    READ( IN, * ) n
-    READ( IN, * ) a
-    READ( IN, * ) e
-    CLOSE(IN)
+    READ( INPUT, * ) n
+    READ( INPUT, * ) a
+    READ( INPUT, * ) e
+
+    CLOSE(INPUT)
 
   END SUBROUTINE read_orbit
 
-END SUBMODULE input
+END MODULE input

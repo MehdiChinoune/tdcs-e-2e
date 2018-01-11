@@ -1,40 +1,42 @@
-SUBMODULE (fdcs_e2e) fdcs_e2e
+MODULE fdcs_e2e
   USE constants ,ONLY: RP
   IMPLICIT NONE
 CONTAINS
 
-  MODULE SUBROUTINE fdcs_fba_pw(in_unit,out_unit)
-    use constants ,only: pi, ev, deg
-    use utils ,only: factorial, read_input, read_orbit
-    use trigo ,only: spher2cartez
+  SUBROUTINE fdcs_fba_pw(in_unit,out_unit)
+    USE constants ,ONLY: pi, ev, deg
+    USE special_functions ,ONLY: factorial
+    USE input ,ONLY: read_input, read_orbit
+    USE trigo ,ONLY: spher2cartez, nrm2
+
     INTEGER, INTENT(IN) :: in_unit
     INTEGER, INTENT(IN) :: out_unit
 
     CHARACTER(LEN=2) :: Atom, Orbit
-    REAL(KIND=RP) :: Ei, Es, Ee
-    REAL(KIND=RP) :: thetas
+    REAL(RP) :: Ei, Es, Ee
+    REAL(RP) :: thetas
+    INTEGER :: step(3), exchange
+    INTEGER :: nelec
     INTEGER :: lo, no
-    REAL(KIND=RP), ALLOCATABLE :: a(:), e(:)
+    REAL(RP), ALLOCATABLE :: a(:), e(:)
     INTEGER, ALLOCATABLE :: n(:)
-    INTEGER :: step(3)
 
-    REAL(KIND=RP), PARAMETER   :: phie = 0._RP
-    REAL(KIND=RP) :: kim, ksm, kem, km
-    REAL(KIND=RP) :: ki(3), ks(3), ke(3), k(3)
+    REAL(RP), PARAMETER   :: phie = 0._RP
+    REAL(RP) :: kim, ksm, kem, km
+    REAL(RP) :: ki(3), ks(3), ke(3), k(3)
 
-    REAL(KIND=RP) :: factor, sigma
-    COMPLEX(KIND=RP) :: D_term
+    REAL(RP) :: factor, sigma
+    COMPLEX(RP) :: D_term
     INTEGER :: i, io, mo
 
-    logical :: exchange = .false.
-    real(rp) :: k2(3), k2m = 0._rp
-    complex(rp) :: E_term = (0._rp, 0._rp)
+    REAL(rp) :: k2(3), k2m = 0._RP
+    COMPLEX(rp) :: E_term = (0._RP, 0._RP)
 
     CALL factorial()
 
-    CALL read_input(in_unit,Ei, Es, Ee, thetas, step, Atom, orbit)
+    CALL read_input(in_unit,Ei, Es, Ee, thetas, step, Atom, orbit, exchange)
 
-    CALL read_orbit(Atom//'_'//Orbit, lo, no, n, a, e )
+    CALL read_orbit(Atom//'_'//Orbit, nelec, lo, no, n, a, e )
 
     kim = SQRT(2.*Ei*eV)
     ksm = SQRT(2.*Es*eV)
@@ -43,213 +45,239 @@ CONTAINS
     CALL spher2cartez( kim, 0._RP, 0._RP, ki )
     CALL spher2cartez( ksm, thetas*deg, pi, ks )
     k = ki -ks
-    km = NORM2(k)
+    km = nrm2(k)
 
-    factor = 8.*ksm*kem/(kim)!*km**4)
+    factor = nelec*4._RP*ksm*kem/(kim)
 
     DO i = step(1), step(2), step(3)
 
       CALL spher2cartez( kem, i*deg, phie, ke )
 
-      if(exchange) then
-        k2 = ki - ke
-        k2m = norm2(k2)
-      end if
+      IF(exchange==1) THEN
+        k2 = ki -ke
+        k2m = nrm2(k2)
+      END IF
 
       sigma = 0._RP
       DO mo = 0, lo
 
-        D_term=(0._RP,0._RP)
+        D_term = (0._RP,0._RP)
         DO io = 1, no
-          D_term = D_term +a(io)*( tpw(n(io), lo, mo, e(io), ke, k ) )!-tpw(n(io), lo, mo, e(io), ke ) )
+          D_term = D_term +a(io)*( tpw(n(io), lo, mo, e(io), ke, k ) &
+            -tpw(n(io), lo, mo, e(io), ke ) )
         END DO
 
-        if(exchange) then
-          E_term=(0._RP,0._RP)
+        IF(exchange==1) THEN
+          E_term = (0._RP,0._RP)
           DO io = 1, no
             E_term = E_term &
-              +a(io)*( tpw(n(io), lo, mo, e(io), ks, k2 ) )! -tpw(n(io), lo, mo, e(io), ks ) )
+              +a(io)*( tpw(n(io), lo, mo, e(io), ks, k2 ) &
+                -tpw(n(io), lo, mo, e(io), ks ) )
           END DO
-          sigma = sigma + (1+mo)*( ABS(D_term/km**2)**2 + ABS(E_term/k2m**2)**2 &
-          -real( D_term/km**2 *conjg(E_term)/k2m**2 ) )
-        else
-          sigma = sigma + (1+mo)*ABS(D_term/km**2)**2
-        end if
+          sigma = sigma +(1+mo)*( ABS(D_term/km**2)**2 +ABS(E_term/k2m**2)**2 &
+            -REAL( D_term*CONJG(E_term)/(km**2*k2m**2 ), rp ) )
+        ELSE
+          sigma = sigma +(1+mo)*ABS(D_term/km**2)**2
+        END IF
 
       END DO
 
-      sigma=factor*sigma
+      sigma = factor*sigma
 
-      PRINT'(1x,i4,1x,es15.8)',i,sigma
+      PRINT '(1x,i4,1x,es15.8)',i,sigma
       WRITE( out_unit, '(1x,i4,1x,es15.8)' ) i, sigma
     END DO
 
   END SUBROUTINE fdcs_fba_pw
 
-  MODULE SUBROUTINE fdcs_fba_cw(in_unit,out_unit)
-    use constants ,only: ev, deg, pi
-    use trigo ,only: spher2cartez
-    use utils ,only: factorial, read_input, read_orbit
+  SUBROUTINE fdcs_fba_cw(in_unit,out_unit)
+    USE constants ,ONLY: ev, deg, pi
+    USE trigo ,ONLY: spher2cartez, nrm2
+    USE special_functions ,ONLY: factorial
+    USE input ,ONLY: read_input, read_orbit
     INTEGER, INTENT(IN) :: in_unit
     INTEGER, INTENT(IN) :: out_unit
 
     CHARACTER(LEN=2) :: Atom, Orbit
-    REAL(KIND=RP) :: Ei, Es, Ee
-    REAL(KIND=RP) :: thetas
-    INTEGER       :: lo, no
-    REAL(KIND=RP), ALLOCATABLE :: a(:), e(:)
+    REAL(RP) :: Ei, Es, Ee
+    REAL(RP) :: thetas
+    INTEGER :: step(3), exchange
+    INTEGER :: nelec, ze, zs
+    INTEGER :: lo, no
+    REAL(RP), ALLOCATABLE :: a(:), e(:)
     INTEGER, ALLOCATABLE :: n(:)
-    INTEGER       :: step(3)
 
-    REAL(KIND=RP), PARAMETER   :: phie = 0._RP
-    REAL(KIND=RP) :: kim, ksm, kem, km
-    REAL(KIND=RP) :: ki(3), ks(3), ke(3), k(3)
+    REAL(RP), PARAMETER   :: phie = 0._RP
+    REAL(RP) :: kim, ksm, kem, km, alpha
+    REAL(RP) :: ki(3), ks(3), ke(3), k(3)
 
-    REAL(KIND=RP) :: factor, sigma
-    COMPLEX(KIND=RP) :: term
+    REAL(RP) :: factor, sigma
+    COMPLEX(RP) :: term
     INTEGER :: i, io, mo
 
     CALL factorial()
 
-    CALL read_input(in_unit,Ei, Es, Ee, thetas, step, Atom, orbit)
+    CALL read_input(in_unit,Ei, Es, Ee, thetas, step, Atom, orbit, exchange)
 
-    CALL read_orbit(Atom//'_'//Orbit, lo, no, n, a, e )
+    CALL read_orbit(Atom//'_'//Orbit, nelec, lo, no, n, a, e )
 
     kim = SQRT(2.*Ei*eV)
     ksm = SQRT(2.*Es*eV)
+    zs = -1 ! Charge of the projectile
     kem = SQRT(2.*Ee*eV)
+    ze = -1 ! Charge of ejected particle
+    alpha = -ze/kem
 
     CALL spher2cartez( kim, 0._RP, 0._RP, ki )
     CALL spher2cartez( ksm, thetas*deg, pi, ks )
     k = ki -ks
-    km = NORM2(k)
+    km = nrm2(k)
 
-    factor = 8. *ksm *kem / (kim*km**4)
-    factor = factor *2.*pi/(kem*(1.-EXP(-2.*pi/kem))) ! \abs{ \exp{\pi\alpha/2} *\Gamma(1-i\alpha) }^2
+    factor = nelec*4._RP*ksm*kem / (kim*km**4)
+    !\abs{ \exp{\pi\alpha/2}*\Gamma(1-i\alpha) }^2
+    if(ze/=0) factor = factor*2.*pi*alpha/(1._RP-EXP(-2.*pi*alpha))
 
-    DO CONCURRENT( i = step(1) :step(2) :step(3) )
+    DO i = step(1),step(2),step(3)
 
       CALL spher2cartez( kem, i*deg, phie, ke )
 
       sigma = 0._RP
       DO mo = 0, lo
-        term=(0._RP,0._RP)
+        term = (0._RP,0._RP)
         DO io = 1, no
-          term = term +a(io) *( tcw(n(io), lo, mo, e(io), ke, k ) )!-tcw0(n(io), lo, mo, e(io), ke ) )
+          term = term +a(io)*( tcw(n(io), lo, mo, e(io), alpha, ke, k ) &
+            +zs*tcw0(n(io), lo, mo, e(io), alpha, ke ) )
         END DO
         sigma = sigma +(mo+1)*ABS(term)**2
       END DO
 
-      sigma=factor*sigma
+      sigma = factor*sigma/(2*lo+1)
 
-      PRINT'(1x,i4,1x,es15.8)',i,sigma
+      PRINT '(1x,i4,1x,es15.8)',i,sigma
       WRITE( out_unit, '(1x,i4,1x,es15.8)' ) i, sigma
     END DO
 
   END SUBROUTINE fdcs_fba_cw
 
-  MODULE SUBROUTINE fdcs_fba_dw(in_unit,out_unit)
-    use constants ,only: pi, deg, ev
-    use special_functions ,only: cgamma, spherical_harmonic, coul90
-    use utils ,only: norm_fac, y1y2y3, factorial, read_input, read_orbit, calculate_U, ode_second_dw
-    use trigo ,only: spher2cartez, cartez2spher
+  SUBROUTINE fdcs_fba_dw(in_unit,out_unit)
+    USE ieee_arithmetic ,only: ieee_is_nan
+    USE constants ,ONLY: pi, deg, ev
+    USE special_functions ,ONLY: cgamma, spherical_harmonic, ricbes, factorial !&
+      !, coul90, symbol_3j
+    USE utils ,ONLY: norm_fac, y1y2y3, calculate_U, ode_second_dw
+    USE input ,ONLY: read_input, read_orbit
+    USE trigo ,ONLY: spher2cartez, cartez2spher, nrm2
+
     INTEGER, INTENT(IN) :: in_unit
     INTEGER, INTENT(IN) :: out_unit
 
     CHARACTER(LEN=2) :: Atom, Orbit
-    REAL(KIND=RP) :: Ei, Es, Ee
-    REAL(KIND=RP) :: thetas
-    INTEGER       :: lo, no
-    REAL(KIND=RP), ALLOCATABLE :: a(:), e(:)
+    REAL(RP) :: Ei, Es, Ee
+    REAL(RP) :: thetas
+    INTEGER :: step(3), exchange
+    INTEGER :: nelec
+    INTEGER :: lo, no
+    REAL(RP), ALLOCATABLE :: a(:), e(:)
     INTEGER, ALLOCATABLE :: n(:)
-    INTEGER       :: step(3)
 
-    REAL(KIND=RP), PARAMETER   :: phie = 0._RP
-    REAL(KIND=RP) :: kim, ksm, kem, km
-    REAL(KIND=RP) :: theta, phi
-    REAL(KIND=RP) :: ki(3), ks(3), ke(3), k(3)
+    REAL(RP), PARAMETER   :: phie = 0._RP
+    REAL(RP) :: kim, ksm, kem, km
+    REAL(RP) :: theta, phi
+    REAL(RP) :: ki(3), ks(3), ke(3), k(3)
 
-    INTEGER, PARAMETER :: lmax = 15, lemax = 7, np = 800
-    REAL(KIND=RP) :: x(0:np), wf(0:np), chi_b(0:np,0:lemax), chi_0a(0:np,0:lmax), sigma_l(0:lemax)
-    REAL(KIND=RP) :: etae, rc, h, integral(0:lemax,0:lmax)
-    COMPLEX(KIND=RP) :: tmp_z
-    COMPLEX(KIND=RP), PARAMETER :: zi = (0._RP, 1._RP)
-    INTEGER :: le, l, me, z=1
+    INTEGER, PARAMETER :: lmax = 47, lemax = 15, np = 2400
+    REAL(RP) :: x(0:np), wf(0:np)
+    REAL(RP), ALLOCATABLE :: chi_b(:,:), chi_0a(:,:)
+    REAL(RP) :: sigma_le(0:lemax), delta(0:lemax), integral(0:lemax,0:lmax)
+    REAL(RP) :: etae, rc, h
+    COMPLEX(RP) :: tmp_z
+    COMPLEX(RP), PARAMETER :: zi = (0._RP, 1._RP)
+    INTEGER :: le, l, me, ze
 
-    REAL(KIND=RP) :: factor, sigma
-    COMPLEX(KIND=RP) :: term, term0
+    REAL(RP) :: factor, sigma
+    COMPLEX(RP) :: term, term0
     INTEGER :: i, io, mo
+
+    REAL(RP) :: gc_0a(0:lmax), fdc_0a(0:lmax), gdc_0a(0:lmax), fc_0a(0:lmax)
+    REAL(RP), ALLOCATABLE :: U(:,:), U_tmp(:)
 
     CALL factorial()
 
-    CALL read_input(in_unit,Ei, Es, Ee, thetas, step, Atom, orbit)
+    CALL read_input(in_unit,Ei, Es, Ee, thetas, step, Atom, orbit, exchange )
 
-    CALL read_orbit(Atom//'_'//Orbit, lo, no, n, a, e )
+    CALL read_orbit(Atom//'_'//Orbit, nelec, lo, no, n, a, e )
 
     kim = SQRT(2.*Ei*eV)
     ksm = SQRT(2.*Es*eV)
     kem = SQRT(2.*Ee*eV)
+    ze = 1
 
     CALL spher2cartez( kim, 0._RP, 0._RP, ki )
     CALL spher2cartez( ksm, thetas*deg, pi, ks )
     k = ki -ks
     CALL cartez2spher( k, km, theta, phi)
 
-    factor = 8. *ksm *kem / (kim*km**4)
-    factor = factor *2./(pi*kem**2)
+    factor = nelec*4._RP*ksm*kem / (kim*km**4)
+    factor = factor*2./(pi*kem**2)
 
     rc = 10._RP
     h = rc/np
 
-    etae = -z/kem
+    etae = -ze/kem
 
     x = [(i*h, i = 0, np) ]
+    ALLOCATE( chi_b(0:np,0:lemax), chi_0a(0:np,0:lmax) )
     chi_b(0,:) = 0._RP
     chi_0a(0,:) = 0._RP
-    DO CONCURRENT(i = 1:np)
-      BLOCK
-        !REAL(KIND=RP) :: gc_a(0:lemax), fdc_a(0:lemax), gdc_a(0:lemax), fc_a(0:lemax)
-        REAL(KIND=RP) :: gc_0a(0:lmax), fdc_0a(0:lmax), gdc_0a(0:lmax), fc_0a(0:lmax)
-        !CALL coul90(kem*x(i), etae, 0, lemax, fc_a, gc_a, fdc_a, gdc_a, 1-z, le)
-        !chi_b(i,:) = fc_a
-        CALL coul90(km*x(i), 0._RP, 0, lmax, fc_0a, gc_0a, fdc_0a, gdc_0a, 1, le)
-        chi_0a(i,:) = fc_0a
-      END BLOCK
+    DO i = 1,np
+      CALL ricbes(km*x(i), lmax, fc_0a, gc_0a, fdc_0a, gdc_0a, le)
+      chi_0a(i,:) = fc_0a/(km*x(i))
     END DO
 
-    BLOCK
-      REAL(KIND=RP) :: U(0:np,0:lemax), delta(0:lemax), U_tmp(0:np)
-      INTEGER :: l
+    WHERE(ieee_is_nan(chi_0a) )
+      chi_0a = 0._RP
+    END WHERE
 
-      CALL calculate_U(Atom, Orbit, x, U_tmp)
+    ALLOCATE( U(0:np,0:lemax), U_tmp(0:np) )
+    CALL calculate_U(Atom, Orbit, x, U_tmp, 1 )
 
-      U(0,:)=HUGE(1._RP)
-      U(1:np,lemax) = -kem**2 -2.*( 1._RP +U_tmp(1:np) ) /x(1:np)
-      DO CONCURRENT( l = 0:lemax )
-        U(1:np,l) = l*(l+1)/x(1:np)**2 +U(1:np,lemax)
-      END DO
+    IF(ze/=0) THEN
+      U(0,:) = -HUGE(1._RP)
+    ELSE
+      U(0,:) = -kem**2
+    END IF
 
-      CALL ode_second_dw(kem, lemax, rc, U, chi_b, delta)
+    U(1:np,lemax) = -kem**2 -2.*( ze +U_tmp(1:np) ) /x(1:np)
+    DO l = 0,lemax
+      U(1:np,l) = l*(l+1)/x(1:np)**2 +U(1:np,lemax)
+    END DO
 
-    END BLOCK
+    CALL ode_second_dw(kem, lemax, rc, ze, U, chi_b, delta)
+
+    DEALLOCATE(U,U_tmp)
 
     wf = 0._RP
     DO io = 1, no
-      wf = wf +a(io)*norm_fac(e(io), n(io) ) *x**n(io) *EXP(-e(io)*x)
+      wf = wf +a(io)*norm_fac(e(io), n(io) )*x**n(io)*EXP(-e(io)*x)
     END DO
 
-    DO CONCURRENT(le = 0:lemax)
-      tmp_z = cgamma( CMPLX(le+1._RP, etae, KIND=RP), 0 )
-      sigma_l(le) = ATAN2( AIMAG(tmp_z), REAL(tmp_z,KIND=RP) )
+    DO le = 0,lemax
+      tmp_z = cgamma( CMPLX(le+1._RP, etae, KIND=RP), 1 )
+      tmp_z = exp( zi*aimag(tmp_z) )
+      sigma_le(le) = ATAN2( AIMAG(tmp_z), REAL(tmp_z,KIND=RP) )
     END DO
 
-    DO CONCURRENT(le=0:lemax, l=0:lmax, MOD(le+l+lo,2)==0)
-      integral(le, l) = 0.5*h*SUM( wf(1:np)*chi_b(1:np,le)*chi_0a(1:np,l) &
-        + wf(0:np-1)*chi_b(0:np-1,le)*chi_0a(0:np-1,l) )
+    integral = 0._RP
+    DO l = 0,lmax
+      DO le = 0,lemax
+        IF( MOD(le+l+lo,2)/=0 ) CYCLE
+        integral(le, l) = 0.5*h*SUM( wf(1:np)*chi_b(1:np,le)*chi_0a(1:np,l) &
+          +wf(0:np-1)*chi_b(0:np-1,le)*chi_0a(0:np-1,l) )
+      END DO
     END DO
 
-    term0 = zi**(-lo) *EXP( CMPLX(0._RP, -sigma_l(lo), KIND=RP ) ) &
-      *0.5*h*SUM( wf(1:np)*chi_b(1:np,lo) + wf(0:np-1)*chi_b(0:np-1,lo) )
+    term0 = zi**(-lo)*EXP( CMPLX(0._RP, -(sigma_le(lo)+delta(lo)), KIND=RP ) ) &
+      *0.5*h*SUM( wf(1:np)*chi_b(1:np,lo) +wf(0:np-1)*chi_b(0:np-1,lo) )
 
     DO i = step(1), step(2), step(3)
 
@@ -259,84 +287,283 @@ CONTAINS
       DO mo = 0, lo
 
         term = (0._RP, 0._RP)
-        DO CONCURRENT(le=0:lemax, l=0:lmax, MOD(le+l+lo,2)==0 )
-          tmp_z = (0._RP, 0._RP)
-          DO CONCURRENT(me=-le:le, ABS(me-mo)<=l )
-            tmp_z = tmp_z + y1y2y3(le, l, lo, -me, me-mo, mo) *(-1)**(mo) &
-              *spherical_harmonic(le, me, i*deg, phie) *spherical_harmonic(l, mo-me, theta, phi)
-          END DO
-          term = term +zi**(l-le) *EXP( CMPLX(0._RP, -sigma_l(le), KIND=RP ) ) *integral(le, l) *tmp_z
-        END DO
-        term = 4.*pi *term
+        DO l = 0,lmax
+          DO le = 0,lemax
+            IF( MOD(le+l+lo,2)/=0 ) CYCLE
+            tmp_z = (0._RP, 0._RP)
+            DO me = -le,le
+              IF( ABS(me-mo)>l ) CYCLE
+              tmp_z = tmp_z +y1y2y3(le, l, lo, -me, me-mo, mo) &
+                *spherical_harmonic(le, me, i*deg, phie) &
+                *spherical_harmonic(l, mo-me, theta, phi)
+            END DO
+            term = term +zi**(l-le)*integral(le, l)*tmp_z &
+              *EXP( CMPLX(0._RP, -(sigma_le(le)+delta(le)), KIND=RP ) )
 
-        sigma = sigma +(mo+1)*ABS( term -spherical_harmonic(lo, mo, i*deg, phie) *term0 )**2
+          END DO
+        END DO
+        term = 4.*pi*term
+
+        sigma = sigma +(mo+1)*ABS( term &
+          -spherical_harmonic(lo, mo, i*deg, phie)*term0 )**2
 
       END DO
 
-      sigma = factor*sigma
+      sigma = factor*sigma/(2*lo+1)
 
-      PRINT'(1x,i4,1x,es15.8)',i,sigma
+      PRINT '(1x,i4,1x,es15.8)',i,sigma
       WRITE(out_unit, '(1x,i4,1x,es15.8)' ) i, sigma
     END DO
 
   END SUBROUTINE fdcs_fba_dw
 
-  MODULE SUBROUTINE fdcs_dwb(in_unit,out_unit)
-    use constants ,only: ev, deg, pi
-    use special_functions ,only: symbol_3j, spherical_harmonic, coul90, cgamma
-    use utils ,only: norm_fac, factorial, read_input, read_orbit
-    use trigo ,only: spher2cartez
+  SUBROUTINE fdcs_dwb(in_unit,out_unit)
+    USE constants ,ONLY: ev, deg, pi
+    USE special_functions ,ONLY: spherical_harmonic, cgamma, factorial
+    USE utils ,ONLY: norm_fac, calculate_U
+    USE input ,ONLY: read_input, read_orbit
+    USE trigo ,ONLY: spher2cartez, nrm2
+    USE integration ,ONLY: gauleg
+
     INTEGER, INTENT(IN) :: in_unit
     INTEGER, INTENT(IN) :: out_unit
 
     CHARACTER(LEN=2) :: Atom, Orbit
-    REAL(KIND=RP) :: Ei, Es, Ee
-    REAL(KIND=RP) :: thetas
-    INTEGER       :: lo, no
-    REAL(KIND=RP), ALLOCATABLE :: a(:), e(:)
+    REAL(RP) :: Ei, Es, Ee
+    REAL(RP) :: thetas
+    INTEGER :: step(3), exchange, PCI = 2
+    INTEGER :: nelec
+    INTEGER :: lo, no
+    REAL(RP), ALLOCATABLE :: a(:), e(:)
     INTEGER, ALLOCATABLE :: n(:)
-    INTEGER       :: step(3)
 
-    REAL(KIND=RP), PARAMETER   :: phie = 0._RP
-    REAL(KIND=RP) :: kim, ksm, kem
-    REAL(KIND=RP) :: ki(3), ks(3), ke(3)
+    REAL(RP), PARAMETER   :: phie = 0._RP
+    REAL(RP) :: kim, ksm, kem
 
-    INTEGER, PARAMETER :: np = 6400
+    INTEGER, PARAMETER :: nx = 31*64, nr = 48000
 
-    INTEGER, PARAMETER :: limax = 47
-    REAL(KIND=RP), ALLOCATABLE :: chi_0(:,:)
-    INTEGER :: li
+    INTEGER, PARAMETER :: limax = 95
+    REAL(RP), ALLOCATABLE, TARGET :: chi_0(:,:)
+    REAL(RP), TARGET :: delta_li(0:limax)
 
-    INTEGER, PARAMETER :: lsmax = 47
-    REAL(KIND=RP), ALLOCATABLE :: chi_a(:,:)
-    REAL(KIND=RP) :: sigma_ls(0:lsmax), etas
-    INTEGER :: ls, zs = 0
+    INTEGER, PARAMETER :: lsmax = 95
+    REAL(RP), ALLOCATABLE, TARGET :: chi_a(:,:)
+    REAL(RP) :: sigma_ls(0:lsmax), etas
+    REAL(RP), TARGET :: delta_ls(0:lsmax)
+    COMPLEX(RP) :: ylms(0:lsmax,-lsmax:lsmax)
+    INTEGER :: ls, zs = 1
 
-    INTEGER, PARAMETER :: lemax = 31
-    REAL(KIND=RP), ALLOCATABLE :: chi_b(:,:)
-    REAL(KIND=RP) :: sigma_le(0:lemax), etae
+    INTEGER, PARAMETER :: lemax = 23
+    REAL(RP), ALLOCATABLE, TARGET :: chi_b(:,:)
+    REAL(RP) :: sigma_le(0:lemax), etae
+    REAL(RP), TARGET :: delta_le(0:lemax)
+    COMPLEX(RP), ALLOCATABLE :: ylme(:,:,:)
     INTEGER :: le, me, ze = 1
 
-    REAL(KIND=RP), ALLOCATABLE :: x(:), wf(:)
-    REAL(KIND=RP) :: rc, h
-    COMPLEX(KIND=RP) :: integral(0:lsmax, 0:lemax, -lemax:lemax), &
-      integ(0:limax, 0:2*max(limax,lsmax,lemax) )
-    COMPLEX(KIND=RP) :: tmp_z
-    COMPLEX(KIND=RP), PARAMETER :: zi = (0._RP, 1._RP)
+    REAL(RP), ALLOCATABLE :: r(:), wf(:)
+    REAL(RP) :: rc, h
+    COMPLEX(RP), ALLOCATABLE :: integral(:,:,:,:), integralx(:,:,:,:)
+    COMPLEX(RP) :: tmp_z
 
-    REAL(KIND=RP) :: factor, sigma
-    COMPLEX(KIND=RP) :: term
-    INTEGER :: i, l, io, mo = 0 ,nu ,nu2
+    REAL(RP) :: factor, sigma
+    COMPLEX(RP) :: termd, termx
+    INTEGER :: i, io, mo = 0
 
-    REAL(RP), ALLOCATABLE :: W(:)
+    REAL(RP), ALLOCATABLE :: x(:), w(:)
 
-    ALLOCATE(wf(0:np), chi_0(0:np,0:limax), chi_a(0:np,0:lsmax), chi_b(0:np,0:lemax) )
+    REAL(RP), ALLOCATABLE :: U_tmp(:)
+    REAL(RP), ALLOCATABLE :: xt(:), wt(:)
+    INTEGER, PARAMETER :: nc = nx/64
+
+    CALL factorial()
+
+    CALL read_input(in_unit,Ei, Es, Ee, thetas, step, Atom, orbit, exchange )
+
+    CALL read_orbit(Atom//'_'//Orbit, nelec, lo, no, n, a, e )
+
+    kim = SQRT(2.*Ei*eV)
+    ksm = SQRT(2.*Es*eV)
+    kem = SQRT(2.*Ee*eV)
+
+    etas = -zs/ksm
+    etae = -ze/kem
+
+    factor = nelec* (2.*pi)**4*ksm*kem / kim
+    factor = factor*2._RP/pi**4 /(kem*ksm*kim)**2
+
+    rc = 250._RP
+
+    ALLOCATE(x(nx), w(nx) )
+
+      DO i = 1,nc
+        CALL gauleg( (i-1)*rc/nc, i*rc/nc, xt, wt, 64 )
+        x( (i-1)*64+1: i*64 ) = xt
+        w( (i-1)*64+1: i*64 ) = wt
+      END DO
+    DEALLOCATE( xt, wt )
+
+    ALLOCATE(chi_0(nx,0:limax), chi_a(nx,0:lsmax), chi_b(nx,0:lemax) )
+
+    h = rc/nr
+    ALLOCATE( r(0:nr) )
+    r = [(i*h,i = 0,nr)]
+
+      ALLOCATE( U_tmp(0:nr) )
+
+      CALL calculate_U(Atom, Orbit, r, U_tmp, 0)
+      CALL calculate_chi( kim, r, U_tmp, 0, x, chi_0, delta_li )
+
+      CALL calculate_U(Atom, Orbit, r, U_tmp, 1)
+      CALL calculate_chi( ksm, r, U_tmp, zs, x, chi_a, delta_ls )
+      CALL calculate_chi( kem, r, U_tmp, ze, x, chi_b, delta_le )
+
+    DEALLOCATE( U_tmp )
+
+    ALLOCATE(wf(nx))
+    wf = 0._RP
+    DO io = 1, no
+      wf = wf +a(io)*norm_fac(e(io), n(io) )*x**n(io)*EXP(-e(io)*x)
+    END DO
+
+    chi_b(:,lo) = chi_b(:,lo) -wf*sum( w*chi_b(:,lo)*wf )
+    chi_a(:,lo) = chi_a(:,lo) -wf*sum( w*chi_a(:,lo)*wf )
+
+    tmp_z = cgamma( CMPLX( 1._RP, etae, RP), 0 )
+    sigma_le(0) = ATAN2( AIMAG(tmp_z), REAL(tmp_z, RP) )
+    DO le = 0,lemax-1
+      sigma_le(le+1) = sigma_le(le) +atan2( etae, le+1._RP )
+    END DO
+    sigma_le = sigma_le +delta_le
+
+    tmp_z = cgamma( CMPLX( 1._RP, etas, RP), 0 )
+    sigma_ls(0) = ATAN2( AIMAG(tmp_z), REAL(tmp_z, RP) )
+    DO ls = 0,lsmax-1
+      sigma_ls(ls+1) = sigma_ls(ls) +atan2( etas, ls+1._RP )
+    END DO
+    sigma_ls = sigma_ls +delta_ls
+
+    CALL dwb_integrals(chi_0, chi_a, chi_b, delta_li, sigma_ls, sigma_le &
+      , wf, x, w, lo, integral)
+    IF(exchange==1) THEN
+      CALL dwb_integrals(chi_0, chi_b, chi_a, delta_li, sigma_le, sigma_ls &
+        , wf, x, w, lo, integralx)
+    END IF
+
+    ylms = (0._RP, 0._RP)
+    DO ls = 0,lsmax
+      ylms(ls,0) = spherical_harmonic(ls,0,thetas*deg,pi)
+      DO me = 1,ls
+        ylms(ls,me) = spherical_harmonic(ls,me,thetas*deg,pi)
+      END DO
+      ylms(ls,-2:-ls:-2) = ylms(ls,2:ls:2)
+      ylms(ls,-1:-ls:-2) = -ylms(ls,1:ls:2)
+    END DO
+
+    ALLOCATE(ylme(0:lemax,-lemax:lemax,step(1)/step(3):step(2)/step(3)))
+    ylme = (0._RP, 0._RP)
+    DO i = lbound(ylme,3),ubound(ylme,3)
+      DO le = 0,lemax
+        ylme(le,0,i) = spherical_harmonic(le,0,i*step(3)*deg,phie)
+        DO me = 1,le
+          ylme(le,me,i) = spherical_harmonic(le,me,i*step(3)*deg,phie)
+        END DO
+        ylme(le,-2:-le:-2,i) = ylme(le,2:le:2,i)
+        ylme(le,-1:-le:-2,i) = -ylme(le,1:le:2,i)
+      END DO
+    END DO
+!!$OMP PARALLEL DO PRIVATE(sigma, mo, termd, termx, le, ls, me)
+    DO i = step(1), step(2), step(3)
+
+      sigma = 0._RP
+      DO mo = 0, lo
+
+        termd = (0._RP, 0._RP)
+        DO le = 0,lemax
+          DO ls = 0,lsmax
+            DO me = -le,le
+              IF( ABS(me+mo)>ls ) CYCLE
+              termd = termd +ylme(le,me,i/step(3))*ylms(ls,mo+me) &
+                *integral(ls, le, me, mo )
+            END DO
+          END DO
+        END DO
+
+        termx = (0._RP, 0._RP)
+        IF(exchange==1) THEN
+          DO ls = 0,lemax
+            DO le = 0,lsmax
+              DO me = -le,le
+                IF( ABS(me+mo)>ls ) CYCLE
+                termx = termx +ylms(le,me)*ylme(ls,mo+me,i/step(3)) &
+                  *integralx(ls, le, me, mo )
+              END DO
+            END DO
+          END DO
+        END IF
+
+        sigma = sigma +(mo+1)*( ABS(termd)**2 +ABS(termx)**2 &
+          -REAL( CONJG(termd)*termx, RP ) )
+      END DO
+
+      sigma = factor*sigma/(2*lo+1)
+      IF(PCI>=1) THEN
+        CALL PCI_EFFECTS(i,sigma)
+      END IF
+
+      PRINT '(1x,i4,1x,es15.8)', i, sigma
+      WRITE(out_unit, '(1x,i4,1x,es15.8)' ) i, sigma
+    END DO
+
+  CONTAINS
+
+    ELEMENTAL SUBROUTINE PCI_EFFECTS(i,sigma)
+      USE special_functions ,ONLY: conhyp_opt
+      INTEGER, INTENT(IN) :: i
+      REAL(RP), INTENT(INOUT) :: sigma
+      REAL(RP) :: kesm
+      REAL(RP) :: r12_av, Et
+      kesm = SQRT( kem**2 +ksm**2 -2*kem*ksm*COS( (thetas+i)*deg ) )/2._RP
+      sigma = pi/(kesm*(EXP(pi/kesm) -1._RP ) )*sigma
+      IF(PCI==2) THEN
+        Et = (Es +Ee)*eV
+        r12_av = pi**2/(16.*Et)*( 1._RP +(0.627/pi)*SQRT(Et)*LOG(Et) )**2
+        sigma = ABS( conhyp_opt( 0.5/kesm, -2.*kesm*r12_av  ) )**2*sigma
+      END IF
+    END SUBROUTINE
+
+  END SUBROUTINE fdcs_dwb
+
+  SUBROUTINE fdcs_bbk(in_unit,out_unit)
+    USE constants ,ONLY: pi, ev, deg
+    USE special_functions ,ONLY: factorial
+    USE input ,ONLY: read_input, read_orbit
+    USE trigo ,ONLY: spher2cartez, nrm2
+
+    INTEGER, INTENT(IN) :: in_unit
+    INTEGER, INTENT(IN) :: out_unit
+
+    CHARACTER(LEN=2) :: Atom, Orbit
+    REAL(RP) :: Ei, Es, Ee
+    REAL(RP) :: thetas
+    INTEGER :: step(3)
+    INTEGER :: nelec
+    INTEGER :: lo, no
+    REAL(RP), ALLOCATABLE :: a(:), e(:)
+    INTEGER, ALLOCATABLE :: n(:)
+
+    REAL(RP), PARAMETER   :: phie = 0._RP
+    REAL(RP) :: kim, ksm, kem, km
+    REAL(RP) :: ki(3), ks(3), ke(3), k(3)
+
+    REAL(RP) :: factor, sigma
+    COMPLEX(RP) :: D_term
+    INTEGER :: i, io, mo
 
     CALL factorial()
 
     CALL read_input(in_unit,Ei, Es, Ee, thetas, step, Atom, orbit)
 
-    CALL read_orbit(Atom//'_'//Orbit, lo, no, n, a, e )
+    CALL read_orbit(Atom//'_'//Orbit, nelec, lo, no, n, a, e )
 
     kim = SQRT(2.*Ei*eV)
     ksm = SQRT(2.*Es*eV)
@@ -344,228 +571,283 @@ CONTAINS
 
     CALL spher2cartez( kim, 0._RP, 0._RP, ki )
     CALL spher2cartez( ksm, thetas*deg, pi, ks )
+    k = ki -ks
+    km = nrm2(k)
 
-    factor = 2._RP* (2.*pi)**4 *ksm *kem / kim
-    factor = factor *2._RP/pi**4 /(kem*ksm*kim)**2
-
-    rc = 55.95
-    _rp
-    print*, 2._rp*pi/[kim,ksm,kem]
-!    h = rc/np
-!    x = [(i*h, i = 0, np) ]
-
-    allocate(x(0:np), w(0:np) )
-    x(0) = 0._RP
-    w(0) = 0._RP
-    BLOCK
-      use utils ,only: gauleg
-      real(rp), allocatable :: xt(:), wt(:)
-      integer, parameter :: nc = 50
-      do i=1,nc
-        call gauleg( (i-1)*rc/nc, i*rc/nc, xt, wt, np/nc )
-        x( (i-1)*(np/nc)+1: i*(np/nc) ) = xt
-        w( (i-1)*(np/nc)+1: i*(np/nc) ) = wt
-      end do
-    END BLOCK
-
-    nu = count(x<10._RP)
-    nu2 = count(x<40._RP)
-
-    etae = -ze/kem
-    etas = -zs/ksm
-
-    chi_0(0,:) = 0._RP
-    chi_a(0,:) = 0._RP
-    chi_b(0,:) = 0._RP
-    DO CONCURRENT(i = 1:np)
-      BLOCK
-        REAL(KIND=RP) :: gc_b(0:lemax), fdc_b(0:lemax), gdc_b(0:lemax), fc_b(0:lemax)
-        REAL(KIND=RP) :: gc_a(0:lsmax), fdc_a(0:lsmax), gdc_a(0:lsmax), fc_a(0:lsmax)
-        REAL(KIND=RP) :: gc_0(0:limax), fdc_0(0:limax), gdc_0(0:limax), fc_0(0:limax)
-
-        CALL coul90(kem*x(i), etae, 0, lemax, fc_b, gc_b, fdc_b, gdc_b, 1-ze)
-        !if(le/=0) print*,i, 'le/=0'
-        if(ze==0) then
-          chi_b(i,:) = kem*x(i)*fc_b
-        else
-          chi_b(i,:) = fc_b
-        end if
-
-        CALL coul90(ksm*x(i), etas, 0, lsmax, fc_a, gc_a, fdc_a, gdc_a, 1-zs)
-        !if(ls/=0) error stop 'ls/=0'
-        if(zs==0) then
-          chi_a(i,:) = ksm*x(i)*fc_a
-        else
-          chi_a(i,:) = fc_a
-        end if
-
-        CALL coul90(kim*x(i), 0._RP, 0, limax, fc_0, gc_0, fdc_0, gdc_0, 1)
-        !if(li/=0) error stop 'li/=0'
-        chi_0(i,:) = kim*x(i)*fc_0
-
-      END BLOCK
-    END DO
-
-!    BLOCK
-!      REAL(KIND=RP) :: U(0:np,0:lemax), delta(0:lemax), U_tmp(0:np)
-!      INTEGER :: l
-!
-!      CALL calculate_U(Atom, Orbit, x, U_tmp)
-!
-!      U(0,:)=HUGE(1._RP)
-!      U(1:np,lemax) = -kem**2 -2.*( 1._RP +U_tmp(1:np) ) /x(1:np)
-!      DO CONCURRENT( l = 0:lemax )
-!        U(1:np,l) = l*(l+1)/x(1:np)**2 +U(1:np,lemax)
-!      END DO
-!
-!      CALL ode_second_dw(kem, lemax, rc, U, chi_b, delta)
-!
-!    END BLOCK
-
-    wf = 0._RP
-    DO io = 1, no
-      wf = wf +a(io)*norm_fac(e(io), n(io) ) *x**n(io) *EXP(-e(io)*x)
-    END DO
-
-    DO CONCURRENT(le = 0:lemax)
-      tmp_z = cgamma( CMPLX(le+1._RP, etae, KIND=RP), 0 )
-      sigma_le(le) = ATAN2( AIMAG(tmp_z), REAL(tmp_z,KIND=RP) )
-    END DO
-
-    DO CONCURRENT(ls = 0:lsmax)
-      tmp_z = cgamma( CMPLX(ls+1._RP, etas, KIND=RP), 0 )
-      sigma_ls(le) = ATAN2( AIMAG(tmp_z), REAL(tmp_z,KIND=RP) )
-    END DO
-
-    integral = 0._RP
-    DO CONCURRENT(ls=0:lsmax, le=0:lemax )
-      integ = 0._rp
-      DO CONCURRENT(li=0:limax )
-        DO CONCURRENT(l=max(abs(ls-li), abs(le-lo)):min(ls+li, le+lo), &
-          mod(ls+l+li,2)==0 .and. mod(le+l+lo,2)==0 )
-          BLOCK
-            REAL(RP) :: Ti, Si
-            REAL(RP) :: integ0, integ1
-
-            Ti = 0._RP
-            Si = sum( w(1:nu)*chi_b(1:nu,le) *wf(1:nu) /x(1:nu)**(l+1) )
-
-            integ0 = 0._rp
-            do i=1,nu
-              Ti = Ti + w(i)*chi_b(i,le)*wf(i)*x(i)**l
-              Si = Si - w(i)*chi_b(i,le)*wf(i)/x(i)**(l+1)
-              integ0 = integ0 + w(i)*chi_0(i,li)*chi_a(i,ls) *( Ti/x(i)**(l+1) +Si*x(i)**l )
-            end do
-
-            !if(l<=1000) then
-              integ1 = SUM( w(nu+1:np)*chi_0(nu+1:np,li)*chi_a(nu+1:np,ls)/x(nu+1:np)**(l+1) )
-            !else
-            !  integ1 = SUM( w(nu+1:nu2)*chi_0(nu+1:nu2,li)*chi_a(nu+1:nu2,ls)/x(nu+1:nu2)**(l+1) )
-            !end if
-
-            integ(li, l) = integ(li, l) +( integ0 + Ti*integ1 )*symbol_3j(ls, l, li, 0, 0, 0 ) &
-              *symbol_3j(le, l, lo, 0, 0, 0 ) *(2*li+1) *zi**li
-
-          END BLOCK
-        END DO
-      END DO
-
-      DO CONCURRENT(me=-le:le ,abs(mo-me)<=ls )
-        tmp_z = (0._rp, 0._rp)
-        DO CONCURRENT(li=0:limax)
-          DO CONCURRENT(l=max(abs(ls-li), abs(le-lo)):min(ls+li, le+lo), &
-            mod(ls+l+li,2)==0 .and. mod(le+l+lo,2)==0 )
-
-            tmp_z = tmp_z + symbol_3j(ls, l, li, -me-mo, mo+me, 0 ) &
-              *symbol_3j(le, l, lo, me, -me-mo, mo) *integ(li, l)
-          END DO
-        END DO
-
-        integral(ls, le, me) = zi**(-ls-le) *sqrt((2*lo+1)*(2*ls+1)*(2*le+1._RP) ) *tmp_z &
-          *exp(-cmplx(0._rp, sigma_le(le)+sigma_ls(ls), rp ) )
-      END DO
-    END DO
+    factor = nelec*4._RP*ksm*kem/(kim)
 
     DO i = step(1), step(2), step(3)
 
       CALL spher2cartez( kem, i*deg, phie, ke )
 
       sigma = 0._RP
-      !DO mo = 0, lo
+      DO mo = 0, lo
 
-        term = (0._RP, 0._RP)
-        DO CONCURRENT(ls=0:lsmax, le=0:lemax )
-          tmp_z = (0._RP, 0._RP)
-          DO CONCURRENT(me=-le:le, abs(me+mo)<=ls )
-            tmp_z = tmp_z + spherical_harmonic(le, me, i*deg, phie) &
-              *spherical_harmonic(ls, mo+me, thetas*deg, pi ) *integral(ls, le, me )
-          END DO
-          term = term + tmp_z
+        D_term = (0._RP,0._RP)
+        DO io = 1, no
+          D_term = D_term +a(io)*( tpw(n(io), lo, mo, e(io), ke, k ) &
+            -tpw(n(io), lo, mo, e(io), ke ) )
         END DO
-
-        sigma = sigma +(mo+1)*ABS( term )**2
-!      END DO
+        sigma = sigma +(1+mo)*ABS(D_term/km**2)**2
+      END DO
 
       sigma = factor*sigma
 
-      PRINT'(1x,i4,1x,es15.8)',i,sigma
-      WRITE(out_unit, '(1x,i4,1x,es15.8)' ) i, sigma
+      PRINT '(1x,i4,1x,es15.8)',i,sigma
+      WRITE( out_unit, '(1x,i4,1x,es15.8)' ) i, sigma
     END DO
 
-  END SUBROUTINE fdcs_dwb
+  END SUBROUTINE fdcs_bbk
 
-  PURE COMPLEX(KIND=RP) FUNCTION tpw( n, l, m, e, ke, k)
-    use constants ,only: pi
-    use trigo ,only: cartez2spher
-    use utils ,only: fac, norm_fac
-    use special_functions ,only: spherical_harmonic
-    INTEGER      , INTENT(IN) :: n,l,m
-    REAL(KIND=RP), INTENT(IN) :: e,ke(3)
-    REAL(KIND=RP), INTENT(IN),OPTIONAL :: k(3)
+  COMPLEX(RP) FUNCTION U_bbk(alpha1, alpha2, alpha3, k1, k2, k3, lam1, lam2, lam3 &
+    , p1, p2)
+    USE constants ,ONLY: pi
+    USE integration ,ONLY: gauleg
+    USE trigo ,ONLY: nrm2
 
-    REAL(KIND=RP)    :: q(3)
-    INTEGER          :: j
-    REAL(KIND=RP)    :: kem,thetae,phie,A
-    COMPLEX(KIND=RP) :: kec
+    REAL(RP), INTENT(IN) :: alpha1, alpha2, alpha3
+    REAL(RP), INTENT(IN) :: k1(3), k2(3), k3(3)
+    REAL(RP), INTENT(IN) :: lam1, lam2, lam3
+    REAL(RP), INTENT(IN) :: p1(3), p2(3)
+
+    COMPLEX(RP), PARAMETER :: zi = (0._RP, 1._RP)
+
+    REAL(RP),ALLOCATABLE :: t3(:), y(:), wy(:), s(:), ws(:)
+    REAL(RP) :: p11(3), p22(3), q1(3), q2(3)
+    REAL(RP) :: q1m, q2m
+    REAL(RP) :: k1m, k2m, k3m
+    COMPLEX(RP) :: lam33
+    COMPLEX(RP) :: sig0, sig1, sig2, sig12
+    COMPLEX(RP) :: sig0_a(3), sig1_a(3), sig2_a(3), sig12_a(3)
+
+    INTEGER :: i, j
+    COMPLEX(RP) :: N_t3, Integ
+
+    U_bbk = ( 0._RP, 0._RP)
+
+    k1m = nrm2(k1)
+    k2m = nrm2(k2)
+    k3m = nrm2(k3)
+
+    CALL gauleg(-10._RP, 10._RP, y, wy, 64)
+    t3 = 1._RP /(1._RP+ EXP(y) )
+
+    CALL gauleg(0._RP, 10._RP, s, ws, 64)
+
+    Integ = (0._RP, 0._RP)
+    DO i = 1,64
+      p11 = p1 -t3(i)*k3
+      q1 = k1 +p11
+      q1m = nrm2(q1)
+      p22 = p2 -t3(i)*k3
+      q2 = k2 +p22
+      q2m = nrm2(q2)
+      lam33 = CMPLX(lam3, -t3(i)*k3m, RP )
+
+      sig0_a = [ CMPLX( (lam1+lam2)**2+nrm2(q1-q2)**2, 0._RP, RP) &
+        , 2*(lam2*(lam1**2+lam33**2+q1m**2) +lam1*(lam2**2+lam33**2+q2m**2) ) &
+        , ( (lam1+lam33)**2+q1m**2)*((lam2+lam33)**2+q2m**2) ]
+      sig1_a = -2*[ DOT_PRODUCT(q1-q2,k1) +zi*(lam1+lam2)*k1m &
+        , 2*lam2*DOT_PRODUCT(q1,k1) +zi*( (lam2**2+lam33**2+q2m**2)*k1m+2*lam1*lam2*k1m ) &
+        , ((lam2+lam33)**2 +q2m**2)*( DOT_PRODUCT(q1,k1) +zi*(lam1+lam33)*k1m ) ]
+      sig2_a = -2*[ DOT_PRODUCT(q2-q1,k2) +zi*(lam1+lam2)*k2m &
+        , 2*lam1*DOT_PRODUCT(q2,k2) +zi*( (lam1**2+lam33**2+q1m**2)*k2m+2*lam1*lam2*k2m ) &
+        , ((lam1+lam33)**2 +q1m**2)*( DOT_PRODUCT(q2,k2) +zi*(lam2+lam33)*k2m ) ]
+      sig12_a = -2*[ CMPLX( k1m*k2m +DOT_PRODUCT(k1,k2), 0._RP, RP) &
+        , 2*( (lam1*k1m-zi*DOT_PRODUCT(q1,k1))*k2m +(lam2*k2m-zi*DOT_PRODUCT(q2,k2))*k1m) &
+        , -2*( DOT_PRODUCT(q1,k1)+zi*(lam1+lam33)*k1m) &
+          *( DOT_PRODUCT(q2,k2)+zi*(lam2+lam33)*k2m) ]
+
+      N_t3 = (0._RP, 0._RP)
+      DO j = 1,64
+        sig0 = sig0_a(1)*(s(j)+2*lam33)*s(j) +sig0_a(2)*s(j) +sig0_a(3)
+        sig1 = sig1_a(1)*(s(j)+2*lam33)*s(j) +sig1_a(2)*s(j) +sig1_a(3)
+        sig2 = sig2_a(1)*(s(j)+2*lam33)*s(j) +sig2_a(2)*s(j) +sig2_a(3)
+        sig12 = sig12_a(1)*(s(j)+2*lam33)*s(j) +sig12_a(2)*s(j) +sig12_a(3)
+        N_t3 = (sig0/(sig0+sig1) )**(-zi*alpha1)*(sig0/(sig0+sig2) )**(-zi*alpha2)/sig0 &
+          +N_t3
+      END DO
+      Integ = Integ +SINH(pi*alpha3)/(2*pi*zi)*(4*pi)**2*N_t3
+    END DO
+
+
+  END FUNCTION
+
+  SUBROUTINE calculate_chi( km, r, U_tmp, z, x, chi, delta )
+    USE utils ,ONLY: ode_second_dw, intrpl
+    REAL(RP), INTENT(IN) :: U_tmp(0:), r(0:), x(:), km
+    INTEGER, INTENT(IN) :: z
+    REAL(RP), INTENT(OUT) :: chi(:,0:), delta(0:)
+
+    REAL(RP), ALLOCATABLE :: U(:,:), chi_tmp(:,:)
+    REAL(RP) :: rc
+    INTEGER :: l, lmax, nr
+
+    lmax = size(delta) -1
+    nr = size(r) -1
+    rc = r(nr)
+
+    ALLOCATE( U(0:nr,0:lmax), chi_tmp(0:nr,0:lmax) )
+
+    IF(z==0) THEN
+      U(0,0:lmax) = -km**2
+    ELSE
+      U(0,0:lmax) = -HUGE(1._RP)
+    END IF
+
+    U(1:nr,lmax) = -km**2 -2.*( z*1._RP +U_tmp(1:nr) )/r(1:nr)
+    DO l = 0,lmax
+      U(1:nr,l) = l*(l+1)/r(1:nr)**2 +U(1:nr,lmax)
+    END DO
+
+    CALL ode_second_dw(km, lmax, rc, z, U, chi_tmp, delta )
+
+    DO l = 0,lmax
+      CALL INTRPL(r, chi_tmp(:,l), x, chi(:,l))
+    END DO
+
+  END SUBROUTINE calculate_chi
+
+  SUBROUTINE dwb_integrals( chi_0, chi_a, chi_b, sig_0, sig_a, sig_b, wf, x, w, lo &
+    , integral )
+    USE special_functions ,ONLY: symbol_3j
+    REAL(RP), INTENT(IN) :: chi_0(:,0:), chi_a(:,0:), chi_b(:,0:), wf(:)
+    REAL(RP), INTENT(IN) :: x(:), w(:)
+    REAL(RP), INTENT(IN) :: sig_0(0:), sig_a(0:), sig_b(0:)
+    INTEGER, INTENT(IN) :: lo
+    COMPLEX(RP), ALLOCATABLE, INTENT(OUT) :: integral(:,:,:,:)
+
+    REAL(RP), PARAMETER :: VSmall = TINY(1._RP), VBig = HUGE(1._RP)
+    COMPLEX(RP), PARAMETER :: zi = (0._RP, 1._RP)
+    INTEGER :: limax, lsmax, lemax, nx, nmin
+    COMPLEX(RP), ALLOCATABLE :: integ(:,:)
+    INTEGER :: li, ls, le, l, me, mo
+    ! Block variables
+    REAL(RP) :: Ti, Si
+    REAL(RP) :: integ0
+    REAL(RP) :: xil, xil1
+    INTEGER :: i, is, nmax
+
+    nx = size(x)
+    limax = size(sig_0) -1
+    lsmax = size(sig_a) -1
+    lemax = size(sig_b) -1
+
+    nmin = count(x<=25._RP)
+
+    ALLOCATE( integral(0:lsmax, 0:lemax, -lemax:lemax, 0:lo) )
+    ALLOCATE( integ( 0:MIN(limax+lsmax,lemax+lo),  0:limax ) )
+    integral = 0._RP
+    !$OMP PARALLEL DO COLLAPSE(2) PRIVATE(integ,li,l,me,mo ,ti,si,integ0,xil,xil1,i,is,nmax)
+    DO ls = 0,lsmax; DO le = 0,lemax
+      integ = 0._RP
+      DO li = 0,limax
+        DO l = MAX(ABS(ls-li), ABS(le-lo)), MIN(ls+li, le+lo)
+          IF( MOD(ls+l+li,2)/=0 .OR. MOD(le+l+lo,2)/=0 ) CYCLE
+
+          IF(l<=5) nmax = nmin +(5-l)*(nx-nmin)/5
+
+          Ti = 0._RP
+          integ0 = 0._RP
+          Si = 0._RP
+
+          is = 1
+          xil = x(is)**l
+          xil1 = xil*x(is)
+          IF( xil1>VSmall ) THEN
+            Ti = Ti +w(is)*chi_a(is,ls)*chi_0(is,li)*xil
+            integ0 = integ0 +w(is)*Ti*wf(is)*chi_b(is,le)/xil1
+          END IF
+
+          DO i = is+1,nmax
+            Si = Si +w(i-1)*chi_b(i-1,le)*wf(i-1)*xil
+            xil = x(i)**l
+            IF( xil>=VBig ) EXIT
+            Ti = Ti +w(i)*chi_a(i,ls)*chi_0(i,li)*xil
+            xil1 = xil*x(i)
+            IF( xil1<VSmall ) CYCLE
+            integ0 = integ0 +( Ti*w(i)*wf(i)*chi_b(i,le) &
+              +Si*w(i)*chi_a(i,ls)*chi_0(i,li) )/xil1
+          END DO
+
+          integ(l, li ) = integ(l, li ) +integ0*symbol_3j(ls, l, li, 0, 0, 0 ) &
+            *symbol_3j(lo, l, le, 0, 0, 0 )*(2*li+1)*zi**li*exp( -zi*sig_0(li) )
+        END DO
+      END DO
+
+      DO mo = 0,lo; DO me = -le,le
+        IF( ABS(mo+me)>ls ) CYCLE
+        DO li = 0,limax
+          DO l = MAX(ABS(ls-li), ABS(le-lo)), MIN(ls+li, le+lo)
+            IF( MOD(ls+l+li,2)/=0 .OR. MOD(le+l+lo,2)/=0 ) CYCLE
+            integral(ls,le,me,mo) = integral(ls,le,me,mo) +integ(l, li ) &
+              *symbol_3j(ls, l, li, mo+me, -me-mo, 0 ) &
+              *symbol_3j(lo, l, le, mo, -me-mo, me)
+          END DO
+        END DO
+      END DO; END DO
+
+      integral(ls,le,:,:) = integral(ls,le,:,:)*zi**(-ls-le)*SQRT((2*lo+1)*(2*ls+1) &
+        *(2*le+1._RP) )*EXP( zi*( sig_b(le) +sig_a(ls) ) )
+
+    END DO; END DO
+
+  END SUBROUTINE dwb_integrals
+
+  PURE COMPLEX(RP) FUNCTION tpw( n, l, m, e, ke, k)
+    USE constants ,ONLY: pi
+    USE trigo ,ONLY: cartez2spher
+    USE utils ,ONLY: norm_fac
+    USE special_functions ,ONLY: spherical_harmonic, fac
+    INTEGER, INTENT(IN) :: n,l,m
+    REAL(RP), INTENT(IN) :: e,ke(3)
+    REAL(RP), INTENT(IN),OPTIONAL :: k(3)
+
+    REAL(RP) :: q(3)
+    INTEGER :: j
+    REAL(RP) :: kem,thetae,phie,A
+    COMPLEX(RP) :: kec
 
     IF(PRESENT(k)) THEN
-      q=k-ke
+      q = k-ke
     ELSE
-      q=-ke
+      q = -ke
     ENDIF
 
     CALL cartez2spher( q, kem, thetae, phie)
     a = kem**2 +e**2
     kec = CMPLX( 0._RP, kem, KIND=RP )
 
-    tpw = 0.
+    tpw = 0._RP
     DO j = 0, (n-l)/2
-      tpw = tpw +(-0.25_RP*a/e**2)**j *fac(n-j)/( fac(j) *fac(n-l-2*j) )
+      tpw = tpw +(-0.25_RP*a/e**2)**j*fac(n-j)/( fac(j)*fac(n-l-2*j) )
     END DO
 
-
-    tpw = tpw *SQRT(2./pi) *norm_fac(e,n) *fac(n-l) *(kec/e)**l *(2.*e/a)**n /a &
+    tpw = tpw*SQRT(2./pi)*norm_fac(e,n)*fac(n-l)*(kec/e)**l*(2.*e/a)**n /a &
       *spherical_harmonic(l, m, thetae, phie )
 
   END FUNCTION tpw
 
-  PURE COMPLEX(KIND=RP) FUNCTION tcw( n, l, m, e, ke, k)
-    use constants ,only: pi
-    use utils ,only: fac, norm_fac
-    INTEGER      , INTENT(IN) :: n, l, m
-    REAL(KIND=RP), INTENT(IN) :: e, ke(3), k(3)
+  PURE COMPLEX(RP) FUNCTION tcw( n, l, m, e, alpha, ke, k)
+    USE constants ,ONLY: pi
+    USE special_functions ,ONLY: fac
+    USE utils ,ONLY: norm_fac
+    USE trigo ,ONLY: nrm2
 
-    REAL(KIND=RP)    :: kem, km, alpha, a, aj1, ke_t(3)
-    COMPLEX(KIND=RP) :: w, kec, ekec, gam(0:n), f21(0:n,0:n), alphac, w1m, kep, kp
-    COMPLEX(KIND=RP) :: tmp_j, tmp_j1, tmp_m1, cst_j, cst_j1, cst_m1
-    REAL(KIND=RP)    :: tmp_s, tmp_s3, tmp_s1, cst_s, cst_s3, cst_s1, cst_s2
-    COMPLEX(KIND=RP), PARAMETER :: zi = (0._RP, 1._RP)
-    INTEGER          :: j, j1, ma, m1, s, s1, s2, s3
+    INTEGER, INTENT(IN) :: n, l, m
+    REAL(RP), INTENT(IN) :: e, alpha, ke(3), k(3)
+
+    REAL(RP)    :: kem, km, a, aj1, ke_t(3)
+    COMPLEX(RP) :: w, kec, ekec, gam(0:n), f21(0:n,0:n), alphac, w1m, kep, kp
+    COMPLEX(RP) :: tmp_j, tmp_j1, tmp_m1, cst_j, cst_j1, cst_m1
+    REAL(RP)    :: tmp_s, tmp_s3, tmp_s1, cst_s, cst_s3, cst_s1, cst_s2
+    COMPLEX(RP), PARAMETER :: zi = (0._RP, 1._RP)
+    INTEGER :: j, j1, ma, m1, s, s1, s2, s3
 
     ma = ABS(m)
-    kem = NORM2(ke)
-    ke_t=-ke
-    km = NORM2(k)
+    kem = nrm2(ke)
+    ke_t = -ke
+    km = nrm2(k)
     IF( m>=0 ) THEN
       kp = CMPLX( k(1), k(2), KIND=RP )
       kep = CMPLX( ke_t(1), ke_t(2), KIND=RP )
@@ -574,31 +856,30 @@ CONTAINS
       kep = CMPLX( ke_t(1), -ke_t(2), KIND=RP )
     END IF
 
-    alpha  = 1._RP / kem
     alphac = CMPLX( 0._RP, alpha, KIND=RP) ! i*\alpha
     kec    = CMPLX( 0._RP, kem  , KIND=RP) ! i*ke
     ekec   = CMPLX( e    , -kem , KIND=RP) ! (\epsilon-ike)
-    a      = NORM2(k+ke_t)**2 +e**2
-    w      = CMPLX( NORM2(k+ke_t)**2 -km**2 +kem**2   , 2.*e*kem , KIND=RP) /a ! w = b/a
+    a      = nrm2(k+ke_t)**2 +e**2
+    w      = CMPLX( nrm2(k+ke_t)**2 -km**2 +kem**2   , 2.*e*kem , KIND=RP) /a ! w = b/a
     w1m    = CMPLX( e**2 +km**2 -kem**2, -2.*e*kem, KIND=RP) /a ! (1-w)
 
-    gam(0) = 1.
+    gam(0) = 1._RP
     DO j1 = 1, n
-      gam(j1) = gam(j1-1) *CMPLX( j1, -alpha, KIND=RP)
+      gam(j1) = gam(j1-1)*CMPLX( j1, -alpha, KIND=RP)
     END DO
 
-    DO CONCURRENT( j1= 0:n )
+    DO j1 =  0,n
       aj1 = j1 +1._RP
       f21(j1, 0) = 1._RP
-      f21(j1, 1) = 1. + alphac*w / ( aj1*w1m )
-      IF( n<2 .or. j1>n-2 ) CYCLE
+      f21(j1, 1) = 1. +alphac*w / ( aj1*w1m )
+      IF( n<2 .OR. j1>n-2 ) CYCLE
       DO j = 1, n -j1 -1
-        f21( j1,  j +1 ) = (1. + ( j +alphac*w) / ( (aj1 +j)*w1m ) ) *f21(j1, j) &
-          - j/( (aj1 +j)*w1m ) *f21(j1, j-1)
+        f21( j1,  j +1 ) = (1. +( j +alphac*w) / ( (aj1 +j)*w1m ) )*f21(j1, j) &
+          -j/( (aj1 +j)*w1m )*f21(j1, j-1)
       END DO
     END DO
 
-    tcw = 0.
+    tcw = 0._RP
     cst_j = -0.25*a/ekec**2
     cst_j1 = kec/ekec
     cst_m1 = kep/kp
@@ -606,25 +887,28 @@ CONTAINS
     cst_s3 = ke_t(3)/k(3)
     cst_s1 = kem/km
     cst_s2 = 2.*DOT_PRODUCT(k,ke_t)
-    DO CONCURRENT ( j = 0:(n-l)/2 )
-      tmp_j = fac(n-j) /fac(j) *cst_j**j!tmp_j = fac(n-j)/fac(j)*(-0.25*a/ekec**2)**j
-      DO CONCURRENT( j1 = 0:(n-l-2*j) )
-        !tmp_j1 = (kec/ekec)**j1 /( fac(j1) *fac(n-l-2*j-j1) ) *tmp_j
-        tmp_j1 = cst_j1**j1 /( fac(j1) *fac(n-l-2*j-j1) ) *tmp_j
-        DO CONCURRENT(m1 = 0:ma)
-          tmp_m1 = cst_m1**m1 /( fac(ma-m1) *fac(m1) ) *tmp_j1
-          !tmp_m1 = (kep/kp)**m1 /( fac(ma-m1) *fac(m1) ) *tmp_j1
+    DO j = 0,(n-l)/2
+      tmp_j = fac(n-j) /fac(j)*cst_j**j
+      !tmp_j = fac(n-j)/fac(j)*(-0.25*a/ekec**2)**j
+      DO j1 = 0,(n-l-2*j)
+        !tmp_j1 = (kec/ekec)**j1 /( fac(j1)*fac(n-l-2*j-j1) )*tmp_j
+        tmp_j1 = cst_j1**j1 /( fac(j1)*fac(n-l-2*j-j1) )*tmp_j
+        DO m1 = 0,ma
+          tmp_m1 = cst_m1**m1 /( fac(ma-m1)*fac(m1) )*tmp_j1
+          !tmp_m1 = (kep/kp)**m1 /( fac(ma-m1)*fac(m1) )*tmp_j1
           DO s = 0,(l-ma)/2
-            tmp_s = cst_s**s /( fac(l-s) )!tmp_s = (-1)**s *(km/k(3))**(2*s) /( fac(l-s) )
+            tmp_s = cst_s**s /( fac(l-s) )
+            !tmp_s = (-1)**s*(km/k(3))**(2*s) /( fac(l-s) )
             DO s3 = 0,l-ma-2*s
-              tmp_s3 = cst_s3**s3 /( fac(s3) *fac(l-ma-2*s-s3) ) *tmp_s
-              !tmp_s3 = (ke_t(3)/k(3))**s3 /( fac(s3) *fac(l-ma-2*s-s3) ) *tmp_s
+              tmp_s3 = cst_s3**s3 /( fac(s3)*fac(l-ma-2*s-s3) )*tmp_s
+              !tmp_s3 = (ke_t(3)/k(3))**s3 /( fac(s3)*fac(l-ma-2*s-s3) )*tmp_s
               DO s1 = 0,s
-                tmp_s1 = cst_s1**s1 /fac(s-s1) *tmp_s3!tmp_s1 = (kem/km)**s1 /fac(s-s1) *tmp_s3
-                DO CONCURRENT( s2=0:s1)
-                  tcw = tcw + gam(m1+s3+2*s1-s2+j1) *f21(m1+s3+2*s1-s2+j1, n -j -(m1+s3+2*s1-s2+j1) ) &
-                    /( fac(s2) *fac(s1-s2) *fac(m1+s3+2*s1-s2+j1) ) &
-                    *tmp_m1 *tmp_s1 *cst_s2**s2
+                tmp_s1 = cst_s1**s1 /fac(s-s1)*tmp_s3
+                !tmp_s1 = (kem/km)**s1 /fac(s-s1)*tmp_s3
+                DO s2 = 0,s1
+                  tcw = tcw +gam(m1+s3+2*s1-s2+j1)*f21(m1+s3+2*s1-s2+j1, n -j &
+                    -(m1+s3+2*s1-s2+j1) )/( fac(s2)*fac(s1-s2)*fac(m1+s3+2*s1-s2+j1) ) &
+                    *tmp_m1*tmp_s1*cst_s2**s2
                 END DO
               END DO
             END DO
@@ -633,28 +917,28 @@ CONTAINS
       END DO
     END DO
 
-    tcw = tcw *norm_fac(e, n ) *SQRT(l+0.5_RP) *fac(n-l) *SQRT( fac(l-ma)/fac(l+ma) ) *(-1)**ma &
-      *fac(ma) *(zi*k(3)/ekec)**l *(2.*ekec/a)**n/a *(kp/k(3))**ma *w1m**(-alphac) /pi
-    !*powcc(w1m,-alpha)/pi
+    tcw = tcw*norm_fac(e, n )*SQRT(l+0.5_RP)*fac(n-l)*SQRT( fac(l-ma)/fac(l+ma) ) &
+      *(-1)**ma*fac(ma)*(zi*k(3)/ekec)**l*(2.*ekec/a)**n/a*(kp/k(3))**ma &
+      *w1m**(-alphac) /pi
+      !*powcc(w1m,-alpha)/pi
     IF( MOD(m,2)<0 ) tcw = -tcw
 
   END FUNCTION tcw
 
-  PURE COMPLEX(KIND=RP) FUNCTION tcw0( n, l, m, e, ke)
-    use constants ,only: pi
-    use trigo ,only: cartez2spher
-    use utils ,only: fac, norm_fac
-    use special_functions ,only: spherical_harmonic
-    INTEGER      , INTENT(IN) :: n, l, m
-    REAL(KIND=RP), INTENT(IN) :: e, ke(3)
+  PURE COMPLEX(RP) FUNCTION tcw0( n, l, m, e, alpha, ke)
+    USE constants ,ONLY: pi
+    USE trigo ,ONLY: cartez2spher
+    USE utils ,ONLY: norm_fac
+    USE special_functions ,ONLY: spherical_harmonic, fac
+    INTEGER, INTENT(IN) :: n, l, m
+    REAL(RP), INTENT(IN) :: e, alpha, ke(3)
 
-    REAL(KIND=RP)    :: kem, alpha, thetae, phie, a, aj1
-    COMPLEX(KIND=RP) :: w, kec, ekec, gam(0:n), f21(0:n,0:(n-l)), alphac, w1m, tmp
-    INTEGER          :: j, j1
+    REAL(RP) :: kem, thetae, phie, a, aj1
+    COMPLEX(RP) :: w, kec, ekec, gam(0:n), f21(0:n,0:(n-l)), alphac, w1m, tmp
+    INTEGER :: j, j1
 
     CALL cartez2spher( -ke, kem, thetae, phie)
 
-    alpha  = 1._RP / kem
     alphac = CMPLX( 0._RP, alpha, KIND=RP) ! i*\alpha
     kec    = CMPLX( 0._RP, kem  , KIND=RP) ! i*ke
     ekec   = CMPLX( e    , -kem , KIND=RP) ! (\epsilon-ike)
@@ -662,45 +946,45 @@ CONTAINS
     w      = CMPLX( 2.*kem**2   , 2.*e*kem , KIND=RP) /a ! w = b/a
     w1m    = CMPLX( e**2 -kem**2, -2.*e*kem, KIND=RP) /a ! (1-w)
 
-    gam(0) = 1.
+    gam(0) = 1._RP
     DO j1 = 1, n
-      gam(j1) = gam(j1-1) *CMPLX( j1, -alpha, KIND=RP)
+      gam(j1) = gam(j1-1)*CMPLX( j1, -alpha, KIND=RP)
     END DO
 
-    DO CONCURRENT( j1= 0:n-l )
+    DO j1 =  0,n-l
       aj1 = l +j1 +1._RP
       f21(j1, 0) = 1._RP
-      f21(j1, 1) = 1. + alphac*w / ( aj1*w1m )
+      f21(j1, 1) = 1._RP +alphac*w / ( aj1*w1m )
       IF(n-l<2) CYCLE
       DO j = 1, n -l -1
-        f21( j1,  j +1 ) = (1. + ( j +alphac*w) / ( (aj1 +j)*w1m ) ) *f21(j1, j) &
-          - j/( (aj1 +j)*w1m ) *f21(j1, j-1)
+        f21( j1,  j +1 ) = (1._RP +( j +alphac*w) / ( (aj1 +j)*w1m ) )*f21(j1, j) &
+          -j/( (aj1 +j)*w1m )*f21(j1, j-1)
       END DO
     END DO
 
-    tcw0 = 0.
-    DO CONCURRENT ( j = 0:(n-l)/2 )
-      tmp = fac(n-j) /fac(j) *(-0.25*a/ekec**2)**j
-      DO CONCURRENT( j1 = 0:(n-l-2*j) )!, j1+2*j <= n-l )
-        tcw0 = tcw0 + 1./( fac(j1) *fac(n-l-2*j-j1) *fac(l+j1) ) *(kec/ekec)**j1 *gam(l+j1) &
-          *f21(j1, n -l -j -j1 ) *tmp !*fac(n-j)/ fac(j) *(-0.25*a/ekec**2)**j
+    tcw0 = 0._RP
+    DO j = 0,(n-l)/2
+      tmp = fac(n-j) /fac(j)*(-0.25*a/ekec**2)**j
+      DO j1 = 0,(n-l-2*j) !, j1+2*j <= n-l )
+        tcw0 = tcw0 +1./( fac(j1)*fac(n-l-2*j-j1)*fac(l+j1) )*(kec/ekec)**j1*gam(l+j1) &
+          *f21(j1, n -l -j -j1 )*tmp !*fac(n-j)/ fac(j)*(-0.25*a/ekec**2)**j
       END DO
     END DO
 
-    tcw0 = tcw0 *norm_fac(e, n ) *SQRT(2./pi) *fac(n-l) *(kec/ekec)**l *(2.*ekec/a)**n/a &
-      *spherical_harmonic(l, m, thetae, phie) *w1m**(-alphac)!*powcc(w1m,-alpha)
+    tcw0 = tcw0*norm_fac(e, n )*SQRT(2./pi)*fac(n-l)*(kec/ekec)**l*(2.*ekec/a)**n/a &
+      *spherical_harmonic(l, m, thetae, phie)*w1m**(-alphac)!*powcc(w1m,-alpha)
 
   END FUNCTION tcw0
 
-  ELEMENTAL COMPLEX(KIND=rp) FUNCTION powcc(z1, y2)
-    COMPLEX(KIND=rp), INTENT(IN) :: z1
-    REAL(KIND=rp), INTENT(IN) :: y2
-    REAL(KIND=rp) :: theta,zm
+  ELEMENTAL COMPLEX(RP) FUNCTION powcc(z1, y2)
+    COMPLEX(RP), INTENT(IN) :: z1
+    REAL(RP), INTENT(IN) :: y2
+    REAL(RP) :: theta,zm
 
-    theta = ATAN2( AIMAG(z1), REAL(z1, KIND=rp) )
+    theta = ATAN2( AIMAG(z1), REAL(z1, KIND=RP) )
     zm = LOG( ABS(z1) )
-    powcc = EXP(-y2*theta) *CMPLX( COS(y2*zm), SIN(y2*zm), KIND=RP )
+    powcc = EXP(-y2*theta)*CMPLX( COS(y2*zm), SIN(y2*zm), KIND=RP )
 
   END FUNCTION powcc
 
-END SUBMODULE fdcs_e2e
+END MODULE fdcs_e2e

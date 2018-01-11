@@ -9,12 +9,7 @@ endif()
 
 if ( "${CMAKE_Fortran_COMPILER_ID}" MATCHES "GNU" )
 
-  if( "${CMAKE_Fortran_COMPILER_VERSION}" VERSION_LESS 6.1.0 )
-    message("Unsupported Compiler you should use gfortran >= 6.1.0")
-    return()
-  endif()
-
-  set( CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS} -Wall -Ofast" )
+  set( CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS} -Wall -O3" )
   set( CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS} -Wall -g -fcheck=bounds" )
   
 elseif ( "${CMAKE_Fortran_COMPILER_ID}" MATCHES "INTEL" )
@@ -22,13 +17,19 @@ elseif ( "${CMAKE_Fortran_COMPILER_ID}" MATCHES "INTEL" )
   set( CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS} -warn all -Ofast -ipo -xHost" )
   set( CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS} -warn all -g" )
   
+elseif ( "${CMAKE_Fortran_COMPILER_ID}" MATCHES "FLANG" )
+
+  set( CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS} -Wall -Mstandard -Mallocatable=03 -O3" )
+  set( CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS} -Wall -Mstandard -Mallocatable=03 -g" )
+  
+elseif ( "${CMAKE_Fortran_COMPILER_ID}" MATCHES "PGI" )
+
+  set( CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS} -Mstandard -Mallocatable=03 -fast" )
+  set( CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS} -Mstandard -Mallocatable=03 -g" )
+  
 endif ()
 
 add_subdirectory(src)
 
 file(COPY Data DESTINATION ./ )
 file(COPY input.dat DESTINATION ./ )
-
-#set(srcs main.F90 constants.F90 trigo.F90 trigo_h.F90 special_functions_h.F90 special_functions.F90 utils_h.F90 utils.F90 fdcs_e2e_h.F90 fdcs_e2e.F90 )
-
-#add_executable(main.exe ${srcs})

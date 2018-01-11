@@ -1,5 +1,6 @@
-Ar
-2p
-8399. 8000. 150.
-6.8
-0 360 4
+Ne                       # atom
+2p                       # orbit
+595.6 500. 74.             # Ei Es Ee
+6.                       # Thetas
+0 360 5                  # step(3)
+0                        # exchange
