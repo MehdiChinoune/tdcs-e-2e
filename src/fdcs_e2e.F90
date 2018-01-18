@@ -29,8 +29,8 @@ CONTAINS
     COMPLEX(RP) :: D_term
     INTEGER :: i, io, mo
 
-    REAL(rp) :: k2(3), k2m = 0._RP
-    COMPLEX(rp) :: E_term = (0._RP, 0._RP)
+    REAL(RP) :: k2(3), k2m = 0._RP
+    COMPLEX(RP) :: E_term = (0._RP, 0._RP)
 
     CALL factorial()
 
@@ -75,7 +75,7 @@ CONTAINS
                 -tpw(n(io), lo, mo, e(io), ks ) )
           END DO
           sigma = sigma +(1+mo)*( ABS(D_term/km**2)**2 +ABS(E_term/k2m**2)**2 &
-            -REAL( D_term*CONJG(E_term)/(km**2*k2m**2 ), rp ) )
+            -REAL( D_term*CONJG(E_term)/(km**2*k2m**2 ), RP ) )
         ELSE
           sigma = sigma +(1+mo)*ABS(D_term/km**2)**2
         END IF

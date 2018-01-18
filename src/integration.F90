@@ -79,8 +79,8 @@ CONTAINS
   PURE SUBROUTINE gauleg(a,b,x,w,n)
     use constants ,only: pi
     INTEGER, INTENT(IN) :: n
-    REAL(rp), INTENT(IN) :: a,b
-    REAL(rp), INTENT(OUT), ALLOCATABLE :: x(:),w(:)
+    REAL(RP), INTENT(IN) :: a,b
+    REAL(RP), INTENT(OUT), ALLOCATABLE :: x(:),w(:)
     INTEGER :: i
 
     ALLOCATE(x(n),w(n))
@@ -101,11 +101,11 @@ CONTAINS
 
   PURE SUBROUTINE pd(sx,sw,n)
     INTEGER, INTENT(IN) :: n
-    REAL(rp), INTENT(OUT), CONTIGUOUS :: sw(:)
-    REAL(rp), INTENT(INOUT), CONTIGUOUS :: sx(:)
+    REAL(RP), INTENT(OUT), CONTIGUOUS :: sw(:)
+    REAL(RP), INTENT(INOUT), CONTIGUOUS :: sx(:)
 
     REAL(RP),PARAMETER :: eps = EPSILON(eps)
-    REAL(rp), DIMENSION((n+1)/2) :: dp0,dp1,dp2,dp
+    REAL(RP), DIMENSION((n+1)/2) :: dp0,dp1,dp2,dp
     INTEGER :: i
 
     dp2 = 0._RP
