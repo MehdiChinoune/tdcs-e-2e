@@ -1,7 +1,7 @@
 MODULE fdcs_e2e
   USE constants ,ONLY: RP
   IMPLICIT NONE
-CONTAINS
+  CONTAINS
 
   SUBROUTINE fdcs_fba_pw(in_unit,out_unit)
     USE constants ,ONLY: pi, ev, deg
@@ -72,7 +72,7 @@ CONTAINS
           DO io = 1, no
             E_term = E_term &
               +a(io)*( tpw(n(io), lo, mo, e(io), ks, k2 ) &
-                -tpw(n(io), lo, mo, e(io), ks ) )
+              -tpw(n(io), lo, mo, e(io), ks ) )
           END DO
           sigma = sigma +(1+mo)*( ABS(D_term/km**2)**2 +ABS(E_term/k2m**2)**2 &
             -REAL( D_term*CONJG(E_term)/(km**2*k2m**2 ), RP ) )
@@ -395,11 +395,11 @@ CONTAINS
 
     ALLOCATE(x(nx), w(nx) )
 
-      DO i = 1,nc
-        CALL gauleg( (i-1)*rc/nc, i*rc/nc, xt, wt, 64 )
-        x( (i-1)*64+1: i*64 ) = xt
-        w( (i-1)*64+1: i*64 ) = wt
-      END DO
+    DO i = 1,nc
+      CALL gauleg( (i-1)*rc/nc, i*rc/nc, xt, wt, 64 )
+      x( (i-1)*64+1: i*64 ) = xt
+      w( (i-1)*64+1: i*64 ) = wt
+    END DO
     DEALLOCATE( xt, wt )
 
     ALLOCATE(chi_0(nx,0:limax), chi_a(nx,0:lsmax), chi_b(nx,0:lemax) )
@@ -408,14 +408,14 @@ CONTAINS
     ALLOCATE( r(0:nr) )
     r = [(i*h,i = 0,nr)]
 
-      ALLOCATE( U_tmp(0:nr) )
+    ALLOCATE( U_tmp(0:nr) )
 
-      CALL calculate_U(Atom, Orbit, r, U_tmp, 0)
-      CALL calculate_chi( kim, r, U_tmp, 0, x, chi_0, delta_li )
+    CALL calculate_U(Atom, Orbit, r, U_tmp, 0)
+    CALL calculate_chi( kim, r, U_tmp, 0, x, chi_0, delta_li )
 
-      CALL calculate_U(Atom, Orbit, r, U_tmp, 1)
-      CALL calculate_chi( ksm, r, U_tmp, zs, x, chi_a, delta_ls )
-      CALL calculate_chi( kem, r, U_tmp, ze, x, chi_b, delta_le )
+    CALL calculate_U(Atom, Orbit, r, U_tmp, 1)
+    CALL calculate_chi( ksm, r, U_tmp, zs, x, chi_a, delta_ls )
+    CALL calculate_chi( kem, r, U_tmp, ze, x, chi_b, delta_le )
 
     DEALLOCATE( U_tmp )
 
@@ -630,6 +630,7 @@ CONTAINS
     k3m = nrm2(k3)
 
     CALL gauleg(-10._RP, 10._RP, y, wy, 64)
+    ALLOCATE( t3(SIZE(y)) )
     t3 = 1._RP /(1._RP+ EXP(y) )
 
     CALL gauleg(0._RP, 10._RP, s, ws, 64)
@@ -656,7 +657,7 @@ CONTAINS
       sig12_a = -2*[ CMPLX( k1m*k2m +DOT_PRODUCT(k1,k2), 0._RP, RP) &
         , 2*( (lam1*k1m-zi*DOT_PRODUCT(q1,k1))*k2m +(lam2*k2m-zi*DOT_PRODUCT(q2,k2))*k1m) &
         , -2*( DOT_PRODUCT(q1,k1)+zi*(lam1+lam33)*k1m) &
-          *( DOT_PRODUCT(q2,k2)+zi*(lam2+lam33)*k2m) ]
+        *( DOT_PRODUCT(q2,k2)+zi*(lam2+lam33)*k2m) ]
 
       N_t3 = (0._RP, 0._RP)
       DO j = 1,64
