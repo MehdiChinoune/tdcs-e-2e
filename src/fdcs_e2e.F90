@@ -1,7 +1,7 @@
 MODULE fdcs_e2e
   USE constants ,ONLY: RP
   IMPLICIT NONE
-  CONTAINS
+CONTAINS
 
   SUBROUTINE fdcs_fba_pw(in_unit,out_unit)
     USE constants ,ONLY: pi, ev, deg
