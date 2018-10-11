@@ -677,7 +677,7 @@ CONTAINS
   !! CALLS MAX, SQRT, LOG, EXP, ATAN2, REAL, INT
   !!     AUTHOR:    A.R.BARNETT   FEB 1981    LAST UPDATE MARCH 1991
   !----------------------------------------------------------------------
-  ELEMENTAL MODULE SUBROUTINE  jwkb( x, eta, xl, fjwkb, gjwkb, iexp )
+  ELEMENTAL SUBROUTINE  jwkb( x, eta, xl, fjwkb, gjwkb, iexp )
     REAL(RP), INTENT(IN)  :: x, eta, xl
     REAL(RP), INTENT(OUT) :: fjwkb, gjwkb
     INTEGER, INTENT(OUT) :: iexp

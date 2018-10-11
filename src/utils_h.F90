@@ -24,11 +24,6 @@ MODULE utils
       REAL(RP), INTENT(OUT) :: s(0:,0:), delta(0:lmax)
     END SUBROUTINE ode_second_dw
 
-    ELEMENTAL REAL(RP) MODULE FUNCTION Uij(ni, ei, nj, ej, r)
-      REAL(RP), INTENT(IN) :: ei, ej, r
-      INTEGER, INTENT(IN) :: ni, nj
-    END FUNCTION Uij
-
     MODULE SUBROUTINE calculate_U(Atom, Orbit, r, U, state )
       CHARACTER(LEN=2), INTENT(IN) :: Atom, Orbit
       REAL(RP)   , INTENT(IN) :: r(:)

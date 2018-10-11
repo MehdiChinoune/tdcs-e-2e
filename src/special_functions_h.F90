@@ -33,12 +33,6 @@ MODULE special_functions
       REAL(RP), INTENT(OUT), DIMENSION(lmin:lmin+lrange) :: fc,  gc,  fcp, gcp
     END SUBROUTINE coul90
 
-    ELEMENTAL MODULE SUBROUTINE  jwkb( x, eta, xl, fjwkb, gjwkb, iexp )
-      REAL(RP), INTENT(IN)  :: x, eta, xl
-      REAL(RP), INTENT(OUT) :: fjwkb, gjwkb
-      INTEGER, INTENT(OUT) :: iexp
-    END SUBROUTINE  jwkb
-
     PURE MODULE SUBROUTINE ricbes( x, lmax, psi, chi, psid, chid, ifail )
       REAL(RP), INTENT(IN) :: x
       INTEGER, INTENT(IN) :: lmax

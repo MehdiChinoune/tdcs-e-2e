@@ -598,7 +598,7 @@ CONTAINS
 
   END SUBROUTINE fdcs_bbk
 
-  COMPLEX(RP) MODULE FUNCTION U_bbk(alpha1, alpha2, alpha3, k1, k2, k3, lam1, lam2, lam3 &
+  COMPLEX(RP) FUNCTION U_bbk(alpha1, alpha2, alpha3, k1, k2, k3, lam1, lam2, lam3 &
     , p1, p2)
     USE constants ,ONLY: pi
     USE integration ,ONLY: gauleg
@@ -673,7 +673,7 @@ CONTAINS
 
   END FUNCTION
 
-  MODULE SUBROUTINE calculate_chi( km, r, U_tmp, z, x, chi, delta )
+  SUBROUTINE calculate_chi( km, r, U_tmp, z, x, chi, delta )
     USE utils ,ONLY: ode_second_dw, intrpl
     REAL(RP), INTENT(IN) :: U_tmp(0:), r(0:), x(:), km
     INTEGER, INTENT(IN) :: z
@@ -708,7 +708,7 @@ CONTAINS
 
   END SUBROUTINE calculate_chi
 
-  MODULE SUBROUTINE dwb_integrals( chi_0, chi_a, chi_b, sig_0, sig_a, sig_b, wf, x, w, lo &
+  SUBROUTINE dwb_integrals( chi_0, chi_a, chi_b, sig_0, sig_a, sig_b, wf, x, w, lo &
     , integral )
     USE special_functions ,ONLY: symbol_3j
     REAL(RP), INTENT(IN) :: chi_0(:,0:), chi_a(:,0:), chi_b(:,0:), wf(:)
@@ -794,7 +794,7 @@ CONTAINS
 
   END SUBROUTINE dwb_integrals
 
-  PURE COMPLEX(RP) MODULE FUNCTION tpw( n, l, m, e, ke, k)
+  PURE COMPLEX(RP) FUNCTION tpw( n, l, m, e, ke, k)
     USE constants ,ONLY: pi
     USE trigo ,ONLY: cartez2spher
     USE utils ,ONLY: norm_fac
@@ -828,7 +828,7 @@ CONTAINS
 
   END FUNCTION tpw
 
-  PURE COMPLEX(RP) MODULE FUNCTION tcw( n, l, m, e, alpha, ke, k)
+  PURE COMPLEX(RP) FUNCTION tcw( n, l, m, e, alpha, ke, k)
     USE constants ,ONLY: pi
     USE special_functions ,ONLY: fac
     USE utils ,ONLY: norm_fac
@@ -925,7 +925,7 @@ CONTAINS
 
   END FUNCTION tcw
 
-  PURE COMPLEX(RP) MODULE FUNCTION tcw0( n, l, m, e, alpha, ke)
+  PURE COMPLEX(RP) FUNCTION tcw0( n, l, m, e, alpha, ke)
     USE constants ,ONLY: pi
     USE trigo ,ONLY: cartez2spher
     USE utils ,ONLY: norm_fac
@@ -976,7 +976,7 @@ CONTAINS
 
   END FUNCTION tcw0
 
-  ELEMENTAL COMPLEX(RP) MODULE FUNCTION powcc(z1, y2)
+  ELEMENTAL COMPLEX(RP) FUNCTION powcc(z1, y2)
     COMPLEX(RP), INTENT(IN) :: z1
     REAL(RP), INTENT(IN) :: y2
     REAL(RP) :: theta,zm

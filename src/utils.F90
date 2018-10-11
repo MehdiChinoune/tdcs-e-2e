@@ -106,7 +106,7 @@ CONTAINS
 
   END SUBROUTINE ode_second_dw
 
-  ELEMENTAL REAL(RP) MODULE FUNCTION Uij(ni, ei, nj, ej, r)
+  ELEMENTAL REAL(RP) FUNCTION Uij(ni, ei, nj, ej, r)
     USE special_functions ,ONLY: fac
     REAL(RP), INTENT(IN) :: ei, ej, r
     INTEGER, INTENT(IN) :: ni, nj

@@ -31,7 +31,7 @@ PROGRAM main
     END IF
 
   ELSE
-    CALL fdcs_fba_pw(in_unit,out_unit)
+    CALL fdcs_fba_dw(in_unit,out_unit)
   ENDIF
 
   CALL SYSTEM_CLOCK(finish)
