@@ -1,5 +1,4 @@
-MODULE conhyp_m
-  USE constants ,only: RP
+SUBMODULE(conhyp_m) conhyp_m
   IMPLICIT NONE
 
 CONTAINS
@@ -42,7 +41,7 @@ CONTAINS
   !     *                                                              *
   !     ****************************************************************
 
-  COMPLEX(RP) FUNCTION CONHYP (A,B,Z,LNCHF,IP)
+  COMPLEX(RP) MODULE FUNCTION CONHYP (A,B,Z,LNCHF,IP)
     COMPLEX(RP), INTENT(IN) :: A, B, Z
     INTEGER, INTENT(IN), OPTIONAL :: LNCHF, IP
     INTEGER :: I, NTERM
@@ -972,4 +971,4 @@ CONTAINS
     RETURN
   END SUBROUTINE ECPDIV
 
-END MODULE conhyp_m
+END SUBMODULE conhyp_m

@@ -1,9 +1,8 @@
-MODULE fdcs_e2e
-  USE constants ,ONLY: RP
+SUBMODULE(fdcs_e2e) fdcs_e2e
   IMPLICIT NONE
 CONTAINS
 
-  SUBROUTINE fdcs_fba_pw(in_unit,out_unit)
+  MODULE SUBROUTINE fdcs_fba_pw(in_unit,out_unit)
     USE constants ,ONLY: pi, ev, deg
     USE special_functions ,ONLY: factorial
     USE input ,ONLY: read_input, read_orbit
@@ -90,7 +89,7 @@ CONTAINS
 
   END SUBROUTINE fdcs_fba_pw
 
-  SUBROUTINE fdcs_fba_cw(in_unit,out_unit)
+  MODULE SUBROUTINE fdcs_fba_cw(in_unit,out_unit)
     USE constants ,ONLY: ev, deg, pi
     USE trigo ,ONLY: spher2cartez, nrm2
     USE special_functions ,ONLY: factorial
@@ -159,7 +158,7 @@ CONTAINS
 
   END SUBROUTINE fdcs_fba_cw
 
-  SUBROUTINE fdcs_fba_dw(in_unit,out_unit)
+  MODULE SUBROUTINE fdcs_fba_dw(in_unit,out_unit)
     USE ieee_arithmetic ,only: ieee_is_nan
     USE constants ,ONLY: pi, deg, ev
     USE special_functions ,ONLY: cgamma, spherical_harmonic, ricbes, factorial !&
@@ -317,7 +316,7 @@ CONTAINS
 
   END SUBROUTINE fdcs_fba_dw
 
-  SUBROUTINE fdcs_dwb(in_unit,out_unit)
+  MODULE SUBROUTINE fdcs_dwb(in_unit,out_unit)
     USE constants ,ONLY: ev, deg, pi
     USE special_functions ,ONLY: spherical_harmonic, cgamma, factorial
     USE utils ,ONLY: norm_fac, calculate_U
@@ -533,7 +532,7 @@ CONTAINS
 
   END SUBROUTINE fdcs_dwb
 
-  SUBROUTINE fdcs_bbk(in_unit,out_unit)
+  MODULE SUBROUTINE fdcs_bbk(in_unit,out_unit)
     USE constants ,ONLY: pi, ev, deg
     USE special_functions ,ONLY: factorial
     USE input ,ONLY: read_input, read_orbit
@@ -599,7 +598,7 @@ CONTAINS
 
   END SUBROUTINE fdcs_bbk
 
-  COMPLEX(RP) FUNCTION U_bbk(alpha1, alpha2, alpha3, k1, k2, k3, lam1, lam2, lam3 &
+  COMPLEX(RP) MODULE FUNCTION U_bbk(alpha1, alpha2, alpha3, k1, k2, k3, lam1, lam2, lam3 &
     , p1, p2)
     USE constants ,ONLY: pi
     USE integration ,ONLY: gauleg
@@ -674,7 +673,7 @@ CONTAINS
 
   END FUNCTION
 
-  SUBROUTINE calculate_chi( km, r, U_tmp, z, x, chi, delta )
+  MODULE SUBROUTINE calculate_chi( km, r, U_tmp, z, x, chi, delta )
     USE utils ,ONLY: ode_second_dw, intrpl
     REAL(RP), INTENT(IN) :: U_tmp(0:), r(0:), x(:), km
     INTEGER, INTENT(IN) :: z
@@ -709,7 +708,7 @@ CONTAINS
 
   END SUBROUTINE calculate_chi
 
-  SUBROUTINE dwb_integrals( chi_0, chi_a, chi_b, sig_0, sig_a, sig_b, wf, x, w, lo &
+  MODULE SUBROUTINE dwb_integrals( chi_0, chi_a, chi_b, sig_0, sig_a, sig_b, wf, x, w, lo &
     , integral )
     USE special_functions ,ONLY: symbol_3j
     REAL(RP), INTENT(IN) :: chi_0(:,0:), chi_a(:,0:), chi_b(:,0:), wf(:)
@@ -795,7 +794,7 @@ CONTAINS
 
   END SUBROUTINE dwb_integrals
 
-  PURE COMPLEX(RP) FUNCTION tpw( n, l, m, e, ke, k)
+  PURE COMPLEX(RP) MODULE FUNCTION tpw( n, l, m, e, ke, k)
     USE constants ,ONLY: pi
     USE trigo ,ONLY: cartez2spher
     USE utils ,ONLY: norm_fac
@@ -829,7 +828,7 @@ CONTAINS
 
   END FUNCTION tpw
 
-  PURE COMPLEX(RP) FUNCTION tcw( n, l, m, e, alpha, ke, k)
+  PURE COMPLEX(RP) MODULE FUNCTION tcw( n, l, m, e, alpha, ke, k)
     USE constants ,ONLY: pi
     USE special_functions ,ONLY: fac
     USE utils ,ONLY: norm_fac
@@ -926,7 +925,7 @@ CONTAINS
 
   END FUNCTION tcw
 
-  PURE COMPLEX(RP) FUNCTION tcw0( n, l, m, e, alpha, ke)
+  PURE COMPLEX(RP) MODULE FUNCTION tcw0( n, l, m, e, alpha, ke)
     USE constants ,ONLY: pi
     USE trigo ,ONLY: cartez2spher
     USE utils ,ONLY: norm_fac
@@ -977,7 +976,7 @@ CONTAINS
 
   END FUNCTION tcw0
 
-  ELEMENTAL COMPLEX(RP) FUNCTION powcc(z1, y2)
+  ELEMENTAL COMPLEX(RP) MODULE FUNCTION powcc(z1, y2)
     COMPLEX(RP), INTENT(IN) :: z1
     REAL(RP), INTENT(IN) :: y2
     REAL(RP) :: theta,zm
@@ -988,4 +987,4 @@ CONTAINS
 
   END FUNCTION powcc
 
-END MODULE fdcs_e2e
+END SUBMODULE fdcs_e2e

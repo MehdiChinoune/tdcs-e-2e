@@ -1,40 +1,38 @@
 MODULE utils
   USE constants, ONLY : RP
   IMPLICIT NONE
-  ! Common Variables
-  !REAL(KIND=RP), PROTECTED :: fac(0:34), lnfac(0:400)
-  REAL(KIND=RP) :: fac(0:34), lnfac(0:400)!, fak(0:400)
-  logical :: fac_called = .false.
 
   INTERFACE
 
-    MODULE SUBROUTINE factorial()
-    END SUBROUTINE factorial
+    ELEMENTAL REAL(RP) MODULE FUNCTION norm_fac(e,n)
+      REAL(RP), INTENT(IN) :: e
+      INTEGER , INTENT(IN) :: n
+    END FUNCTION
 
-    ELEMENTAL REAL(KIND=RP) MODULE FUNCTION norm_fac(e,n)
-      REAL(KIND=RP), INTENT(IN) :: e
-      INTEGER      , INTENT(IN) :: n
-    END FUNCTION norm_fac
-
-    ELEMENTAL REAL(KIND=RP) MODULE FUNCTION y1y2y3(l1,l2,l3,m1,m2,m3)
-      INTEGER,INTENT(IN) :: l1,l2,l3,m1,m2,m3
+    ELEMENTAL REAL(RP) MODULE FUNCTION y1y2y3(l1, l2, l3, m1, m2, m3 )
+      INTEGER, INTENT(IN) :: l1, l2, l3, m1, m2, m3
     END FUNCTION y1y2y3
 
-    MODULE SUBROUTINE ode_second_dw(km,lmax,rc,z,f,s,delta)
+    !> ode_second_dw
+    !!
+    !! This subroutine solve Equation of the form
+    !! s_l''(r) +f_l(r)*s_l(r) = km**2*s_l(r)
+
+    MODULE SUBROUTINE ode_second_dw(km, lmax, rc, z, f, s, delta )
       INTEGER, INTENT(IN) :: lmax, z
-      REAL(KIND=RP), INTENT(IN)  :: f(0:,0:),rc,km
-      REAL(KIND=RP), INTENT(OUT) :: s(0:,0:),delta(0:lmax)
+      REAL(RP), INTENT(IN)  :: f(0:,0:), rc, km
+      REAL(RP), INTENT(OUT) :: s(0:,0:), delta(0:lmax)
     END SUBROUTINE ode_second_dw
 
-    ELEMENTAL REAL(KIND=RP) MODULE FUNCTION Uij(ni, ei, nj, ej, r)
-      REAL(KIND=RP), INTENT(IN) :: ei, ej, r
-      INTEGER      , INTENT(IN) :: ni, nj
+    ELEMENTAL REAL(RP) MODULE FUNCTION Uij(ni, ei, nj, ej, r)
+      REAL(RP), INTENT(IN) :: ei, ej, r
+      INTEGER, INTENT(IN) :: ni, nj
     END FUNCTION Uij
 
     MODULE SUBROUTINE calculate_U(Atom, Orbit, r, U, state )
       CHARACTER(LEN=2), INTENT(IN) :: Atom, Orbit
-      REAL(KIND=RP)   , INTENT(IN) :: r(:)
-      REAL(KIND=RP)   , INTENT(OUT) :: U(:)
+      REAL(RP)   , INTENT(IN) :: r(:)
+      REAL(RP)   , INTENT(OUT) :: U(:)
       INTEGER :: state
     END SUBROUTINE calculate_U
 

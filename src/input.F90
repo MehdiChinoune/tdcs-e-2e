@@ -1,10 +1,9 @@
-MODULE input
-  USE constants ,ONLY: RP
+SUBMODULE(input) input
   IMPLICIT NONE
 
 CONTAINS
 
-  SUBROUTINE read_input(in_unit, Ei, Es, Ee, thetas, step, Atom, Orbit, exchange)
+  MODULE SUBROUTINE read_input(in_unit, Ei, Es, Ee, thetas, step, Atom, Orbit, exchange)
     INTEGER, INTENT(IN) :: in_unit
     REAL(RP), INTENT(OUT) :: Ei, Es, Ee, thetas
     INTEGER, INTENT(OUT) :: step(3)
@@ -20,7 +19,7 @@ CONTAINS
 
   END SUBROUTINE read_input
 
-  SUBROUTINE read_orbit(orbit_file, nelec, lo, no, n, a, e )
+  MODULE SUBROUTINE read_orbit(orbit_file, nelec, lo, no, n, a, e )
     CHARACTER(LEN=5), INTENT(IN)  :: orbit_file
     INTEGER, INTENT(OUT) :: nelec, lo, no
     INTEGER, ALLOCATABLE, INTENT(OUT) :: n(:)
@@ -43,4 +42,4 @@ CONTAINS
 
   END SUBROUTINE read_orbit
 
-END MODULE input
+END SUBMODULE input
