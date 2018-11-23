@@ -1,12 +1,9 @@
-MODULE special_functions
-  USE constants ,ONLY: RP
+SUBMODULE(special_functions) special_functions
   IMPLICIT NONE
-  REAL(RP), PROTECTED :: fac(0:34), lnfac(0:400)
-  LOGICAL, PROTECTED :: fac_called
 
 CONTAINS
 
-  SUBROUTINE factorial()
+  MODULE SUBROUTINE factorial()
     INTEGER :: i
 
     IF(fac_called) RETURN
@@ -42,7 +39,7 @@ CONTAINS
   !     This version is accurate to within 5 in the 14th significant
   !     decimal digit.
   !-----------------------------------------------------------------------
-  ELEMENTAL FUNCTION cgamma(z, mo) RESULT(w)
+  ELEMENTAL MODULE FUNCTION cgamma(z, mo) RESULT(w)
     COMPLEX(RP) :: w
     COMPLEX(RP), INTENT(IN)  :: z
     INTEGER, INTENT(IN),OPTIONAL  :: mo
@@ -287,7 +284,7 @@ CONTAINS
   !> assoc_legendre
   !! Computes the associated Legendre polynomial P_l^m (x). Here m and l are integers
   !! satisfying 0 <= m <= l,  while x lies in the range −1 <= x <= 1.
-  ELEMENTAL REAL(RP) FUNCTION assoc_legendre(l,m,x)
+  ELEMENTAL REAL(RP) MODULE FUNCTION assoc_legendre(l,m,x)
     USE ieee_arithmetic ,only: ieee_is_finite
     INTEGER, INTENT(IN) :: l, m
     REAL(RP), INTENT(IN) :: x
@@ -327,7 +324,7 @@ CONTAINS
     RETURN
   END FUNCTION assoc_legendre
 
-  ELEMENTAL COMPLEX(RP) FUNCTION spherical_harmonic( l, m, theta, phi )
+  ELEMENTAL COMPLEX(RP) MODULE FUNCTION spherical_harmonic( l, m, theta, phi )
     use constants ,only: pi
     INTEGER, INTENT(IN) :: l, m
     REAL(RP), INTENT(IN) :: theta, phi
@@ -419,7 +416,7 @@ CONTAINS
   !!  AUTHOR: A. R. BARNETT      MANCHESTER  MARCH   1981
   !!                             AUCKLAND    MARCH   1991
   !!----------------------------------------------------------------------
-  PURE SUBROUTINE coul90(x, eta, lmin, lrange, fc, gc, fcp, gcp, kfn, ifail )
+  PURE MODULE SUBROUTINE coul90(x, eta, lmin, lrange, fc, gc, fcp, gcp, kfn, ifail )
     INTEGER, INTENT(IN)  :: lmin, lrange, kfn
     INTEGER, INTENT(OUT), OPTIONAL :: ifail
     REAL(RP), INTENT(IN) :: x, eta
@@ -747,7 +744,7 @@ CONTAINS
   !!   AUTHOR :   A.R.BARNETT      MANCHESTER    12 MARCH 1990.
   !!                               AUCKLAND      12 MARCH 1991.
   !!---------------------------------------------------------------------
-  PURE SUBROUTINE ricbes( x, lmax, psi, chi, psid, chid, ifail )
+  PURE MODULE SUBROUTINE ricbes( x, lmax, psi, chi, psid, chid, ifail )
     REAL(RP), INTENT(IN) :: x
     INTEGER, INTENT(IN) :: lmax
     INTEGER, INTENT(INOUT), OPTIONAL :: ifail
@@ -846,7 +843,7 @@ CONTAINS
     RETURN
   END SUBROUTINE ricbes
 
-  ELEMENTAL REAL(RP) FUNCTION symbol_3j(l1, l2, l3, m1, m2, m3)
+  ELEMENTAL REAL(RP) MODULE FUNCTION symbol_3j(l1, l2, l3, m1, m2, m3)
     INTEGER, INTENT(IN) :: l1, l2, l3, m1, m2, m3
 
     REAL(RP) :: s, cst
@@ -879,7 +876,7 @@ CONTAINS
   !! and (a and z) are pure imaginary
   !! @param[in] a the imaginary part of the original A
   !! @param[in] z the imaginary part of the original Z
-  ELEMENTAL COMPLEX(RP) FUNCTION conhyp_opt(a,z)
+  ELEMENTAL COMPLEX(RP) MODULE FUNCTION conhyp_opt(a,z)
     REAL(RP), INTENT(IN) :: a, z
     INTEGER :: i
     COMPLEX(RP) :: u
@@ -895,4 +892,4 @@ CONTAINS
     RETURN
   END FUNCTION conhyp_opt
 
-END MODULE special_functions
+END SUBMODULE special_functions

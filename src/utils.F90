@@ -1,10 +1,9 @@
-MODULE utils
-  USE constants ,ONLY: RP
+SUBMODULE(utils) utils
   IMPLICIT NONE
 
 CONTAINS
 
-  ELEMENTAL REAL(RP) FUNCTION norm_fac(e,n)
+  ELEMENTAL REAL(RP) MODULE FUNCTION norm_fac(e,n)
     USE special_functions ,ONLY: fac
     REAL(RP), INTENT(IN) :: e
     INTEGER , INTENT(IN) :: n
@@ -13,7 +12,7 @@ CONTAINS
 
   END FUNCTION
 
-  ELEMENTAL REAL(RP) FUNCTION y1y2y3(l1, l2, l3, m1, m2, m3 )
+  ELEMENTAL REAL(RP) MODULE FUNCTION y1y2y3(l1, l2, l3, m1, m2, m3 )
     USE constants ,ONLY: pi
     !USE ieee_arithmetic ,ONLY: ieee_is_nan, ieee_is_finite
     USE special_functions ,ONLY: lnfac!, fac_called
@@ -60,7 +59,7 @@ CONTAINS
   !! This subroutine solve Equation of the form
   !! s_l''(r) +f_l(r)*s_l(r) = km**2*s_l(r)
 
-  SUBROUTINE ode_second_dw(km, lmax, rc, z, f, s, delta )
+  MODULE SUBROUTINE ode_second_dw(km, lmax, rc, z, f, s, delta )
     USE special_functions ,ONLY: coul90, ricbes
     INTEGER, INTENT(IN) :: lmax, z
     REAL(RP), INTENT(IN)  :: f(0:,0:), rc, km
@@ -123,7 +122,7 @@ CONTAINS
 
   END FUNCTION Uij
 
-  SUBROUTINE calculate_U(Atom, Orbit, r, U, state )
+  MODULE SUBROUTINE calculate_U(Atom, Orbit, r, U, state )
     USE input ,ONLY: read_orbit
     CHARACTER(LEN=2), INTENT(IN) :: Atom, Orbit
     REAL(RP)   , INTENT(IN) :: r(:)
@@ -164,7 +163,7 @@ CONTAINS
 
   END SUBROUTINE calculate_U
 
-  PURE SUBROUTINE INTRPL(X, Y, U, V )
+  PURE MODULE SUBROUTINE INTRPL(X, Y, U, V )
     USE CONSTANTS ,ONLY: RP
     IMPLICIT NONE
     REAL(RP), INTENT(IN) :: X(:), Y(:), U(:)
@@ -343,4 +342,4 @@ CONTAINS
     RETURN
   END SUBROUTINE INTRPL
 
-END MODULE utils
+END SUBMODULE utils

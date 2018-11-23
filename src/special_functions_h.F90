@@ -1,37 +1,43 @@
 MODULE special_functions
-  USE constants, ONLY : RP
+  USE constants ,ONLY: RP
   IMPLICIT NONE
+!  REAL(RP), PROTECTED :: fac(0:34), lnfac(0:400) !bug with Flang and Intel Compilers
+  REAL(RP) :: fac(0:34), lnfac(0:400)
+  LOGICAL, PROTECTED :: fac_called
 
   INTERFACE
 
-    ELEMENTAL MODULE FUNCTION cgamma( z, mo ) RESULT(w)
-      COMPLEX(KIND=RP) :: w
-      COMPLEX(KIND=RP), INTENT(IN)  :: z
-      INTEGER,OPTIONAL, INTENT(IN)  :: MO
+    MODULE SUBROUTINE factorial()
+    END SUBROUTINE
+
+    ELEMENTAL MODULE FUNCTION cgamma(z, mo) RESULT(w)
+      COMPLEX(RP) :: w
+      COMPLEX(RP), INTENT(IN)  :: z
+      INTEGER, INTENT(IN),OPTIONAL  :: mo
     END FUNCTION cgamma
 
-    ELEMENTAL REAL(KIND=RP) MODULE FUNCTION assoc_legendre( l, m, x )
-      INTEGER      , INTENT(IN) :: l, m
-      REAL(KIND=RP), INTENT(IN) :: x
+    ELEMENTAL REAL(RP) MODULE FUNCTION assoc_legendre(l,m,x)
+      INTEGER, INTENT(IN) :: l, m
+      REAL(RP), INTENT(IN) :: x
     END FUNCTION assoc_legendre
 
-    ELEMENTAL COMPLEX(KIND=RP) MODULE FUNCTION spherical_harmonic( l, m, theta, phi )
-      INTEGER      , INTENT(IN) :: l, m
-      REAL(KIND=RP), INTENT(IN) :: theta, phi
+    ELEMENTAL COMPLEX(RP) MODULE FUNCTION spherical_harmonic( l, m, theta, phi )
+      INTEGER, INTENT(IN) :: l, m
+      REAL(RP), INTENT(IN) :: theta, phi
     END FUNCTION spherical_harmonic
 
     PURE MODULE SUBROUTINE coul90(x, eta, lmin, lrange, fc, gc, fcp, gcp, kfn, ifail )
-      INTEGER      , INTENT(IN)  :: lmin,lrange, kfn
-      INTEGER      , INTENT(OUT), OPTIONAL :: ifail
-      REAL(KIND=RP), INTENT(IN)  :: x,eta
-      REAL(KIND=RP), INTENT(OUT),DIMENSION(lmin:lmin+lrange) :: fc,  gc,  fcp, gcp
+      INTEGER, INTENT(IN)  :: lmin, lrange, kfn
+      INTEGER, INTENT(OUT), OPTIONAL :: ifail
+      REAL(RP), INTENT(IN) :: x, eta
+      REAL(RP), INTENT(OUT), DIMENSION(lmin:lmin+lrange) :: fc,  gc,  fcp, gcp
     END SUBROUTINE coul90
 
     PURE MODULE SUBROUTINE ricbes( x, lmax, psi, chi, psid, chid, ifail )
-      REAL(KIND=RP), INTENT(IN)    :: x
-      INTEGER      , INTENT(IN)    :: lmax
-      INTEGER      , INTENT(INOUT), OPTIONAL :: ifail
-      REAL(KIND=RP), INTENT(OUT), DIMENSION(0:lmax)   :: psi, chi, psid, chid
+      REAL(RP), INTENT(IN) :: x
+      INTEGER, INTENT(IN) :: lmax
+      INTEGER, INTENT(INOUT), OPTIONAL :: ifail
+      REAL(RP), INTENT(OUT) :: psi(0:lmax), chi(0:lmax), psid(0:lmax), chid(0:lmax)
     END SUBROUTINE ricbes
 
     ELEMENTAL REAL(RP) MODULE FUNCTION symbol_3j(l1, l2, l3, m1, m2, m3)

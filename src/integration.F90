@@ -1,4 +1,4 @@
-MODULE integration
+SUBMODULE(integration) integration
   USE constants ,ONLY: RP
   IMPLICIT NONE
 
@@ -28,7 +28,7 @@ CONTAINS
   !    Output, real ( kind = 8 ) X(n), the abscissas.
   !    Output, real ( kind = 8 ) W(n), the weights.
 
-  SUBROUTINE clenshaw_curtis( a, b, x, w, n )
+  MODULE SUBROUTINE clenshaw_curtis( a, b, x, w, n )
     USE constants ,ONLY: pi
     REAL(RP), INTENT(IN) :: a, b
     INTEGER, INTENT(IN) :: n
@@ -76,11 +76,11 @@ CONTAINS
 
   END SUBROUTINE clenshaw_curtis
 
-  PURE SUBROUTINE gauleg(a,b,x,w,n)
+  PURE MODULE SUBROUTINE gauleg(a,b,x,w,n)
     use constants ,only: pi
     INTEGER, INTENT(IN) :: n
-    REAL(rp), INTENT(IN) :: a,b
-    REAL(rp), INTENT(OUT), ALLOCATABLE :: x(:),w(:)
+    REAL(RP), INTENT(IN) :: a,b
+    REAL(RP), INTENT(OUT), ALLOCATABLE :: x(:),w(:)
     INTEGER :: i
 
     ALLOCATE(x(n),w(n))
@@ -99,13 +99,13 @@ CONTAINS
 
   END SUBROUTINE gauleg
 
-  PURE SUBROUTINE pd(sx,sw,n)
+  PURE MODULE SUBROUTINE pd(sx,sw,n)
     INTEGER, INTENT(IN) :: n
-    REAL(rp), INTENT(OUT), CONTIGUOUS :: sw(:)
-    REAL(rp), INTENT(INOUT), CONTIGUOUS :: sx(:)
+    REAL(RP), INTENT(OUT), CONTIGUOUS :: sw(:)
+    REAL(RP), INTENT(INOUT), CONTIGUOUS :: sx(:)
 
     REAL(RP),PARAMETER :: eps = EPSILON(eps)
-    REAL(rp), DIMENSION((n+1)/2) :: dp0,dp1,dp2,dp
+    REAL(RP), DIMENSION((n+1)/2) :: dp0,dp1,dp2,dp
     INTEGER :: i
 
     dp2 = 0._RP
@@ -125,4 +125,4 @@ CONTAINS
     sw = 2._RP/((1._RP-sx**2)*dp**2)
   END SUBROUTINE pd
 
-END MODULE integration
+END SUBMODULE integration

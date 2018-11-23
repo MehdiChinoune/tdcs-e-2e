@@ -1,5 +1,5 @@
 MODULE conhyp_m
-  USE constants ,ONLY: RP
+  USE constants, ONLY: RP
   IMPLICIT NONE
 
   INTERFACE
