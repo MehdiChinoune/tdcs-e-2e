@@ -10,17 +10,17 @@ endif()
 if ( "${CMAKE_Fortran_COMPILER_ID}" MATCHES "GNU" )
 
   set( CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS} -Wall -O3" )
-  set( CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS} -Wall -g -fcheck=bounds" )
+  set( CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS} -std=f2018 -Wall -fcheck=all -g" )
   
-elseif ( "${CMAKE_Fortran_COMPILER_ID}" MATCHES "INTEL" )
+elseif ( "${CMAKE_Fortran_COMPILER_ID}" MATCHES "Intel" )
 
-  set( CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS} -warn all -Ofast -ipo -xHost" )
+  set( CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS} -warn all -O3 -xHost" )
   set( CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS} -warn all -g" )
   
-elseif ( "${CMAKE_Fortran_COMPILER_ID}" MATCHES "FLANG" )
+elseif ( "${CMAKE_Fortran_COMPILER_ID}" MATCHES "Flang" )
 
-  set( CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS} -Wall -Mstandard -Mallocatable=03 -O3" )
-  set( CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS} -Wall -Mstandard -Mallocatable=03 -g" )
+  set( CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS} -Wall -Mstandard -O3" )
+  set( CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS} -Wall -Mstandard -g" )
   
 elseif ( "${CMAKE_Fortran_COMPILER_ID}" MATCHES "PGI" )
 
