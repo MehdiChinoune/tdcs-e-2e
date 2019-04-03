@@ -1,5 +1,6 @@
 SUBMODULE(conhyp_m) conhyp_m
   IMPLICIT NONE
+  REAL(RP) ::  Y
 
 CONTAINS
   !      ALGORITHM 707, COLLECTED ALGORITHMS FROM ACM.
@@ -144,8 +145,6 @@ CONTAINS
   !***********************************************************
   REAL(RP) FUNCTION STORE(X)
     REAL(RP), INTENT(IN) ::  X
-    REAL(RP) ::  Y
-    COMMON/STCOM/Y
     Y = X
     STORE = Y
     RETURN
