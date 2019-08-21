@@ -1,9 +1,8 @@
 MODULE special_functions
   USE constants ,ONLY: RP
   IMPLICIT NONE
-!  REAL(RP), PROTECTED :: fac(0:34), lnfac(0:400) !bug with Flang and Intel Compilers
-  REAL(RP) :: fac(0:34), lnfac(0:400)
-  LOGICAL, PROTECTED :: fac_called
+  REAL(RP), PROTECTED :: fac(0:34), lnfac(0:400)
+  LOGICAL, PROTECTED :: fac_called = .FALSE.
 
   INTERFACE
 

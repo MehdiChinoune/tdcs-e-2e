@@ -9,7 +9,7 @@ MODULE trigo
 
     PURE REAL(RP) MODULE FUNCTION nrm2(a)
       REAL(RP), INTENT(IN) :: a(:)
-     END FUNCTION
+    END FUNCTION
 
     PURE MODULE SUBROUTINE spher2cartez( km, theta, phi, k )
       REAL(KIND=RP), INTENT(IN)  :: km, phi, theta
