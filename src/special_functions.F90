@@ -319,7 +319,7 @@ CONTAINS
       END DO
       assoc_legendre = pmm
     ENDIF
-    if( .not. ieee_is_finite(pmm) ) assoc_legendre = huge(1._RP)
+    IF( .NOT. ieee_is_finite(pmm) ) assoc_legendre = huge(1._RP)
 
     RETURN
   END FUNCTION assoc_legendre
@@ -335,16 +335,22 @@ CONTAINS
     !  &y_l^m(\theta,\phi)'
 
     ma = ABS(m)
-    if( (lnfac(l-ma)-lnfac(l+ma))<2*Tinye ) then
+    IF( (lnfac(l-ma)-lnfac(l+ma))<2*Tinye ) THEN
       spherical_harmonic = (0._RP, 0._RP)
-      return
-    end if
+      RETURN
+    ELSEIF( l==0 .AND. m==0 ) THEN
+      spherical_harmonic = 1._RP/SQRT(4._RP*pi)
+      RETURN
+    ELSEIF( m==0 ) THEN
+      spherical_harmonic = SQRT( (2.*l+1._RP)/(4.*pi) ) *assoc_legendre(l, 0, COS(theta) )
+      RETURN
+    END IF
 
     spherical_harmonic = EXP( 0.5*( lnfac(l-ma) -lnfac(l+ma) ) ) &
       *SQRT( (2.*l+1._RP)/(4.*pi) ) *CMPLX( COS(m*phi), SIN(m*phi), KIND=RP ) &
       *assoc_legendre(l, ma, COS(theta) )
-    IF( mod(m,2)>0 ) spherical_harmonic = -spherical_harmonic
-    IF( modulo(theta,2*pi)>pi .and. mod(m,2)/=0 ) spherical_harmonic = -spherical_harmonic
+    IF( MOD(m,2)>0 ) spherical_harmonic = -spherical_harmonic
+    IF( MODULO(theta,2*pi)>pi .AND. MOD(m,2)/=0 ) spherical_harmonic = -spherical_harmonic
 
   END FUNCTION spherical_harmonic
 

@@ -9,14 +9,16 @@ CONTAINS
     INTEGER, INTENT(OUT) :: step(3)
     INTEGER, OPTIONAL, INTENT(OUT) :: exchange
     CHARACTER(LEN=2), INTENT(OUT) :: Atom, Orbit
-
+    !
     READ( in_unit, * ) Atom
     READ( in_unit, * ) Orbit
     READ( in_unit, * ) Ei, Es, Ee
     READ( in_unit, * ) thetas
     READ( in_unit, * ) step
     READ( in_unit, * ) exchange
-
+    ! Rewind, to use it more than once.
+    REWIND( in_unit )
+    !
   END SUBROUTINE read_input
 
   MODULE SUBROUTINE read_orbit(orbit_file, nelec, lo, no, n, a, e )
