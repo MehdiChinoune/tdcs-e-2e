@@ -6,7 +6,7 @@ CONTAINS
     USE constants ,ONLY: pi, ev, deg
     USE special_functions ,ONLY: factorial
     USE input ,ONLY: read_input, read_orbit
-    USE trigo ,ONLY: spher2cartez, nrm2
+    USE trigo ,ONLY: spher2cartez
 
     INTEGER, INTENT(IN) :: in_unit
     INTEGER, INTENT(IN) :: out_unit
@@ -44,7 +44,7 @@ CONTAINS
     CALL spher2cartez( kim, 0._RP, 0._RP, ki )
     CALL spher2cartez( ksm, thetas*deg, pi, ks )
     k = ki -ks
-    km = nrm2(k)
+    km = NORM2(k)
 
     factor = nelec*4._RP*ksm*kem/(kim)
 
@@ -54,7 +54,7 @@ CONTAINS
 
       IF(exchange==1) THEN
         k2 = ki -ke
-        k2m = nrm2(k2)
+        k2m = NORM2(k2)
       END IF
 
       sigma = 0._RP
@@ -91,7 +91,7 @@ CONTAINS
 
   MODULE SUBROUTINE fdcs_fba_cw(in_unit,out_unit)
     USE constants ,ONLY: ev, deg, pi
-    USE trigo ,ONLY: spher2cartez, nrm2
+    USE trigo ,ONLY: spher2cartez
     USE special_functions ,ONLY: factorial
     USE input ,ONLY: read_input, read_orbit
     INTEGER, INTENT(IN) :: in_unit
@@ -130,7 +130,7 @@ CONTAINS
     CALL spher2cartez( kim, 0._RP, 0._RP, ki )
     CALL spher2cartez( ksm, thetas*deg, pi, ks )
     k = ki -ks
-    km = nrm2(k)
+    km = NORM2(k)
 
     factor = nelec*4._RP*ksm*kem / (kim*km**4)
     !\abs{ \exp{\pi\alpha/2}*\Gamma(1-i\alpha) }^2
@@ -165,7 +165,7 @@ CONTAINS
       !, coul90, symbol_3j
     USE utils ,ONLY: norm_fac, y1y2y3, calculate_U, ode_second_dw
     USE input ,ONLY: read_input, read_orbit
-    USE trigo ,ONLY: spher2cartez, cartez2spher, nrm2
+    USE trigo ,ONLY: spher2cartez, cartez2spher
 
     INTEGER, INTENT(IN) :: in_unit
     INTEGER, INTENT(IN) :: out_unit
@@ -321,7 +321,7 @@ CONTAINS
     USE special_functions ,ONLY: spherical_harmonic, cgamma, factorial
     USE utils ,ONLY: norm_fac, calculate_U
     USE input ,ONLY: read_input, read_orbit
-    USE trigo ,ONLY: spher2cartez, nrm2
+    USE trigo ,ONLY: spher2cartez
     USE integration ,ONLY: gauleg
 
     INTEGER, INTENT(IN) :: in_unit
@@ -536,7 +536,7 @@ CONTAINS
     USE constants ,ONLY: pi, ev, deg
     USE special_functions ,ONLY: factorial
     USE input ,ONLY: read_input, read_orbit
-    USE trigo ,ONLY: spher2cartez, nrm2
+    USE trigo ,ONLY: spher2cartez
 
     INTEGER, INTENT(IN) :: in_unit
     INTEGER, INTENT(IN) :: out_unit
@@ -571,7 +571,7 @@ CONTAINS
     CALL spher2cartez( kim, 0._RP, 0._RP, ki )
     CALL spher2cartez( ksm, thetas*deg, pi, ks )
     k = ki -ks
-    km = nrm2(k)
+    km = NORM2(k)
 
     factor = nelec*4._RP*ksm*kem/(kim)
 
@@ -602,7 +602,6 @@ CONTAINS
     , p1, p2)
     USE constants ,ONLY: pi
     USE integration ,ONLY: gauleg
-    USE trigo ,ONLY: nrm2
 
     REAL(RP), INTENT(IN) :: alpha1, alpha2, alpha3
     REAL(RP), INTENT(IN) :: k1(3), k2(3), k3(3)
@@ -624,9 +623,9 @@ CONTAINS
 
     U_bbk = ( 0._RP, 0._RP)
 
-    k1m = nrm2(k1)
-    k2m = nrm2(k2)
-    k3m = nrm2(k3)
+    k1m = NORM2(k1)
+    k2m = NORM2(k2)
+    k3m = NORM2(k3)
 
     CALL gauleg(-10._RP, 10._RP, y, wy, 64)
     ALLOCATE( t3(SIZE(y)) )
@@ -638,13 +637,13 @@ CONTAINS
     DO i = 1,64
       p11 = p1 -t3(i)*k3
       q1 = k1 +p11
-      q1m = nrm2(q1)
+      q1m = NORM2(q1)
       p22 = p2 -t3(i)*k3
       q2 = k2 +p22
-      q2m = nrm2(q2)
+      q2m = NORM2(q2)
       lam33 = CMPLX(lam3, -t3(i)*k3m, RP )
 
-      sig0_a = [ CMPLX( (lam1+lam2)**2+nrm2(q1-q2)**2, 0._RP, RP) &
+      sig0_a = [ CMPLX( (lam1+lam2)**2+NORM2(q1-q2)**2, 0._RP, RP) &
         , 2*(lam2*(lam1**2+lam33**2+q1m**2) +lam1*(lam2**2+lam33**2+q2m**2) ) &
         , ( (lam1+lam33)**2+q1m**2)*((lam2+lam33)**2+q2m**2) ]
       sig1_a = -2*[ DOT_PRODUCT(q1-q2,k1) +zi*(lam1+lam2)*k1m &
@@ -832,7 +831,6 @@ CONTAINS
     USE constants ,ONLY: pi
     USE special_functions ,ONLY: fac
     USE utils ,ONLY: norm_fac
-    USE trigo ,ONLY: nrm2
 
     INTEGER, INTENT(IN) :: n, l, m
     REAL(RP), INTENT(IN) :: e, alpha, ke(3), k(3)
@@ -845,9 +843,9 @@ CONTAINS
     INTEGER :: j, j1, ma, m1, s, s1, s2, s3
 
     ma = ABS(m)
-    kem = nrm2(ke)
+    kem = NORM2(ke)
     ke_t = -ke
-    km = nrm2(k)
+    km = NORM2(k)
     IF( m>=0 ) THEN
       kp = CMPLX( k(1), k(2), KIND=RP )
       kep = CMPLX( ke_t(1), ke_t(2), KIND=RP )
@@ -859,8 +857,8 @@ CONTAINS
     alphac = CMPLX( 0._RP, alpha, KIND=RP) ! i*\alpha
     kec    = CMPLX( 0._RP, kem  , KIND=RP) ! i*ke
     ekec   = CMPLX( e    , -kem , KIND=RP) ! (\epsilon-ike)
-    a      = nrm2(k+ke_t)**2 +e**2
-    w      = CMPLX( nrm2(k+ke_t)**2 -km**2 +kem**2   , 2.*e*kem , KIND=RP) /a ! w = b/a
+    a      = NORM2(k+ke_t)**2 +e**2
+    w      = CMPLX( NORM2(k+ke_t)**2 -km**2 +kem**2   , 2.*e*kem , KIND=RP) /a ! w = b/a
     w1m    = CMPLX( e**2 +km**2 -kem**2, -2.*e*kem, KIND=RP) /a ! (1-w)
 
     gam(0) = 1._RP

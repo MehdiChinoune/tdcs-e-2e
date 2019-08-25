@@ -6,15 +6,6 @@ SUBMODULE(trigo) trigo
 
 CONTAINS
 
-  PURE REAL(RP) MODULE FUNCTION nrm2(a)
-    REAL(RP), INTENT(IN) :: a(:)
-#if defined(__FLANG) || defined(__PGI)
-    nrm2 = SQRT( SUM(ABS(a)**2) )
-#else
-    nrm2 = NORM2(a)
-#endif
-  END FUNCTION
-
   PURE MODULE SUBROUTINE spher2cartez( km, theta, phi, k )
     REAL(RP), INTENT(IN)  :: km, phi, theta
     REAL(RP), INTENT(OUT) :: k(3)
@@ -24,7 +15,7 @@ CONTAINS
   PURE MODULE SUBROUTINE cartez2spher( k, km, theta, phi )
     REAL(RP), INTENT(IN)  :: k(3)
     REAL(RP), INTENT(OUT) :: km, theta, phi
-    km = nrm2(k)
+    km = NORM2(k)
     theta = ACOS( k(3)/km )
     phi = ATAN2( k(2), k(1) )
   END SUBROUTINE cartez2spher
