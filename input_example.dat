@@ -1,6 +1,6 @@
-Ne                       # atom
-2p                       # orbit
-595.6 500. 74.             # Ei Es Ee
+Hy                       # atom
+1s                       # orbit
+587.6 500. 74.           # Ei Es Ee
 6.                       # Thetas
 0 360 5                  # step(3)
 0                        # exchange
