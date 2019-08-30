@@ -39,7 +39,6 @@ add_subdirectory(src)
 
 file(COPY Data DESTINATION ./ )
 file(COPY input_example.dat DESTINATION ./ )
-file(RENAME ${CMAKE_BINARY_DIR}/input_example.dat ${CMAKE_BINARY_DIR}/input.dat )
 
 enable_testing()
 add_subdirectory(test)
