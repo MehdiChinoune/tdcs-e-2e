@@ -42,7 +42,7 @@ CONTAINS
   ELEMENTAL MODULE FUNCTION cgamma(z, mo) RESULT(w)
     COMPLEX(RP) :: w
     COMPLEX(RP), INTENT(IN)  :: z
-    INTEGER, INTENT(IN),OPTIONAL  :: mo
+    INTEGER, INTENT(IN) :: mo
 
     ! Local variables
     COMPLEX(RP) :: eta, eta2, sum_
@@ -71,6 +71,14 @@ CONTAINS
     !---------------------------
     x = REAL(z, KIND=RP)
     y = AIMAG(z)
+    IF( y==0._RP ) THEN
+      IF( mo==0 ) THEN
+        w = CMPLX( gamma(x), 0._RP, RP )
+      ELSE
+        w = CMPLX( log_gamma(x), 0._RP, RP )
+      END IF
+      RETURN
+    END IF
     !IF( ABS(x)>=MIN( REAL(MAX,RP), 1._RP/eps ) ) THEN! GO TO 70
     w = CMPLX(0.,0.,RP)
 
