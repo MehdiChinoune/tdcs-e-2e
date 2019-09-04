@@ -1,5 +1,5 @@
 
-
+option( OpenMP "Enable OpenMP" OFF )
 if( OpenMP )
   find_package( OpenMP )
   if( OpenMP_Fortran_FOUND )
@@ -7,6 +7,11 @@ if( OpenMP )
   elseif( MINGW )
     set( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fopenmp" )
   endif()
+endif()
+
+option( Profiling "Enable profiling with gprof" OFF )
+if( Profiling )
+  set( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -p" )
 endif()
 
 set( CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/modules )
