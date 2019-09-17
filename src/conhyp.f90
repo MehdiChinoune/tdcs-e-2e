@@ -3,8 +3,9 @@
   !      VOL. 18, NO. 3, SEPTEMBER, 1992, PP. 345-349.
 SUBMODULE(conhyp_m) conhyp_m
   IMPLICIT NONE
-  INTEGER, PARAMETER :: RP = SELECTED_REAL_KIND(15)
   INTEGER, PARAMETER :: length = 777, bits = DIGITS(1._RP) + 1
+  INTEGER, PARAMETER :: min_exp = MAX( MINEXPONENT(1._RP), -74 )
+  INTEGER, PARAMETER :: max_exp = MIN( MAXEXPONENT(1._RP), 74 )
   REAL(RP), PARAMETER :: pi = ACOS(-1._RP)
   !
 CONTAINS
@@ -28,13 +29,14 @@ CONTAINS
   !     *    magnitudes using a direct summation of the Kummer series. *
   !     *    The method used allows an accuracy of up to thirteen      *
   !     *    decimal places through the use of large real arrays       *
-  !     *    and a single final division.  LNCHF is a variable which   *
-  !     *    selects how the result should be represented.  A '0' will *
-  !     *    return the value in standard exponential form.  A '1'     *
-  !     *    will return the LOG of the result.  IP is an integer      *
-  !     *    variable that specifies how many array positions are      *
-  !     *    desired (usually 10 is sufficient).  Setting IP=0 causes  *
-  !     *    the program to estimate the number of array positions.    *
+  !     *    and a single final division.
+  !     *    LNCHF is a variable which selects how the result should   *
+  !     *    be represented. A '0' will return the value in standard   *
+  !     *    exponential form. A '1' will return the LOG of the result.*
+  !     *    IP is an integer variable that specifies how many array   *
+  !     *    positions are desired (usually 10 is sufficient).         *
+  !     *    Setting IP=0 causes the program to estimate the number of *
+  !     *    array positions.
   !     *                                                              *
   !     *    The confluent hypergeometric function is the solution to  *
   !     *    the differential equation:                                *
@@ -669,10 +671,10 @@ CONTAINS
       n1 = ce(1,1)
       e1 = ce(1,2) - ce(2,2)
       x2 = ce(2,1)
-      IF ( e1>74._RP ) THEN
-        x1 = 1.E75_RP
-      ELSE IF ( e1<-74._RP ) THEN
-        x1 = 0
+      IF ( e1>max_exp ) THEN
+        x1 = 1._RP * 10._RP**max_exp
+      ELSE IF ( e1<min_exp ) THEN
+        x1 = 0._RP
       ELSE
         x1 = n1*(10**e1)
       END IF
@@ -848,10 +850,13 @@ CONTAINS
     REAL(RP), INTENT(IN) :: Cae(2,2)
     COMPLEX(RP), INTENT(OUT) :: Cn
     !
-    IF ( Cae(1,2)>75 .OR. Cae(2,2)>75 ) THEN
-      Cn = CMPLX(1.E75_RP,1.E75_RP,RP)
-    ELSE IF ( Cae(2,2)<-75 ) THEN
-      Cn = CMPLX(Cae(1,1)*(10**Cae(1,2)),0D0,RP)
+    REAL(RP) :: a
+    !
+    IF ( Cae(1,2)>max_exp .OR. Cae(2,2)>max_exp ) THEN
+      a = 10._RP**max_exp
+      Cn = CMPLX( a, a, RP )
+    ELSE IF ( Cae(2,2)<min_exp ) THEN
+      Cn = CMPLX(Cae(1,1)*(10**Cae(1,2)),0._RP,RP)
     ELSE
       Cn = CMPLX(Cae(1,1)*(10**Cae(1,2)),Cae(2,1)*(10**Cae(2,2)),RP)
     END IF

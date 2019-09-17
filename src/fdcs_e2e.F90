@@ -46,8 +46,9 @@ CONTAINS
     k = ki -ks
     km = NORM2(k)
 
-    factor = nelec*4._RP*ksm*kem/(kim)
+    factor = nelec*4._RP*ksm*kem/kim
 
+    WRITE( out_unit, * ) "Theta TDCS_PW"
     DO i = step(1), step(2), step(3)
 
       CALL spher2cartez( kem, i*deg, phie, ke )
@@ -136,6 +137,8 @@ CONTAINS
     !\abs{ \exp{\pi\alpha/2}*\Gamma(1-i\alpha) }^2
     if(ze/=0) factor = factor*2.*pi*alpha/(1._RP-EXP(-2.*pi*alpha))
 
+
+    WRITE( out_unit, * ) "Theta TDCS_CW"
     DO i = step(1),step(2),step(3)
 
       CALL spher2cartez( kem, i*deg, phie, ke )
@@ -278,6 +281,8 @@ CONTAINS
     term0 = zi**(-lo)*EXP( CMPLX(0._RP, -(sigma_le(lo)+delta(lo)), KIND=RP ) ) &
       *0.5*h*SUM( wf(1:np)*chi_b(1:np,lo) +wf(0:np-1)*chi_b(0:np-1,lo) )
 
+
+    WRITE( out_unit, * ) "Theta TDCS_DW"
     DO i = step(1), step(2), step(3)
 
       CALL spher2cartez( kem, i*deg, phie, ke )
@@ -471,6 +476,8 @@ CONTAINS
       END DO
     END DO
 !!$OMP PARALLEL DO PRIVATE(sigma, mo, termd, termx, le, ls, me)
+
+    WRITE( out_unit, * ) "Theta TDCS_DWBA"
     DO i = step(1), step(2), step(3)
 
       sigma = 0._RP

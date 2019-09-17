@@ -888,17 +888,19 @@ CONTAINS
   !!
   !> Optimized Confulent Hypergeometric Function when b = 1.
   !! and (a and z) are pure imaginary
-  !! @param[in] a the imaginary part of the original A
-  !! @param[in] z the imaginary part of the original Z
-  ELEMENTAL COMPLEX(RP) MODULE FUNCTION conhyp_opt(a,z)
-    REAL(RP), INTENT(IN) :: a, z
+  !! @param[in] ai the imaginary part of the original A
+  !! @param[in] zi the imaginary part of the original Z
+  ELEMENTAL COMPLEX(RP) MODULE FUNCTION conhyp_opt(ai,zi)
+    REAL(RP), INTENT(IN) :: ai, zi
     INTEGER :: i
     COMPLEX(RP) :: u
 
+    conhyp_opt = (1._RP,0._RP)
+    IF( zi==0._RP ) RETURN
+    !
     u = (1._RP, 0._RP)
-    conhyp_opt = u !(1._RP, 0._RP)
     DO i = 1,512
-      u = (z/i**2)*CMPLX( -a, (i-1), RP )*u
+      u = (zi/i**2)*CMPLX( -ai, (i-1), RP )*u
       conhyp_opt = conhyp_opt +u
       IF( ABS(u/conhyp_opt)<=EPSILON(1._RP) ) EXIT
     END DO

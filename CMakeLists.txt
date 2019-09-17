@@ -9,7 +9,7 @@ endif()
 
 if ( "${CMAKE_Fortran_COMPILER_ID}" MATCHES "GNU" )
 
-  set( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -Wall -Wimplicit-procedure -Wunused-parameter -Wunused-but-set-parameter -Wunused-but-set-variable -std=f2018" )
+  set( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -Wall -Wimplicit-procedure -Wunused-parameter -std=f2018" )
   set( CMAKE_Fortran_FLAGS_FAST "-Ofast -flto" )
   set( CMAKE_Fortran_FLAGS_RELEASE "-O3 -flto" )
   set( CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -fcheck=all -ffpe-trap=zero,overflow,invalid -fbacktrace" )
@@ -21,15 +21,10 @@ elseif ( "${CMAKE_Fortran_COMPILER_ID}" MATCHES "Intel" )
   set( CMAKE_Fortran_FLAGS_RELEASE "-O3 -ipo" )
   set( CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -check all -fpe-all=0 -traceback" )
 
-elseif ( "${CMAKE_Fortran_COMPILER_ID}" MATCHES "Flang" )
+else ()
 
-  set( CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS} -Wall -Mstandard -O3" )
-  set( CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS} -Wall -Mstandard -g" )
-
-elseif ( "${CMAKE_Fortran_COMPILER_ID}" MATCHES "PGI" )
-
-  set( CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS} -Mstandard -Mallocatable=03 -fast" )
-  set( CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS} -Mstandard -Mallocatable=03 -g" )
+  set( CMAKE_Fortran_FLAGS_RELEASE "-O3" )
+  set( CMAKE_Fortran_FLAGS_DEBUG "-O0 -g" )
 
 endif ()
 

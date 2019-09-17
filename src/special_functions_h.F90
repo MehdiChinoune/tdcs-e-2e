@@ -12,7 +12,7 @@ MODULE special_functions
     ELEMENTAL MODULE FUNCTION cgamma(z, mo) RESULT(w)
       COMPLEX(RP) :: w
       COMPLEX(RP), INTENT(IN)  :: z
-      INTEGER, INTENT(IN),OPTIONAL  :: mo
+      INTEGER, INTENT(IN) :: mo
     END FUNCTION cgamma
 
     ELEMENTAL REAL(RP) MODULE FUNCTION assoc_legendre(l,m,x)
@@ -43,8 +43,8 @@ MODULE special_functions
       INTEGER, INTENT(IN) :: l1, l2, l3, m1, m2, m3
     END FUNCTION symbol_3j
 
-    ELEMENTAL COMPLEX(RP) MODULE FUNCTION conhyp_opt(a,z)
-      REAL(RP), INTENT(IN) :: a, z
+    ELEMENTAL COMPLEX(RP) MODULE FUNCTION conhyp_opt(ai,zi)
+      REAL(RP), INTENT(IN) :: ai, zi
     END FUNCTION conhyp_opt
 
   END INTERFACE
