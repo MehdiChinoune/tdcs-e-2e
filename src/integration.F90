@@ -1,5 +1,4 @@
 SUBMODULE(integration) integration
-  USE constants ,ONLY: RP
   IMPLICIT NONE
 
 CONTAINS
