@@ -1,15 +1,23 @@
 name: Github actions
 
-on: [push]
+on:
+  push:
+  schedule:
+    - cron: '0 2 * * 1,4'
 
 jobs:
-  Release-old:
+  Build:
 
-    name: gfortran-release-old
+    name: build
 
     runs-on: ubuntu-latest
 
-    container: chinoune/debian-gfortran-testing:old
+    strategy:
+      matrix:
+        image_tag: [old, stable, trunk]
+        build_type: [Debug, Release]
+
+    container: chinoune/debian-gfortran-testing:${{ matrix.image_tag }}
 
     steps:
     - uses: actions/checkout@v1
@@ -17,96 +25,6 @@ jobs:
       run: |
         mkdir build
         cd build
-        cmake ..
-    - name: Building
-      run: make -C build -j$(nproc)
-
-  Debug-old:
-
-    name: gfortran-debug-old
-
-    runs-on: ubuntu-latest
-
-    container: chinoune/debian-gfortran-testing:old
-
-    steps:
-    - uses: actions/checkout@v1
-    - name: Configuring
-      run: |
-        mkdir build
-        cd build
-        cmake .. -DCMAKE_BUILD_TYPE=Debug
-    - name: Building
-      run: make -C build -j$(nproc)
-
-  Release-stable:
-
-    name: gfortran-release-stable
-
-    runs-on: ubuntu-latest
-
-    container: chinoune/debian-gfortran-testing:stable
-
-    steps:
-    - uses: actions/checkout@v1
-    - name: Configuring
-      run: |
-        mkdir build
-        cd build
-        cmake ..
-    - name: Building
-      run: make -C build -j$(nproc)
-
-  Debug-stable:
-
-    name: gfortran-debug-stable
-
-    runs-on: ubuntu-latest
-
-    container: chinoune/debian-gfortran-testing:stable
-
-    steps:
-    - uses: actions/checkout@v1
-    - name: Configuring
-      run: |
-        mkdir build
-        cd build
-        cmake .. -DCMAKE_BUILD_TYPE=Debug
-    - name: Building
-      run: make -C build -j$(nproc)
-
-  Release-trunk:
-
-    name: gfortran-release-trunk
-
-    runs-on: ubuntu-latest
-
-    container: chinoune/debian-gfortran-testing:trunk
-
-    steps:
-    - uses: actions/checkout@v1
-    - name: Configuring
-      run: |
-        mkdir build
-        cd build
-        cmake ..
-    - name: Building
-      run: make -C build -j$(nproc)
-
-  Debug-trunk:
-
-    name: gfortran-debug-trunk
-
-    runs-on: ubuntu-latest
-
-    container: chinoune/debian-gfortran-testing:trunk
-
-    steps:
-    - uses: actions/checkout@v1
-    - name: Configuring
-      run: |
-        mkdir build
-        cd build
-        cmake .. -DCMAKE_BUILD_TYPE=Debug
+        cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
     - name: Building
       run: make -C build -j$(nproc)
