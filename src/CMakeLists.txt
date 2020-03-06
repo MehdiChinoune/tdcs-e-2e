@@ -1,14 +1,4 @@
 
-option( OpenMP "Enable OpenMP" OFF )
-if( OpenMP )
-  find_package( OpenMP )
-  if( OpenMP_Fortran_FOUND )
-    set( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${OpenMP_Fortran_FLAGS}" )
-  elseif( MINGW )
-    set( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fopenmp" )
-  endif()
-endif()
-
 option( Profiling "Enable profiling with gprof" OFF )
 if( Profiling )
   set( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -p" )
@@ -20,6 +10,12 @@ file( GLOB srcs CONFIGURE_DEPENDS *.F90 )
 list( FILTER srcs EXCLUDE REGEX "main.F90"  )
 
 add_library( tdcs_e_2e SHARED ${srcs} )
+
+option( OpenMP "Enable OpenMP" OFF )
+if( OpenMP )
+  find_package( OpenMP REQUIRED )
+  target_link_libraries( tdcs_e_2e PUBLIC OpenMP::OpenMP_Fortran )
+endif()
 
 add_executable( main "main.F90" )
 target_link_libraries( main tdcs_e_2e )

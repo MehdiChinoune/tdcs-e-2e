@@ -32,7 +32,7 @@ set( CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}" )
 
 add_subdirectory(src)
 
-file(COPY Data DESTINATION ./ )
+file(COPY data DESTINATION ./ )
 file(COPY input_example.dat DESTINATION ./ )
 
 enable_testing()
