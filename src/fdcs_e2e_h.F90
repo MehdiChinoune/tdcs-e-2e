@@ -2,6 +2,8 @@ module fdcs_e2e
   use constants ,only: RP
   implicit none
 
+  logical :: show_output = .true.
+
   interface
 
     module subroutine fdcs_fba_pw(in_unit,out_unit)

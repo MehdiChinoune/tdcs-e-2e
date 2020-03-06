@@ -84,7 +84,7 @@ contains
 
       sigma = factor*sigma
 
-      print '(1x,i4,1x,es15.8)',i,sigma
+      if( show_output ) print '(1x,i4,1x,es15.8)',i,sigma
       write( out_unit, '(1x,i4,1x,es15.8)' ) i, sigma
     end do
 
@@ -156,7 +156,7 @@ contains
 
       sigma = factor*sigma/(2*lo+1)
 
-      print '(1x,i4,1x,es15.8)',i,sigma
+      if( show_output ) print'(1x,i4,1x,es15.8)',i,sigma
       write( out_unit, '(1x,i4,1x,es15.8)' ) i, sigma
     end do
 
@@ -316,7 +316,7 @@ contains
 
       sigma = factor*sigma/(2*lo+1)
 
-      print '(1x,i4,1x,es15.8)',i,sigma
+      if( show_output ) print'(1x,i4,1x,es15.8)',i,sigma
       write(out_unit, '(1x,i4,1x,es15.8)' ) i, sigma
     end do
 
@@ -517,7 +517,7 @@ contains
         call PCI_EFFECTS(i,sigma)
       end if
 
-      print '(1x,i4,1x,es15.8)', i, sigma
+      if( show_output ) print'(1x,i4,1x,es15.8)', i, sigma
       write(out_unit, '(1x,i4,1x,es15.8)' ) i, sigma
     end do
 
@@ -600,7 +600,7 @@ contains
 
       sigma = factor*sigma
 
-      print '(1x,i4,1x,es15.8)',i,sigma
+      if( show_output ) print'(1x,i4,1x,es15.8)',i,sigma
       write( out_unit, '(1x,i4,1x,es15.8)' ) i, sigma
     end do
 
