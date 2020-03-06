@@ -1,52 +1,52 @@
-MODULE special_functions
-  USE constants ,ONLY: RP
-  IMPLICIT NONE
-  REAL(RP), PROTECTED :: fac(0:34), lnfac(0:400)
-  LOGICAL, PROTECTED :: fac_called = .FALSE.
+module special_functions
+  use constants ,only: RP
+  implicit none
+  real(RP), protected :: fac(0:34), lnfac(0:400)
+  logical, protected :: fac_called = .FALSE.
 
-  INTERFACE
+  interface
 
-    MODULE SUBROUTINE factorial()
-    END SUBROUTINE
+    module subroutine factorial()
+    end subroutine
 
-    ELEMENTAL MODULE FUNCTION cgamma(z, mo) RESULT(w)
-      COMPLEX(RP) :: w
-      COMPLEX(RP), INTENT(IN)  :: z
-      INTEGER, INTENT(IN) :: mo
-    END FUNCTION cgamma
+    elemental module function cgamma(z, mo) result(w)
+      complex(RP) :: w
+      complex(RP), intent(in)  :: z
+      integer, intent(in) :: mo
+    end function cgamma
 
-    ELEMENTAL REAL(RP) MODULE FUNCTION assoc_legendre(l,m,x)
-      INTEGER, INTENT(IN) :: l, m
-      REAL(RP), INTENT(IN) :: x
-    END FUNCTION assoc_legendre
+    elemental real(RP) module function assoc_legendre(l,m,x)
+      integer, intent(in) :: l, m
+      real(RP), intent(in) :: x
+    end function assoc_legendre
 
-    ELEMENTAL COMPLEX(RP) MODULE FUNCTION spherical_harmonic( l, m, theta, phi )
-      INTEGER, INTENT(IN) :: l, m
-      REAL(RP), INTENT(IN) :: theta, phi
-    END FUNCTION spherical_harmonic
+    elemental complex(RP) module function spherical_harmonic( l, m, theta, phi )
+      integer, intent(in) :: l, m
+      real(RP), intent(in) :: theta, phi
+    end function spherical_harmonic
 
-    PURE MODULE SUBROUTINE coul90(x, eta, lmin, lrange, fc, gc, fcp, gcp, kfn, ifail )
-      INTEGER, INTENT(IN)  :: lmin, lrange, kfn
-      INTEGER, INTENT(OUT), OPTIONAL :: ifail
-      REAL(RP), INTENT(IN) :: x, eta
-      REAL(RP), INTENT(OUT), DIMENSION(lmin:lmin+lrange) :: fc,  gc,  fcp, gcp
-    END SUBROUTINE coul90
+    pure module subroutine coul90(x, eta, lmin, lrange, fc, gc, fcp, gcp, kfn, ifail )
+      integer, intent(in)  :: lmin, lrange, kfn
+      integer, intent(out), optional :: ifail
+      real(RP), intent(in) :: x, eta
+      real(RP), intent(out), dimension(lmin:lmin+lrange) :: fc,  gc,  fcp, gcp
+    end subroutine coul90
 
-    PURE MODULE SUBROUTINE ricbes( x, lmax, psi, chi, psid, chid, ifail )
-      REAL(RP), INTENT(IN) :: x
-      INTEGER, INTENT(IN) :: lmax
-      INTEGER, INTENT(INOUT), OPTIONAL :: ifail
-      REAL(RP), INTENT(OUT) :: psi(0:lmax), chi(0:lmax), psid(0:lmax), chid(0:lmax)
-    END SUBROUTINE ricbes
+    pure module subroutine ricbes( x, lmax, psi, chi, psid, chid, ifail )
+      real(RP), intent(in) :: x
+      integer, intent(in) :: lmax
+      integer, intent(inout), optional :: ifail
+      real(RP), intent(out) :: psi(0:lmax), chi(0:lmax), psid(0:lmax), chid(0:lmax)
+    end subroutine ricbes
 
-    ELEMENTAL REAL(RP) MODULE FUNCTION symbol_3j(l1, l2, l3, m1, m2, m3)
-      INTEGER, INTENT(IN) :: l1, l2, l3, m1, m2, m3
-    END FUNCTION symbol_3j
+    elemental real(RP) module function symbol_3j(l1, l2, l3, m1, m2, m3)
+      integer, intent(in) :: l1, l2, l3, m1, m2, m3
+    end function symbol_3j
 
-    ELEMENTAL COMPLEX(RP) MODULE FUNCTION conhyp_opt(ai,zi)
-      REAL(RP), INTENT(IN) :: ai, zi
-    END FUNCTION conhyp_opt
+    elemental complex(RP) module function conhyp_opt(ai,zi)
+      real(RP), intent(in) :: ai, zi
+    end function conhyp_opt
 
-  END INTERFACE
+  end interface
 
-END MODULE special_functions
+end module special_functions

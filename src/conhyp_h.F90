@@ -1,14 +1,14 @@
-MODULE conhyp_m
-  USE constants, ONLY: RP
-  IMPLICIT NONE
+module conhyp_m
+  use constants, only: RP
+  implicit none
 
-  INTERFACE
+  interface
 
-    ELEMENTAL COMPLEX(RP) MODULE FUNCTION conhyp(A,B,Z,LNCHF,IP)
-      COMPLEX(RP), INTENT(IN) :: A, B, Z
-      INTEGER, INTENT(IN) :: Lnchf, IP
-    END FUNCTION conhyp
+    elemental complex(RP) module function conhyp(A,B,Z,LNCHF,IP)
+      complex(RP), intent(in) :: A, B, Z
+      integer, intent(in) :: Lnchf, IP
+    end function conhyp
 
-  END INTERFACE
+  end interface
 
-END MODULE conhyp_m
+end module conhyp_m

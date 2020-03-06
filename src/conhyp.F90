@@ -1,14 +1,14 @@
   !      ALGORITHM 707, COLLECTED ALGORITHMS FROM ACM.
   !      THIS WORK PUBLISHED IN TRANSACTIONS ON MATHEMATICAL SOFTWARE,
   !      VOL. 18, NO. 3, SEPTEMBER, 1992, PP. 345-349.
-SUBMODULE(conhyp_m) conhyp_m
-  IMPLICIT NONE
-  INTEGER, PARAMETER :: length = 777, bits = DIGITS(1._RP) + 1
-  INTEGER, PARAMETER :: min_exp = MAX( MINEXPONENT(1._RP), -74 )
-  INTEGER, PARAMETER :: max_exp = MIN( MAXEXPONENT(1._RP), 74 )
-  REAL(RP), PARAMETER :: pi = ACOS(-1._RP)
+submodule(conhyp_m) conhyp_m
+  implicit none
+  integer, parameter :: length = 777, bits = digits(1._RP) + 1
+  integer, parameter :: min_exp = max( minexponent(1._RP), -74 )
+  integer, parameter :: max_exp = min( maxexponent(1._RP), 74 )
+  real(RP), parameter :: pi = acos(-1._RP)
   !
-CONTAINS
+contains
 
   !     ****************************************************************
   !     *                                                              *
@@ -46,50 +46,50 @@ CONTAINS
   !     *  Subprograms called: BITS, CHGF                              *
   !     *                                                              *
   !     ****************************************************************
-  ELEMENTAL COMPLEX(RP) MODULE FUNCTION conhyp(A,B,Z,Lnchf,Ip)
+  elemental complex(RP) module function conhyp(A,B,Z,Lnchf,Ip)
     !
-    INTEGER, INTENT(IN) :: Lnchf, Ip
-    COMPLEX(RP), INTENT(IN) :: A, B, Z
+    integer, intent(in) :: Lnchf, Ip
+    complex(RP), intent(in) :: A, B, Z
     !
-    INTEGER :: i
-    REAL(RP) :: nterm, fx, term1, MAX, term2, ang
+    integer :: i
+    real(RP) :: nterm, fx, term1, max, term2, ang
     !
-    IF ( ABS(Z)/=0._RP ) THEN
-      ang = ATAN2(AIMAG(Z),REAL(Z,RP))
-    ELSE
+    if ( abs(Z)/=0._RP ) then
+      ang = atan2(aimag(Z),real(Z,RP))
+    else
       ang = 1._RP
-    END IF
-    IF ( ABS(ang)<(pi*0.5) ) THEN
+    end if
+    if ( abs(ang)<(pi*0.5) ) then
       ang = 1._RP
-    ELSE
-      ang = SIN(ABS(ang)-(pi*0.5_RP)) + 1._RP
-    END IF
-    MAX = 0
+    else
+      ang = sin(abs(ang)-(pi*0.5_RP)) + 1._RP
+    end if
+    max = 0
     nterm = 0
     fx = 0
     term1 = 0
-    DO
+    do
       nterm = nterm + 1
-      term2 = ABS((A+nterm-1)*Z/((B+nterm-1)*nterm))
-      IF ( term2==0._RP ) EXIT
-      IF ( term2<1._RP ) THEN
-        IF ( (REAL(A,RP)+nterm-1)>1._RP ) THEN
-          IF ( (REAL(B,RP)+nterm-1)>1._RP ) THEN
-            IF ( (term2-term1)<0._RP ) EXIT
-          END IF
-        END IF
-      END IF
-      fx = fx + LOG(term2)
-      IF ( fx>MAX ) MAX = fx
+      term2 = abs((A+nterm-1)*Z/((B+nterm-1)*nterm))
+      if ( term2==0._RP ) exit
+      if ( term2<1._RP ) then
+        if ( (real(A,RP)+nterm-1)>1._RP ) then
+          if ( (real(B,RP)+nterm-1)>1._RP ) then
+            if ( (term2-term1)<0._RP ) exit
+          end if
+        end if
+      end if
+      fx = fx + log(term2)
+      if ( fx>max ) max = fx
       term1 = term2
-    END DO
-    MAX = MAX*2/(bits*LOG(2._RP))
-    i = INT(MAX*ang) + 7
-    IF ( i<5 ) i = 5
-    IF ( Ip>i ) i = Ip
+    end do
+    max = max*2/(bits*log(2._RP))
+    i = int(max*ang) + 7
+    if ( i<5 ) i = 5
+    if ( Ip>i ) i = Ip
     conhyp = chgf(A,B,Z,i,Lnchf)
     !
-  END FUNCTION conhyp
+  end function conhyp
 
   !     ****************************************************************
   !     *                                                              *
@@ -103,16 +103,16 @@ CONTAINS
   !     *  Subprograms called: armult, arydiv, cmpadd, cmpmul          *
   !     *                                                              *
   !     ****************************************************************
-  ELEMENTAL COMPLEX(RP) FUNCTION chgf(A,B,Z,L,Lnchf)
+  elemental complex(RP) function chgf(A,B,Z,L,Lnchf)
     !
-    INTEGER, INTENT(IN) :: L, Lnchf
-    COMPLEX(RP), INTENT(IN) :: A, B, Z
+    integer, intent(in) :: L, Lnchf
+    complex(RP), intent(in) :: A, B, Z
     !
-    REAL(RP) :: ar, ai, cr, ci, xr, xi, cnt, sigfig, mx1, mx2, rmax, ar2, &
+    real(RP) :: ar, ai, cr, ci, xr, xi, cnt, sigfig, mx1, mx2, rmax, ar2, &
       ai2, cr2, ci2, xr2, xi2
-    COMPLEX(RP) :: FINAL
+    complex(RP) :: final
     !
-    REAL(RP) :: sumr(-1:length), sumi(-1:length), numr(-1:length), &
+    real(RP) :: sumr(-1:length), sumi(-1:length), numr(-1:length), &
       numi(-1:length), denomr(-1:length), denomi(-1:length), &
       qr1(-1:length), qr2(-1:length), qi1(-1:length), qi2(-1:length), &
       dumr(-1:length), dumi(-1:length)
@@ -120,26 +120,26 @@ CONTAINS
     rmax = 2._RP**(bits/2)
     sigfig = 2._RP**(bits/4)
     !
-    ar2 = REAL(A,RP)*sigfig
-    ar = AINT(ar2)
-    ar2 = ANINT((ar2-ar)*rmax)
-    ai2 = AIMAG(A)*sigfig
-    ai = AINT(ai2)
-    ai2 = ANINT((ai2-ai)*rmax)
+    ar2 = real(A,RP)*sigfig
+    ar = aint(ar2)
+    ar2 = anint((ar2-ar)*rmax)
+    ai2 = aimag(A)*sigfig
+    ai = aint(ai2)
+    ai2 = anint((ai2-ai)*rmax)
     !
-    cr2 = REAL(B,RP)*sigfig
-    cr = AINT(cr2)
-    cr2 = ANINT((cr2-cr)*rmax)
-    ci2 = AIMAG(B)*sigfig
-    ci = AINT(ci2)
-    ci2 = ANINT((ci2-ci)*rmax)
+    cr2 = real(B,RP)*sigfig
+    cr = aint(cr2)
+    cr2 = anint((cr2-cr)*rmax)
+    ci2 = aimag(B)*sigfig
+    ci = aint(ci2)
+    ci2 = anint((ci2-ci)*rmax)
     !
-    xr2 = REAL(Z,RP)*sigfig
-    xr = AINT(xr2)
-    xr2 = ANINT((xr2-xr)*rmax)
-    xi2 = AIMAG(Z)*sigfig
-    xi = AINT(xi2)
-    xi2 = ANINT((xi2-xi)*rmax)
+    xr2 = real(Z,RP)*sigfig
+    xr = aint(xr2)
+    xr2 = anint((xr2-xr)*rmax)
+    xi2 = aimag(Z)*sigfig
+    xi = aint(xi2)
+    xi2 = anint((xi2-xi)*rmax)
     !
     sumr(-1) = 1._RP
     sumi(-1) = 1._RP
@@ -160,75 +160,75 @@ CONTAINS
     denomr(1) = 1._RP
     !
     cnt = sigfig
-    DO
-    IF ( sumr(1)<0.5 ) THEN
+    do
+    if ( sumr(1)<0.5 ) then
       mx1 = sumi(L+1)
-    ELSE IF ( sumi(1)<0.5 ) THEN
+    else if ( sumi(1)<0.5 ) then
       mx1 = sumr(L+1)
-    ELSE
-      mx1 = MAX(sumr(L+1),sumi(L+1))
-    END IF
+    else
+      mx1 = max(sumr(L+1),sumi(L+1))
+    end if
     !
-    IF ( numr(1)<0.5 ) THEN
+    if ( numr(1)<0.5 ) then
       mx2 = numi(L+1)
-    ELSE IF ( numi(1)<0.5 ) THEN
+    else if ( numi(1)<0.5 ) then
       mx2 = numr(L+1)
-    ELSE
-      mx2 = MAX(numr(L+1),numi(L+1))
-    END IF
+    else
+      mx2 = max(numr(L+1),numi(L+1))
+    end if
     !
-    IF ( mx1-mx2>2.0 ) THEN
-      IF ( cr>0._RP ) THEN
-        IF ( ABS(CMPLX(ar,ai,RP)*CMPLX(xr,xi,RP)/(CMPLX(cr,ci,RP)*cnt)) &
-            <=1._RP ) THEN
-          CALL arydiv(sumr,sumi,denomr,denomi,FINAL,L,Lnchf,rmax,bits)
-          CHGF = FINAL
-          RETURN
-        END IF
-      END IF
-    END IF
-    CALL cmpmul(sumr,sumi,cr,ci,qr1,qi1,L,rmax)
-    CALL cmpmul(sumr,sumi,cr2,ci2,qr2,qi2,L,rmax)
+    if ( mx1-mx2>2.0 ) then
+      if ( cr>0._RP ) then
+        if ( abs(cmplx(ar,ai,RP)*cmplx(xr,xi,RP)/(cmplx(cr,ci,RP)*cnt)) &
+            <=1._RP ) then
+          call arydiv(sumr,sumi,denomr,denomi,final,L,Lnchf,rmax,bits)
+          CHGF = final
+          return
+        end if
+      end if
+    end if
+    call cmpmul(sumr,sumi,cr,ci,qr1,qi1,L,rmax)
+    call cmpmul(sumr,sumi,cr2,ci2,qr2,qi2,L,rmax)
     qr2(L+1) = qr2(L+1) - 1
     qi2(L+1) = qi2(L+1) - 1
-    CALL cmpadd(qr1,qi1,qr2,qi2,sumr,sumi,L,rmax)
+    call cmpadd(qr1,qi1,qr2,qi2,sumr,sumi,L,rmax)
     !
     dumr(-1:L+1) = sumr(-1:L+1)
     dumi(-1:L+1) = sumi(-1:L+1)
-    CALL armult(dumr,cnt,sumr,L,rmax)
-    CALL armult(dumi,cnt,sumi,L,rmax)
-    CALL cmpmul(denomr,denomi,cr,ci,qr1,qi1,L,rmax)
-    CALL cmpmul(denomr,denomi,cr2,ci2,qr2,qi2,L,rmax)
+    call armult(dumr,cnt,sumr,L,rmax)
+    call armult(dumi,cnt,sumi,L,rmax)
+    call cmpmul(denomr,denomi,cr,ci,qr1,qi1,L,rmax)
+    call cmpmul(denomr,denomi,cr2,ci2,qr2,qi2,L,rmax)
     qr2(L+1) = qr2(L+1) - 1
     qi2(L+1) = qi2(L+1) - 1
-    CALL cmpadd(qr1,qi1,qr2,qi2,denomr,denomi,L,rmax)
+    call cmpadd(qr1,qi1,qr2,qi2,denomr,denomi,L,rmax)
     !
     dumr(-1:L+1) = denomr(-1:L+1)
     dumi(-1:L+1) = denomi(-1:L+1)
-    CALL armult(dumr,cnt,denomr,L,rmax)
-    CALL armult(dumi,cnt,denomi,L,rmax)
-    CALL cmpmul(numr,numi,ar,ai,qr1,qi1,L,rmax)
-    CALL cmpmul(numr,numi,ar2,ai2,qr2,qi2,L,rmax)
+    call armult(dumr,cnt,denomr,L,rmax)
+    call armult(dumi,cnt,denomi,L,rmax)
+    call cmpmul(numr,numi,ar,ai,qr1,qi1,L,rmax)
+    call cmpmul(numr,numi,ar2,ai2,qr2,qi2,L,rmax)
     qr2(L+1) = qr2(L+1) - 1
     qi2(L+1) = qi2(L+1) - 1
-    CALL cmpadd(qr1,qi1,qr2,qi2,numr,numi,L,rmax)
+    call cmpadd(qr1,qi1,qr2,qi2,numr,numi,L,rmax)
 
-    CALL cmpmul(numr,numi,xr,xi,qr1,qi1,L,rmax)
-    CALL cmpmul(numr,numi,xr2,xi2,qr2,qi2,L,rmax)
+    call cmpmul(numr,numi,xr,xi,qr1,qi1,L,rmax)
+    call cmpmul(numr,numi,xr2,xi2,qr2,qi2,L,rmax)
     qr2(L+1) = qr2(L+1) - 1
     qi2(L+1) = qi2(L+1) - 1
-    CALL cmpadd(qr1,qi1,qr2,qi2,numr,numi,L,rmax)
+    call cmpadd(qr1,qi1,qr2,qi2,numr,numi,L,rmax)
     !
     dumr(-1:L+1) = sumr(-1:L+1)
     dumi(-1:L+1) = sumi(-1:L+1)
-    CALL cmpadd(dumr,dumi,numr,numi,sumr,sumi,L,rmax)
+    call cmpadd(dumr,dumi,numr,numi,sumr,sumi,L,rmax)
     cnt = cnt + sigfig
     ar = ar + sigfig
     cr = cr + sigfig
-    END DO
+    end do
     !
-    RETURN
-  END FUNCTION chgf
+    return
+  end function chgf
 
   !     ****************************************************************
   !     *                                                              *
@@ -245,199 +245,199 @@ CONTAINS
   !     *  Subprograms called: none                                    *
   !     *                                                              *
   !     ****************************************************************
-  PURE SUBROUTINE aradd(A,B,C,L,Rmax)
+  pure subroutine aradd(A,B,C,L,Rmax)
     !
-    INTEGER, INTENT(IN) :: L
-    REAL(RP), INTENT(IN) :: A(-1:), B(-1:), Rmax
-    REAL(RP), INTENT(OUT) :: C(-1:)
+    integer, intent(in) :: L
+    real(RP), intent(in) :: A(-1:), B(-1:), Rmax
+    real(RP), intent(out) :: C(-1:)
     !
-    INTEGER :: ediff, i, j
-    REAL(RP) :: z(-1:length)
+    integer :: ediff, i, j
+    real(RP) :: z(-1:length)
     !
     z(0:L+1) = 0._RP
-    ediff = NINT(A(L+1)-B(L+1))
-    IF ( ABS(A(1))<0.5 .OR. ediff<=-L ) THEN
+    ediff = nint(A(L+1)-B(L+1))
+    if ( abs(A(1))<0.5 .OR. ediff<=-L ) then
       C(-1:L+1) = B(-1:L+1)
-      GOTO 311
-    ELSE
-      IF ( ABS(B(1))<0.5 .OR. ediff>=L ) THEN
+      goto 311
+    else
+      if ( abs(B(1))<0.5 .OR. ediff>=L ) then
         C(-1:L+1) = A(-1:L+1)
-        GOTO 311
-      ELSE
+        goto 311
+      else
         z(-1) = A(-1)
-        IF ( ABS(A(-1)-B(-1))>=0.5 ) THEN
-          IF ( ediff>0 ) THEN
+        if ( abs(A(-1)-B(-1))>=0.5 ) then
+          if ( ediff>0 ) then
             z(L+1) = A(L+1)
-            GOTO 233
-          END IF
-          IF ( ediff<0 ) THEN
+            goto 233
+          end if
+          if ( ediff<0 ) then
             z(L+1) = B(L+1)
             z(-1) = B(-1)
-            GOTO 266
-          END IF
-          DO i = 1, L
-            IF ( A(i)>B(i) ) THEN
+            goto 266
+          end if
+          do i = 1, L
+            if ( A(i)>B(i) ) then
               z(L+1) = A(L+1)
-              GOTO 233
-            END IF
-            IF ( A(i)<B(i) ) THEN
+              goto 233
+            end if
+            if ( A(i)<B(i) ) then
               z(L+1) = B(L+1)
               z(-1) = B(-1)
-              GOTO 266
-            END IF
-          END DO
+              goto 266
+            end if
+          end do
 
-        ELSE IF ( ediff>0 ) THEN
+        else if ( ediff>0 ) then
           z(L+1) = A(L+1)
-          DO i = L, 1 + ediff, -1
+          do i = L, 1 + ediff, -1
             z(i) = A(i) + B(i-ediff) + z(i)
-            IF ( z(i)>=Rmax ) THEN
+            if ( z(i)>=Rmax ) then
               z(i) = z(i) - Rmax
               z(i-1) = 1._RP
-            END IF
-          END DO
-          DO i = ediff, 1, -1
+            end if
+          end do
+          do i = ediff, 1, -1
             z(i) = A(i) + z(i)
-            IF ( z(i)>=Rmax ) THEN
+            if ( z(i)>=Rmax ) then
               z(i) = z(i) - Rmax
               z(i-1) = 1._RP
-            END IF
-          END DO
-          IF ( z(0)>0.5 ) THEN
-            DO i = L, 1, -1
+            end if
+          end do
+          if ( z(0)>0.5 ) then
+            do i = L, 1, -1
               z(i) = z(i-1)
-            END DO
+            end do
             z(L+1) = z(L+1) + 1
             z(0) = 0._RP
-          END IF
-        ELSE IF ( ediff<0 ) THEN
+          end if
+        else if ( ediff<0 ) then
           z(L+1) = B(L+1)
-          DO i = L, 1 - ediff, -1
+          do i = L, 1 - ediff, -1
             z(i) = A(i+ediff) + B(i) + z(i)
-            IF ( z(i)>=Rmax ) THEN
+            if ( z(i)>=Rmax ) then
               z(i) = z(i) - Rmax
               z(i-1) = 1._RP
-            END IF
-          END DO
-          DO i = 0 - ediff, 1, -1
+            end if
+          end do
+          do i = 0 - ediff, 1, -1
             z(i) = B(i) + z(i)
-            IF ( z(i)>=Rmax ) THEN
+            if ( z(i)>=Rmax ) then
               z(i) = z(i) - Rmax
               z(i-1) = 1._RP
-            END IF
-          END DO
-          IF ( z(0)>0.5 ) THEN
-            DO i = L, 1, -1
+            end if
+          end do
+          if ( z(0)>0.5 ) then
+            do i = L, 1, -1
               z(i) = z(i-1)
-            END DO
+            end do
             z(L+1) = z(L+1) + 1._RP
             z(0) = 0._RP
-          END IF
-        ELSE
+          end if
+        else
           z(L+1) = A(L+1)
-          DO i = L, 1, -1
+          do i = L, 1, -1
             z(i) = A(i) + B(i) + z(i)
-            IF ( z(i)>=Rmax ) THEN
+            if ( z(i)>=Rmax ) then
               z(i) = z(i) - Rmax
               z(i-1) = 1._RP
-            END IF
-          END DO
-          IF ( z(0)>0.5 ) THEN
-            DO i = L, 1, -1
+            end if
+          end do
+          if ( z(0)>0.5 ) then
+            do i = L, 1, -1
               z(i) = z(i-1)
-            END DO
+            end do
             z(L+1) = z(L+1) + 1._RP
             z(0) = 0._RP
-          END IF
-        END IF
-        GOTO 300
+          end if
+        end if
+        goto 300
 
-  233   CONTINUE
-        IF ( ediff>0 ) THEN
-          DO i = L, 1 + ediff, -1
+  233   continue
+        if ( ediff>0 ) then
+          do i = L, 1 + ediff, -1
             z(i) = A(i) - B(i-ediff) + z(i)
-            IF ( z(i)<0._RP ) THEN
+            if ( z(i)<0._RP ) then
               z(i) = z(i) + Rmax
               z(i-1) = -1._RP
-            END IF
-          END DO
-          DO i = ediff, 1, -1
+            end if
+          end do
+          do i = ediff, 1, -1
             z(i) = A(i) + z(i)
-            IF ( z(i)<0._RP ) THEN
+            if ( z(i)<0._RP ) then
               z(i) = z(i) + Rmax
               z(i-1) = -1._RP
-            END IF
-          END DO
-        ELSE
-          DO i = L, 1, -1
+            end if
+          end do
+        else
+          do i = L, 1, -1
             z(i) = A(i) - B(i) + z(i)
-            IF ( z(i)<0._RP ) THEN
+            if ( z(i)<0._RP ) then
               z(i) = z(i) + Rmax
               z(i-1) = -1._RP
-            END IF
-          END DO
-        END IF
-        GOTO 290
-      END IF
+            end if
+          end do
+        end if
+        goto 290
+      end if
 
-  266 CONTINUE
-      IF ( ediff<0 ) THEN
-        DO i = L, 1 - ediff, -1
+  266 continue
+      if ( ediff<0 ) then
+        do i = L, 1 - ediff, -1
           z(i) = B(i) - A(i+ediff) + z(i)
-          IF ( z(i)<0._RP ) THEN
+          if ( z(i)<0._RP ) then
             z(i) = z(i) + Rmax
             z(i-1) = -1._RP
-          END IF
-        END DO
-        DO i = 0 - ediff, 1, -1
+          end if
+        end do
+        do i = 0 - ediff, 1, -1
           z(i) = B(i) + z(i)
-          IF ( z(i)<0._RP ) THEN
+          if ( z(i)<0._RP ) then
             z(i) = z(i) + Rmax
             z(i-1) = -1._RP
-          END IF
-        END DO
-      ELSE
-        DO i = L, 1, -1
+          end if
+        end do
+      else
+        do i = L, 1, -1
           z(i) = B(i) - A(i) + z(i)
-          IF ( z(i)<0._RP ) THEN
+          if ( z(i)<0._RP ) then
             z(i) = z(i) + Rmax
             z(i-1) = -1._RP
-          END IF
-        END DO
-      END IF
-    END IF
+          end if
+        end do
+      end if
+    end if
 
-290 CONTINUE
-    IF ( z(1)<=0.5 ) THEN
+290 continue
+    if ( z(1)<=0.5 ) then
       i = 1
-      DO
+      do
         i = i + 1
-        IF ( z(i)>=0.5 .OR. i>=L+1 ) THEN
-          IF ( i==L+1 ) THEN
+        if ( z(i)>=0.5 .OR. i>=L+1 ) then
+          if ( i==L+1 ) then
             z(-1) = 1._RP
             z(L+1) = 0._RP
-            EXIT
-          END IF
-          DO j = 1, L + 1 - i
+            exit
+          end if
+          do j = 1, L + 1 - i
             z(j) = z(j+i-1)
-          END DO
-          DO j = L + 2 - i, L
+          end do
+          do j = L + 2 - i, L
             z(j) = 0._RP
-          END DO
+          end do
           z(L+1) = z(L+1) - i + 1
-          EXIT
-        END IF
-      END DO
-    END IF
-300 CONTINUE
+          exit
+        end if
+      end do
+    end if
+300 continue
     C(-1:L+1) = z(-1:L+1)
-    311 CONTINUE
-    IF ( C(1)<0.5 ) THEN
+    311 continue
+    if ( C(1)<0.5 ) then
       C(-1) = 1._RP
       C(L+1) = 0._RP
-    END IF
+    end if
     !
-  END SUBROUTINE aradd
+  end subroutine aradd
 
   !     ****************************************************************
   !     *                                                              *
@@ -453,19 +453,19 @@ CONTAINS
   !     *  Subprograms called: aradd                                   *
   !     *                                                              *
   !     ****************************************************************
-  PURE SUBROUTINE arsub(A,B,C,L,Rmax)
+  pure subroutine arsub(A,B,C,L,Rmax)
     !
-    INTEGER, INTENT(IN) :: L
-    REAL(RP), INTENT(IN) :: A(-1:), B(-1:), Rmax
-    REAL(RP), INTENT(OUT) :: C(-1:)
+    integer, intent(in) :: L
+    real(RP), intent(in) :: A(-1:), B(-1:), Rmax
+    real(RP), intent(out) :: C(-1:)
     !
-    REAL(RP) :: b2(-1:length)
+    real(RP) :: b2(-1:length)
     !
     b2(0:L+1) = B(0:L+1)
     b2(-1) = -B(-1)
-    CALL aradd(A,b2,C,L,Rmax)
+    call aradd(A,b2,C,L,Rmax)
     !
-  END SUBROUTINE arsub
+  end subroutine arsub
 
   !     ****************************************************************
   !     *                                                              *
@@ -480,50 +480,50 @@ CONTAINS
   !     *  Subprograms called: none                                    *
   !     *                                                              *
   !     ****************************************************************
-  PURE SUBROUTINE armult(A,B,C,L,Rmax)
+  pure subroutine armult(A,B,C,L,Rmax)
     !
-    INTEGER, INTENT(IN) :: L
-    REAL(RP), INTENT(IN) :: A(-1:), B, Rmax
-    REAL(RP), INTENT(OUT) :: C(-1:)
+    integer, intent(in) :: L
+    real(RP), intent(in) :: A(-1:), B, Rmax
+    real(RP), intent(out) :: C(-1:)
     !
-    INTEGER :: i
-    REAL(RP) :: b2, carry, rmax2
-    REAL(RP) :: z(-1:length)
+    integer :: i
+    real(RP) :: b2, carry, rmax2
+    real(RP) :: z(-1:length)
     !
     rmax2 = 1._RP/Rmax
-    z(-1) = SIGN(1._RP,B)*A(-1)
-    b2 = ABS(B)
+    z(-1) = sign(1._RP,B)*A(-1)
+    b2 = abs(B)
     z(L+1) = A(L+1)
     z(0:L) = 0._RP
-    IF ( b2<=1.0D-10 .OR. A(1)<=1.0D-10 ) THEN
+    if ( b2<=1.0D-10 .OR. A(1)<=1.0D-10 ) then
       z(-1) = 1._RP
       z(L+1) = 0._RP
-      GOTO 198
-    END IF
-    DO i = L, 1, -1
+      goto 198
+    end if
+    do i = L, 1, -1
       z(i) = A(i)*b2 + z(i)
-      IF ( z(i)>=Rmax ) THEN
-        carry = AINT(z(i)/Rmax)
+      if ( z(i)>=Rmax ) then
+        carry = aint(z(i)/Rmax)
         z(i) = z(i) - carry*Rmax
         z(i-1) = carry
-      END IF
-    END DO
-    IF ( z(0)>=0.5 ) THEN
-      DO i = L, 1, -1
+      end if
+    end do
+    if ( z(0)>=0.5 ) then
+      do i = L, 1, -1
         z(i) = z(i-1)
-      END DO
+      end do
       z(L+1) = z(L+1) + 1._RP
       z(0) = 0._RP
-    END IF
+    end if
     !
-198 CONTINUE
+198 continue
     C(-1:L+1) = z(-1:L+1)
-    IF ( C(1)<0.5 ) THEN
+    if ( C(1)<0.5 ) then
       C(-1) = 1._RP
       C(L+1) = 0._RP
-    END IF
+    end if
     !
-  END SUBROUTINE armult
+  end subroutine armult
 
   !     ****************************************************************
   !     *                                                              *
@@ -539,16 +539,16 @@ CONTAINS
   !     *  Subprograms called: aradd                                   *
   !     *                                                              *
   !     ****************************************************************
-  PURE SUBROUTINE cmpadd(Ar,Ai,Br,Bi,Cr,Ci,L,Rmax)
+  pure subroutine cmpadd(Ar,Ai,Br,Bi,Cr,Ci,L,Rmax)
     !
-    INTEGER, INTENT(IN) :: L
-    REAL(RP), INTENT(IN) :: Ar(-1:), Ai(-1:), Br(-1:), Bi(-1:), Rmax
-    REAL(RP), INTENT(OUT) :: Cr(-1:), Ci(-1:)
+    integer, intent(in) :: L
+    real(RP), intent(in) :: Ar(-1:), Ai(-1:), Br(-1:), Bi(-1:), Rmax
+    real(RP), intent(out) :: Cr(-1:), Ci(-1:)
     !
-    CALL aradd(Ar,Br,Cr,L,Rmax)
-    CALL aradd(Ai,Bi,Ci,L,Rmax)
+    call aradd(Ar,Br,Cr,L,Rmax)
+    call aradd(Ai,Bi,Ci,L,Rmax)
     !
-  END SUBROUTINE cmpadd
+  end subroutine cmpadd
 
   !     ****************************************************************
   !     *                                                              *
@@ -564,16 +564,16 @@ CONTAINS
   !     *  Subprograms called: aradd                                   *
   !     *                                                              *
   !     ****************************************************************
-  PURE SUBROUTINE cmpsub(Ar,Ai,Br,Bi,Cr,Ci,L,Rmax)
+  pure subroutine cmpsub(Ar,Ai,Br,Bi,Cr,Ci,L,Rmax)
     !
-    INTEGER, INTENT(IN) :: L
-    REAL(RP), INTENT(IN) :: Ar(-1:), Ai(-1:), Br(-1:), Bi(-1:), Rmax
-    REAL(RP), INTENT(OUT) :: Cr(-1:), Ci(-1:)
+    integer, intent(in) :: L
+    real(RP), intent(in) :: Ar(-1:), Ai(-1:), Br(-1:), Bi(-1:), Rmax
+    real(RP), intent(out) :: Cr(-1:), Ci(-1:)
     !
-    CALL arsub(Ar,Br,Cr,L,Rmax)
-    CALL arsub(Ai,Bi,Ci,L,Rmax)
+    call arsub(Ar,Br,Cr,L,Rmax)
+    call arsub(Ai,Bi,Ci,L,Rmax)
     !
-  END SUBROUTINE cmpsub
+  end subroutine cmpsub
 
   !     ****************************************************************
   !     *                                                              *
@@ -588,22 +588,22 @@ CONTAINS
   !     *  Subprograms called: armult, arsub, aradd                    *
   !     *                                                              *
   !     ****************************************************************
-  PURE SUBROUTINE cmpmul(Ar,Ai,Br,Bi,Cr,Ci,L,Rmax)
+  pure subroutine cmpmul(Ar,Ai,Br,Bi,Cr,Ci,L,Rmax)
     !
-    INTEGER, INTENT(IN) :: L
-    REAL(RP), INTENT(IN) :: Ar(-1:), Ai(-1:), Br, Bi, Rmax
-    REAL(RP), INTENT(OUT) :: Cr(-1:), Ci(-1:)
+    integer, intent(in) :: L
+    real(RP), intent(in) :: Ar(-1:), Ai(-1:), Br, Bi, Rmax
+    real(RP), intent(out) :: Cr(-1:), Ci(-1:)
     !
-    REAL(RP) :: d1(-1:length), d2(-1:length)
+    real(RP) :: d1(-1:length), d2(-1:length)
     !
-    CALL armult(Ar,Br,d1,L,Rmax)
-    CALL armult(Ai,Bi,d2,L,Rmax)
-    CALL arsub(d1,d2,Cr,L,Rmax)
-    CALL armult(Ar,Bi,d1,L,Rmax)
-    CALL armult(Ai,Br,d2,L,Rmax)
-    CALL aradd(d1,d2,Ci,L,Rmax)
+    call armult(Ar,Br,d1,L,Rmax)
+    call armult(Ai,Bi,d2,L,Rmax)
+    call arsub(d1,d2,Cr,L,Rmax)
+    call armult(Ar,Bi,d1,L,Rmax)
+    call armult(Ai,Br,d2,L,Rmax)
+    call aradd(d1,d2,Ci,L,Rmax)
     !
-  END SUBROUTINE cmpmul
+  end subroutine cmpmul
 
   !     ****************************************************************
   !     *                                                              *
@@ -619,70 +619,70 @@ CONTAINS
   !     *  Subprograms called: conv21, conv12, eadd, ecpdiv, emult     *
   !     *                                                              *
   !     ****************************************************************
-  PURE SUBROUTINE arydiv(Ar,Ai,Br,Bi,C,L,Lnchf,Rmax,Bit)
+  pure subroutine arydiv(Ar,Ai,Br,Bi,C,L,Lnchf,Rmax,Bit)
     !
-    INTEGER, INTENT(IN) :: L, Bit, Lnchf
-    REAL(RP), INTENT(IN) :: Ar(-1:), Ai(-1:), Br(-1:), Bi(-1:), Rmax
-    COMPLEX(RP), INTENT(OUT) :: C
+    integer, intent(in) :: L, Bit, Lnchf
+    real(RP), intent(in) :: Ar(-1:), Ai(-1:), Br(-1:), Bi(-1:), Rmax
+    complex(RP), intent(out) :: C
     !
-    INTEGER :: rexp, ir10, ii10
-    REAL(RP) :: phi, n1, n2, n3, e1, e2, e3, rr10, ri10, x, x1, x2, dum1, dum2
+    integer :: rexp, ir10, ii10
+    real(RP) :: phi, n1, n2, n3, e1, e2, e3, rr10, ri10, x, x1, x2, dum1, dum2
     !
-    REAL(RP) :: ae(2,2), be(2,2), ce(2,2)
+    real(RP) :: ae(2,2), be(2,2), ce(2,2)
     !
     rexp = Bit/2
     x = rexp*(Ar(L+1)-2)
-    rr10 = x*LOG10(2._RP)/LOG10(10._RP)
-    ir10 = INT(rr10)
+    rr10 = x*log10(2._RP)/log10(10._RP)
+    ir10 = int(rr10)
     rr10 = rr10 - ir10
     x = rexp*(Ai(L+1)-2)
-    ri10 = x*LOG10(2._RP)/LOG10(10._RP)
-    ii10 = INT(ri10)
+    ri10 = x*log10(2._RP)/log10(10._RP)
+    ii10 = int(ri10)
     ri10 = ri10 - ii10
-    dum1 = SIGN(Ar(1)*Rmax*Rmax+Ar(2)*Rmax+Ar(3),Ar(-1))
-    dum2 = SIGN(Ai(1)*Rmax*Rmax+Ai(2)*Rmax+Ai(3),Ai(-1))
+    dum1 = sign(Ar(1)*Rmax*Rmax+Ar(2)*Rmax+Ar(3),Ar(-1))
+    dum2 = sign(Ai(1)*Rmax*Rmax+Ai(2)*Rmax+Ai(3),Ai(-1))
     dum1 = dum1*10**rr10
     dum2 = dum2*10**ri10
-    CALL conv12(CMPLX(dum1,dum2,RP),ae)
+    call conv12(cmplx(dum1,dum2,RP),ae)
     ae(1,2) = ae(1,2) + ir10
     ae(2,2) = ae(2,2) + ii10
     x = rexp*(Br(L+1)-2)
-    rr10 = x*LOG10(2._RP)/LOG10(10._RP)
-    ir10 = INT(rr10)
+    rr10 = x*log10(2._RP)/log10(10._RP)
+    ir10 = int(rr10)
     rr10 = rr10 - ir10
     x = rexp*(Bi(L+1)-2)
-    ri10 = x*LOG10(2._RP)/LOG10(10._RP)
-    ii10 = INT(ri10)
+    ri10 = x*log10(2._RP)/log10(10._RP)
+    ii10 = int(ri10)
     ri10 = ri10 - ii10
-    dum1 = SIGN(Br(1)*Rmax*Rmax+Br(2)*Rmax+Br(3),Br(-1))
-    dum2 = SIGN(Bi(1)*Rmax*Rmax+Bi(2)*Rmax+Bi(3),Bi(-1))
+    dum1 = sign(Br(1)*Rmax*Rmax+Br(2)*Rmax+Br(3),Br(-1))
+    dum2 = sign(Bi(1)*Rmax*Rmax+Bi(2)*Rmax+Bi(3),Bi(-1))
     dum1 = dum1*10**rr10
     dum2 = dum2*10**ri10
-    CALL conv12(CMPLX(dum1,dum2,RP),be)
+    call conv12(cmplx(dum1,dum2,RP),be)
     be(1,2) = be(1,2) + ir10
     be(2,2) = be(2,2) + ii10
-    CALL ecpdiv(ae,be,ce)
-    IF ( Lnchf==0 ) THEN
-      CALL conv21(ce,C)
-    ELSE
-      CALL emult(ce(1,1),ce(1,2),ce(1,1),ce(1,2),n1,e1)
-      CALL emult(ce(2,1),ce(2,2),ce(2,1),ce(2,2),n2,e2)
-      CALL eadd(n1,e1,n2,e2,n3,e3)
+    call ecpdiv(ae,be,ce)
+    if ( Lnchf==0 ) then
+      call conv21(ce,C)
+    else
+      call emult(ce(1,1),ce(1,2),ce(1,1),ce(1,2),n1,e1)
+      call emult(ce(2,1),ce(2,2),ce(2,1),ce(2,2),n2,e2)
+      call eadd(n1,e1,n2,e2,n3,e3)
       n1 = ce(1,1)
       e1 = ce(1,2) - ce(2,2)
       x2 = ce(2,1)
-      IF ( e1>max_exp ) THEN
+      if ( e1>max_exp ) then
         x1 = 1._RP * 10._RP**max_exp
-      ELSE IF ( e1<min_exp ) THEN
+      else if ( e1<min_exp ) then
         x1 = 0._RP
-      ELSE
+      else
         x1 = n1*(10**e1)
-      END IF
-      phi = ATAN2(x2,x1)
-      C = CMPLX(0.50D0*(LOG(n3)+e3*LOG(10._RP)),phi,RP)
-    END IF
+      end if
+      phi = atan2(x2,x1)
+      C = cmplx(0.50D0*(log(n3)+e3*log(10._RP)),phi,RP)
+    end if
     !
-  END SUBROUTINE arydiv
+  end subroutine arydiv
 
   !     ****************************************************************
   !     *                                                              *
@@ -696,19 +696,19 @@ CONTAINS
   !     *  Subprograms called: none                                    *
   !     *                                                              *
   !     ****************************************************************
-  ELEMENTAL SUBROUTINE emult(N1,E1,N2,E2,Nf,Ef)
+  elemental subroutine emult(N1,E1,N2,E2,Nf,Ef)
     !
-    REAL(RP), INTENT(IN) :: N1, E1, N2, E2
-    REAL(RP), INTENT(OUT) :: Nf, Ef
+    real(RP), intent(in) :: N1, E1, N2, E2
+    real(RP), intent(out) :: Nf, Ef
     !
     Nf = N1*N2
     Ef = E1 + E2
-    IF ( ABS(Nf)>=10._RP ) THEN
+    if ( abs(Nf)>=10._RP ) then
       Nf = Nf/10._RP
       Ef = Ef + 1._RP
-    END IF
+    end if
     !
-  END SUBROUTINE emult
+  end subroutine emult
 
   !     ****************************************************************
   !     *                                                              *
@@ -721,19 +721,19 @@ CONTAINS
   !     *  Subprograms called: none                                    *
   !     *                                                              *
   !     ****************************************************************
-  ELEMENTAL SUBROUTINE ediv(N1,E1,N2,E2,Nf,Ef)
+  elemental subroutine ediv(N1,E1,N2,E2,Nf,Ef)
     !
-    REAL(RP), INTENT(IN) :: N1, E1, N2, E2
-    REAL(RP), INTENT(OUT) :: Nf, Ef
+    real(RP), intent(in) :: N1, E1, N2, E2
+    real(RP), intent(out) :: Nf, Ef
     !
     Nf = N1/N2
     Ef = E1 - E2
-    IF ( (ABS(Nf)<1._RP) .AND. (Nf/=0._RP) ) THEN
+    if ( (abs(Nf)<1._RP) .AND. (Nf/=0._RP) ) then
       Nf = Nf*10._RP
       Ef = Ef - 1._RP
-    END IF
+    end if
     !
-  END SUBROUTINE ediv
+  end subroutine ediv
 
   !     ****************************************************************
   !     *                                                              *
@@ -746,34 +746,34 @@ CONTAINS
   !     *  Subprograms called: none                                    *
   !     *                                                              *
   !     ****************************************************************
-  ELEMENTAL SUBROUTINE eadd(N1,E1,N2,E2,Nf,Ef)
+  elemental subroutine eadd(N1,E1,N2,E2,Nf,Ef)
     !
-    REAL(RP), INTENT(IN) :: N1, E1, N2, E2
-    REAL(RP), INTENT(OUT) :: Nf, Ef
+    real(RP), intent(in) :: N1, E1, N2, E2
+    real(RP), intent(out) :: Nf, Ef
     !
-    REAL(RP) :: ediff
+    real(RP) :: ediff
     !
     ediff = E1 - E2
-    IF ( ediff>36._RP ) THEN
+    if ( ediff>36._RP ) then
       Nf = N1
       Ef = E1
-    ELSE IF ( ediff<-36._RP ) THEN
+    else if ( ediff<-36._RP ) then
       Nf = N2
       Ef = E2
-    ELSE
+    else
       Nf = N1*(10._RP**ediff) + N2
       Ef = E2
-      DO WHILE ( ABS(Nf)>=10._RP )
+      do while ( abs(Nf)>=10._RP )
         Nf = Nf/10._RP
         Ef = Ef + 1._RP
-      END DO
-      DO WHILE ( (ABS(Nf)<1._RP) .AND. (Nf/=0._RP) )
+      end do
+      do while ( (abs(Nf)<1._RP) .AND. (Nf/=0._RP) )
         Nf = Nf*10._RP
         Ef = Ef - 1._RP
-      END DO
-    END IF
+      end do
+    end if
     !
-  END SUBROUTINE eadd
+  end subroutine eadd
 
   !     ****************************************************************
   !     *                                                              *
@@ -786,14 +786,14 @@ CONTAINS
   !     *  Subprograms called: eadd                                    *
   !     *                                                              *
   !     ****************************************************************
-  ELEMENTAL SUBROUTINE esub(N1,E1,N2,E2,Nf,Ef)
+  elemental subroutine esub(N1,E1,N2,E2,Nf,Ef)
     !
-    REAL(RP), INTENT(IN) :: N1, E1, N2, E2
-    REAL(RP), INTENT(OUT) :: Nf, Ef
+    real(RP), intent(in) :: N1, E1, N2, E2
+    real(RP), intent(out) :: Nf, Ef
     !
-    CALL eadd(N1,E1,-N2,E2,Nf,Ef)
+    call eadd(N1,E1,-N2,E2,Nf,Ef)
     !
-  END SUBROUTINE esub
+  end subroutine esub
 
   !     ****************************************************************
   !     *                                                              *
@@ -806,33 +806,33 @@ CONTAINS
   !     *  Subprograms called: none                                    *
   !     *                                                              *
   !     ****************************************************************
-  PURE SUBROUTINE conv12(Cn,Cae)
+  pure subroutine conv12(Cn,Cae)
     !
-    COMPLEX(RP), INTENT(IN) :: Cn
-    REAL(RP), INTENT(OUT) :: Cae(2,2)
+    complex(RP), intent(in) :: Cn
+    real(RP), intent(out) :: Cae(2,2)
     !
-    Cae(1,1) = REAL(Cn,RP)
+    Cae(1,1) = real(Cn,RP)
     Cae(1,2) = 0._RP
-    DO WHILE ( ABS(Cae(1,1))>=10._RP )
+    do while ( abs(Cae(1,1))>=10._RP )
       Cae(1,1) = Cae(1,1)/10._RP
       Cae(1,2) = Cae(1,2) + 1._RP
-    END DO
-    DO WHILE ( (ABS(Cae(1,1))<1._RP) .AND. (Cae(1,1)/=0._RP) )
+    end do
+    do while ( (abs(Cae(1,1))<1._RP) .AND. (Cae(1,1)/=0._RP) )
       Cae(1,1) = Cae(1,1)*10._RP
       Cae(1,2) = Cae(1,2) - 1._RP
-    END DO
-    Cae(2,1) = AIMAG(Cn)
+    end do
+    Cae(2,1) = aimag(Cn)
     Cae(2,2) = 0._RP
-    DO WHILE ( ABS(Cae(2,1))>=10._RP )
+    do while ( abs(Cae(2,1))>=10._RP )
       Cae(2,1) = Cae(2,1)/10._RP
       Cae(2,2) = Cae(2,2) + 1._RP
-    END DO
-    DO WHILE ( (ABS(Cae(2,1))<1._RP) .AND. (Cae(2,1)/=0._RP) )
+    end do
+    do while ( (abs(Cae(2,1))<1._RP) .AND. (Cae(2,1)/=0._RP) )
       Cae(2,1) = Cae(2,1)*10._RP
       Cae(2,2) = Cae(2,2) - 1._RP
-    END DO
+    end do
     !
-  END SUBROUTINE conv12
+  end subroutine conv12
 
   !     ****************************************************************
   !     *                                                              *
@@ -845,23 +845,23 @@ CONTAINS
   !     *  Subprograms called: none                                    *
   !     *                                                              *
   !     ****************************************************************
-  PURE SUBROUTINE conv21(Cae,Cn)
+  pure subroutine conv21(Cae,Cn)
     !
-    REAL(RP), INTENT(IN) :: Cae(2,2)
-    COMPLEX(RP), INTENT(OUT) :: Cn
+    real(RP), intent(in) :: Cae(2,2)
+    complex(RP), intent(out) :: Cn
     !
-    REAL(RP) :: a
+    real(RP) :: a
     !
-    IF ( Cae(1,2)>max_exp .OR. Cae(2,2)>max_exp ) THEN
+    if ( Cae(1,2)>max_exp .OR. Cae(2,2)>max_exp ) then
       a = 10._RP**max_exp
-      Cn = CMPLX( a, a, RP )
-    ELSE IF ( Cae(2,2)<min_exp ) THEN
-      Cn = CMPLX(Cae(1,1)*(10**Cae(1,2)),0._RP,RP)
-    ELSE
-      Cn = CMPLX(Cae(1,1)*(10**Cae(1,2)),Cae(2,1)*(10**Cae(2,2)),RP)
-    END IF
+      Cn = cmplx( a, a, RP )
+    else if ( Cae(2,2)<min_exp ) then
+      Cn = cmplx(Cae(1,1)*(10**Cae(1,2)),0._RP,RP)
+    else
+      Cn = cmplx(Cae(1,1)*(10**Cae(1,2)),Cae(2,1)*(10**Cae(2,2)),RP)
+    end if
     !
-  END SUBROUTINE conv21
+  end subroutine conv21
 
   !     ****************************************************************
   !     *                                                              *
@@ -875,23 +875,23 @@ CONTAINS
   !     *  Subprograms called: emult, esub, eadd                       *
   !     *                                                              *
   !     ****************************************************************
-  PURE SUBROUTINE ecpmul(A,B,C)
+  pure subroutine ecpmul(A,B,C)
     !
-    REAL(RP), INTENT(IN) :: A(2,2), B(2,2)
-    REAL(RP), INTENT(OUT) :: C(2,2)
+    real(RP), intent(in) :: A(2,2), B(2,2)
+    real(RP), intent(out) :: C(2,2)
     !
-    REAL(RP) :: n1, e1, n2, e2, c2(2,2)
+    real(RP) :: n1, e1, n2, e2, c2(2,2)
     !
-    CALL emult(A(1,1),A(1,2),B(1,1),B(1,2),n1,e1)
-    CALL emult(A(2,1),A(2,2),B(2,1),B(2,2),n2,e2)
-    CALL esub(n1,e1,n2,e2,c2(1,1),c2(1,2))
-    CALL emult(A(1,1),A(1,2),B(2,1),B(2,2),n1,e1)
-    CALL emult(A(2,1),A(2,2),B(1,1),B(1,2),n2,e2)
-    CALL eadd(n1,e1,n2,e2,C(2,1),C(2,2))
+    call emult(A(1,1),A(1,2),B(1,1),B(1,2),n1,e1)
+    call emult(A(2,1),A(2,2),B(2,1),B(2,2),n2,e2)
+    call esub(n1,e1,n2,e2,c2(1,1),c2(1,2))
+    call emult(A(1,1),A(1,2),B(2,1),B(2,2),n1,e1)
+    call emult(A(2,1),A(2,2),B(1,1),B(1,2),n2,e2)
+    call eadd(n1,e1,n2,e2,C(2,1),C(2,2))
     C(1,1) = c2(1,1)
     C(1,2) = c2(1,2)
     !
-  END SUBROUTINE ecpmul
+  end subroutine ecpmul
 
   !     ****************************************************************
   !     *                                                              *
@@ -904,24 +904,24 @@ CONTAINS
   !     *  Subprograms called: eadd, ecpmul, ediv, emult               *
   !     *                                                              *
   !     ****************************************************************
-  PURE SUBROUTINE ecpdiv(A,B,C)
+  pure subroutine ecpdiv(A,B,C)
     !
-    REAL(RP), INTENT(IN) :: A(2,2), B(2,2)
-    REAL(RP), INTENT(OUT) :: C(2,2)
+    real(RP), intent(in) :: A(2,2), B(2,2)
+    real(RP), intent(out) :: C(2,2)
     !
-    REAL(RP) :: n1, e1, n2, e2, b2(2,2), n3, e3, c2(2,2)
+    real(RP) :: n1, e1, n2, e2, b2(2,2), n3, e3, c2(2,2)
     !
     b2(1,1) = B(1,1)
     b2(1,2) = B(1,2)
     b2(2,1) = -1._RP*B(2,1)
     b2(2,2) = B(2,2)
-    CALL ecpmul(A,b2,c2)
-    CALL emult(B(1,1),B(1,2),B(1,1),B(1,2),n1,e1)
-    CALL emult(B(2,1),B(2,2),B(2,1),B(2,2),n2,e2)
-    CALL eadd(n1,e1,n2,e2,n3,e3)
-    CALL ediv(c2(1,1),c2(1,2),n3,e3,C(1,1),C(1,2))
-    CALL ediv(c2(2,1),c2(2,2),n3,e3,C(2,1),C(2,2))
+    call ecpmul(A,b2,c2)
+    call emult(B(1,1),B(1,2),B(1,1),B(1,2),n1,e1)
+    call emult(B(2,1),B(2,2),B(2,1),B(2,2),n2,e2)
+    call eadd(n1,e1,n2,e2,n3,e3)
+    call ediv(c2(1,1),c2(1,2),n3,e3,C(1,1),C(1,2))
+    call ediv(c2(2,1),c2(2,2),n3,e3,C(2,1),C(2,2))
     !
-  END SUBROUTINE ecpdiv
+  end subroutine ecpdiv
   !
-END SUBMODULE conhyp_m
+end submodule conhyp_m

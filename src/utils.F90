@@ -1,30 +1,30 @@
-SUBMODULE(utils) utils
-  IMPLICIT NONE
+submodule(utils) utils
+  implicit none
 
-CONTAINS
+contains
 
-  ELEMENTAL REAL(RP) MODULE FUNCTION norm_fac(e,n)
-    USE special_functions ,ONLY: fac
-    REAL(RP), INTENT(IN) :: e
-    INTEGER , INTENT(IN) :: n
+  elemental real(RP) module function norm_fac(e,n)
+    use special_functions ,only: fac
+    real(RP), intent(in) :: e
+    integer , intent(in) :: n
 
-    norm_fac = SQRT( (2.*e)**(2*n+1) / fac(2*n) )
+    norm_fac = sqrt( (2.*e)**(2*n+1) / fac(2*n) )
 
-  END FUNCTION
+  end function
 
-  ELEMENTAL REAL(RP) MODULE FUNCTION y1y2y3(l1, l2, l3, m1, m2, m3 )
-    USE constants ,ONLY: pi
+  elemental real(RP) module function y1y2y3(l1, l2, l3, m1, m2, m3 )
+    use constants ,only: pi
     !USE ieee_arithmetic ,ONLY: ieee_is_nan, ieee_is_finite
-    USE special_functions ,ONLY: lnfac!, fac_called
-    INTEGER, INTENT(IN) :: l1, l2, l3, m1, m2, m3
-    INTEGER :: t
-    REAL(RP) :: s0, s1, cst_1, cst_0
+    use special_functions ,only: lnfac!, fac_called
+    integer, intent(in) :: l1, l2, l3, m1, m2, m3
+    integer :: t
+    real(RP) :: s0, s1, cst_1, cst_0
 
     !IF(.NOT. fac_called ) ERROR STOP 'you should call factorial before using y1y2y3'
 
     y1y2y3 = 0._RP
-    IF( MOD(l1+l2+l3,2)/=0 .OR. m1+m2+m3/=0 .OR. l3<ABS(l1-l2) .OR. l3>l1+l2 &
-      .OR. ABS(m1)>l1 .OR. ABS(m2)>l2 .OR. ABS(m3)>l3  ) RETURN
+    if( mod(l1+l2+l3,2)/=0 .OR. m1+m2+m3/=0 .OR. l3<abs(l1-l2) .OR. l3>l1+l2 &
+      .OR. abs(m1)>l1 .OR. abs(m2)>l2 .OR. abs(m3)>l3  ) return
 
     !  / l_1 l_2 l_3 \
     !  |             |
@@ -32,10 +32,10 @@ CONTAINS
     s1 = 0._RP
     cst_1 = 0.5_RP*(lnfac(l1+m1) +lnfac(l1-m1) +lnfac(l2+m2) +lnfac(l2-m2) +lnfac(l3+m3) &
       +lnfac(l3-m3) +lnfac(l2+l3-l1) +lnfac(l3+l1-l2) -0.7*lnfac(l1+l2+l3+1) )
-    DO t = MAX(0, l2-l3-m1, l1-l3+m2 ), MIN(l1+l2-l3, l1-m1, l2+m2 )
-      s1 = s1 +(-1)**t* EXP( cst_1 -( lnfac(t) +lnfac(l1+l2-l3-t) +lnfac(l3-l2+m1+t) &
+    do t = max(0, l2-l3-m1, l1-l3+m2 ), min(l1+l2-l3, l1-m1, l2+m2 )
+      s1 = s1 +(-1)**t* exp( cst_1 -( lnfac(t) +lnfac(l1+l2-l3-t) +lnfac(l3-l2+m1+t) &
         +lnfac(l3-l1-m2+t) +lnfac(l1-m1-t) +lnfac(l2+m2-t) ) )
-    END DO
+    end do
 
     ! / l_1 l_2 l_3 \
     ! |             |
@@ -43,131 +43,131 @@ CONTAINS
     s0 = 0._RP
     cst_0 = lnfac(l1) +lnfac(l2) +lnfac(l3) +0.5_RP*( lnfac(l2+l3-l1) &
       +lnfac(l3+l1-l2) -0.7*lnfac(l1+l2+l3+1) )
-    DO t = MAX(0, l2-l3, l1-l3 ), MIN(l1+l2-l3, l1, l2 )
-      s0 = s0 +(-1)**t*EXP( cst_0 -( lnfac(t) +lnfac(l1+l2-l3-t) +lnfac(l3-l2+t) &
+    do t = max(0, l2-l3, l1-l3 ), min(l1+l2-l3, l1, l2 )
+      s0 = s0 +(-1)**t*exp( cst_0 -( lnfac(t) +lnfac(l1+l2-l3-t) +lnfac(l3-l2+t) &
         +lnfac(l3-l1+t) +lnfac(l1-t) +lnfac(l2-t) ) )
-    END DO
+    end do
 
-    y1y2y3 = (-1)**m3*SQRT( (2*l1+1)*(2*l2+1)*(2*l3+1)/(4.*pi) )*s1 &
-     *( EXP(lnfac(l1+l2-l3)-0.3*lnfac(l1+l2+l3+1) )*s0 )
+    y1y2y3 = (-1)**m3*sqrt( (2*l1+1)*(2*l2+1)*(2*l3+1)/(4.*pi) )*s1 &
+     *( exp(lnfac(l1+l2-l3)-0.3*lnfac(l1+l2+l3+1) )*s0 )
     !IF( ieee_is_nan(y1y2y3) .OR. (.NOT. ieee_is_finite(y1y2y3)) ) ERROR STOP 'y1y2y3 overflow'
 
-  END FUNCTION y1y2y3
+  end function y1y2y3
 
   !> ode_second_dw
   !!
   !! This subroutine solve Equation of the form
   !! s_l''(r) +f_l(r)*s_l(r) = km**2*s_l(r)
 
-  MODULE SUBROUTINE ode_second_dw(km, lmax, rc, z, f, s, delta )
-    USE special_functions ,ONLY: coul90, ricbes
-    INTEGER, INTENT(IN) :: lmax, z
-    REAL(RP), INTENT(IN)  :: f(0:,0:), rc, km
-    REAL(RP), INTENT(OUT) :: s(0:,0:), delta(0:lmax)
-    REAL(RP) :: Big = SQRT(HUGE(1._RP)), eps = EPSILON(1._RP)
-    REAL(RP) :: h, rho, eta
-    REAL(RP), DIMENSION(0:lmax) :: jl, gl, jpl, gpl, fn, betap, beta
-    INTEGER :: i, ns, l, i1
+  module subroutine ode_second_dw(km, lmax, rc, z, f, s, delta )
+    use special_functions ,only: coul90, ricbes
+    integer, intent(in) :: lmax, z
+    real(RP), intent(in)  :: f(0:,0:), rc, km
+    real(RP), intent(out) :: s(0:,0:), delta(0:lmax)
+    real(RP) :: Big = sqrt(huge(1._RP)), eps = epsilon(1._RP)
+    real(RP) :: h, rho, eta
+    real(RP), dimension(0:lmax) :: jl, gl, jpl, gpl, fn, betap, beta
+    integer :: i, ns, l, i1
 
-    ns = SIZE(s,1)-1
+    ns = size(s,1)-1
     h = rc/ns
 
     rho = km*h*(ns-2)
 
-    IF(z/=0) THEN
+    if(z/=0) then
       eta = -z/km
-      CALL coul90(rho, eta, 0, lmax, jl, gl, jpl, gpl, 0 )
-    ELSE
-      CALL ricbes(rho, lmax, jl, gl, jpl, gpl )
-    END IF
+      call coul90(rho, eta, 0, lmax, jl, gl, jpl, gpl, 0 )
+    else
+      call ricbes(rho, lmax, jl, gl, jpl, gpl )
+    end if
 
 
-    DO l = 0,lmax
+    do l = 0,lmax
       s(0,l) = 0._RP
-      DO i1 = 1,ns-1
+      do i1 = 1,ns-1
         s(i1,l) = (i1*h)**(l+1)
-        IF(s(i1,l)>0._RP) EXIT
-      END DO
-      DO i = i1,ns-1
+        if(s(i1,l)>0._RP) exit
+      end do
+      do i = i1,ns-1
         s(i+1,l) = ( (2._RP+f(i,l)*5._RP*h**2/6.)*s(i,l) &
           -(1._RP-f(i-1,l)*h**2/12.)*s(i-1,l) )/( 1._RP-f(i+1,l)*h**2/12. )
-        IF(ABS(s(i+1,l))>=Big) s(1:i+1,l) = s(1:i+1,l)*eps
-      END DO
-    END DO
+        if(abs(s(i+1,l))>=Big) s(1:i+1,l) = s(1:i+1,l)*eps
+      end do
+    end do
 
     betap = ( s(ns-4,:) -8.*s(ns-3,:) +8.*s(ns-1,:) -s(ns,:) ) / ( 12.*h*km )
     beta = s(ns-2,:)
-    delta = ATAN( (-jl*betap+jpl*beta) /(gl*betap-gpl*beta ) )
-    fn = (COS(delta)*jl+SIN(delta)*gl) /beta
+    delta = atan( (-jl*betap+jpl*beta) /(gl*betap-gpl*beta ) )
+    fn = (cos(delta)*jl+sin(delta)*gl) /beta
 
-    DO l = 0,lmax
+    do l = 0,lmax
       s(:,l) = s(:,l)*fn(l)
-    END DO
+    end do
 
-  END SUBROUTINE ode_second_dw
+  end subroutine ode_second_dw
 
-  ELEMENTAL REAL(RP) FUNCTION Uij(ni, ei, nj, ej, r)
-    USE special_functions ,ONLY: fac
-    REAL(RP), INTENT(IN) :: ei, ej, r
-    INTEGER, INTENT(IN) :: ni, nj
-    INTEGER :: k
-    REAL(RP) :: a
+  elemental real(RP) function Uij(ni, ei, nj, ej, r)
+    use special_functions ,only: fac
+    real(RP), intent(in) :: ei, ej, r
+    integer, intent(in) :: ni, nj
+    integer :: k
+    real(RP) :: a
 
     a = 1._RP
-    DO k = 1,ni+nj-1
+    do k = 1,ni+nj-1
       a = a +((ei+ej)*r)**k*(ni+nj-k) /( (ni+nj)*fac(k) )
-    END DO
-    Uij = a*EXP(-(ei+ej)*r)*fac(ni+nj)*ei**ni*ej**nj*SQRT(ei*ej) &
-      /( SQRT( fac(2*ni)*fac(2*nj) )*( (ei+ej)/2. )**(ni+nj+1) )
+    end do
+    Uij = a*exp(-(ei+ej)*r)*fac(ni+nj)*ei**ni*ej**nj*sqrt(ei*ej) &
+      /( sqrt( fac(2*ni)*fac(2*nj) )*( (ei+ej)/2. )**(ni+nj+1) )
 
-  END FUNCTION Uij
+  end function Uij
 
-  MODULE SUBROUTINE calculate_U(Atom, Orbit, r, U, state )
-    USE input ,ONLY: read_orbit
-    CHARACTER(LEN=2), INTENT(IN) :: Atom, Orbit
-    REAL(RP)   , INTENT(IN) :: r(:)
-    REAL(RP)   , INTENT(OUT) :: U(:)
-    INTEGER :: state
+  module subroutine calculate_U(Atom, Orbit, r, U, state )
+    use input ,only: read_orbit
+    character(len=2), intent(in) :: Atom, Orbit
+    real(RP)   , intent(in) :: r(:)
+    real(RP)   , intent(out) :: U(:)
+    integer :: state
 
-    INTEGER :: IN
+    integer :: in
 
-    REAL(RP), ALLOCATABLE :: a(:),e(:)
-    INTEGER, ALLOCATABLE :: n(:)
-    INTEGER :: nelec, lo, no, i1, i2, nocup
-    CHARACTER(LEN=2) :: orbit_i
+    real(RP), allocatable :: a(:),e(:)
+    integer, allocatable :: n(:)
+    integer :: nelec, lo, no, i1, i2, nocup
+    character(len=2) :: orbit_i
 
-    OPEN( newunit = IN, FILE = 'Data/'//Atom//'.dat', STATUS = 'old', ACTION = 'read')
+    open( newunit = in, file = 'Data/'//Atom//'.dat', status = 'old', action = 'read')
 
     U = 0._RP
-    DO
-      READ(IN, FMT=*, IOSTAT = lo ) orbit_i
-      IF(lo<0) EXIT
+    do
+      read(in, fmt=*, iostat = lo ) orbit_i
+      if(lo<0) exit
 
-      CALL read_orbit(Atom//'_'//orbit_i, nelec, lo, no, n, a, e)
+      call read_orbit(Atom//'_'//orbit_i, nelec, lo, no, n, a, e)
       nocup = nelec*(2*lo+1)
-      IF(orbit_i==Orbit ) nocup = nocup -state
+      if(orbit_i==Orbit ) nocup = nocup -state
 
-      IF(nocup==0) CYCLE
+      if(nocup==0) cycle
 
-      DO i1 = 1,no
+      do i1 = 1,no
         U = U +nocup*a(i1)**2*Uij( n(i1), e(i1), n(i1), e(i1), r )
         if(i1==1) cycle
-        DO i2 = 1,i1-1
+        do i2 = 1,i1-1
           U = U +2*nocup*a(i1)*a(i2)*Uij( n(i1), e(i1), n(i2), e(i2), r )
-        END DO
-      END DO
+        end do
+      end do
 
-    END DO
+    end do
 
-    CLOSE(IN)
+    close(in)
 
-  END SUBROUTINE calculate_U
+  end subroutine calculate_U
 
-  PURE MODULE SUBROUTINE INTRPL(X, Y, U, V )
-    USE CONSTANTS ,ONLY: RP
-    IMPLICIT NONE
-    REAL(RP), INTENT(IN) :: X(:), Y(:), U(:)
-    REAL(RP), INTENT(OUT) :: V(:)
+  pure module subroutine INTRPL(X, Y, U, V )
+    use CONSTANTS ,only: RP
+    implicit none
+    real(RP), intent(in) :: X(:), Y(:), U(:)
+    real(RP), intent(out) :: V(:)
     !
     !  REAL(WP) INTERPOLATION OF A SINGLE VALUED FUNCTION
     !  THIS SUBROUTINE INTERPOLATES, FROM VALUES OF THE FUNCTION
@@ -189,10 +189,10 @@ CONTAINS
     !  V = ARRAY OF DIMENSION N WHERE THE INTERPOLATED Y VALUES ARE TO BE DISPLAYED
     !
     !  DECLARATION STATEMENTS
-    REAL(RP) :: A2, A3, A4, T4, TM2, TM3, TM4, X4, Y4
-    INTEGER :: I, IMN, IMX, IPV, J, K, L, N
-    REAL(RP), TARGET :: P0, Q0, Q1, UK, X2, X5, SW, Y2, Y5
-    REAL(RP), POINTER :: DX, X3, Y3, T3, A1, TM1, A5, TM5, SA, W2, W4, Q2, W3, Q3
+    real(RP) :: A2, A3, A4, T4, TM2, TM3, TM4, X4, Y4
+    integer :: I, IMN, IMX, IPV, J, K, L, N
+    real(RP), target :: P0, Q0, Q1, UK, X2, X5, SW, Y2, Y5
+    real(RP), pointer :: DX, X3, Y3, T3, A1, TM1, A5, TM5, SA, W2, W4, Q2, W3, Q3
 
     X3 => P0
     P0 = 0._RP
@@ -213,9 +213,9 @@ CONTAINS
 
 
     !  PRELIMINARY PROCESSING
-    L = SIZE(X)
+    L = size(X)
     !IF(SIZE(Y)/=L) ERROR STOP 'size(Y)/=size(X)'
-    N = SIZE(U)
+    N = size(U)
     !IF(SIZE(V)/=N) ERROR STOP 'INTRPL : size(V)/=size(U)'
 
     TM4 = 0._RP
@@ -224,34 +224,34 @@ CONTAINS
 
     IPV = 0
     !  MAIN LOOP
-    DO K = 1,N
+    do K = 1,N
       UK = U(K)
       !  ROUTINE TO LOCATE THE DESIRED POINT
-      IF(UK<X(1)) THEN
+      if(UK<X(1)) then
         I = 1
-      ELSEIF(UK>=X(L)) THEN
+      elseif(UK>=X(L)) then
         I = L+1
-      ELSE
+      else
         IMN = 2
         IMX = L
-        DO
+        do
           I = (IMN+IMX)/2
-          IF(UK<X(I)) THEN
+          if(UK<X(I)) then
             IMX = I
-          ELSE
+          else
             IMN = I+1
-          END IF
-          IF(IMX<=IMN) EXIT
-        END DO
+          end if
+          if(IMX<=IMN) exit
+        end do
         I = IMX
-      END IF
+      end if
       !  CHECK IF I = IPV
-      IF(I/=IPV) THEN
+      if(I/=IPV) then
         IPV = I
         !  ROUTINES TO PICK UP NECESSARY X AND Y VALUES AND TO ESTIMATE THEM IF NECESSARY
         J = I
-        IF(J==1) J = 2
-        IF(J==L+1) J = L
+        if(J==1) J = 2
+        if(J==L+1) J = L
         X3 = X(J-1)
         Y3 = Y(J-1)
         X4 = X(J)
@@ -259,50 +259,50 @@ CONTAINS
         A3 = X4-X3
         TM3 = (Y4-Y3)/A3
         TM2 = 0._RP
-        IF( L/=2 ) THEN
-          IF( J/=2 ) THEN
+        if( L/=2 ) then
+          if( J/=2 ) then
             X2 = X(J-2)
             Y2 = Y(J-2)
             A2 = X3-X2
             TM2 = (Y3-Y2)/A2
-          END IF
-          IF(J/=L) THEN
+          end if
+          if(J/=L) then
             X5 = X(J+1)
             Y5 = Y(J+1)
             A4 = X5-X4
             TM4 = (Y5-Y4)/A4
-            IF(J==2) TM2 = TM3+TM3-TM4
-          ELSE
+            if(J==2) TM2 = TM3+TM3-TM4
+          else
             TM4 = TM3+TM3-TM2
-          END IF
-        ELSE
+          end if
+        else
           TM2 = TM3
-        END IF
-        IF(J>3) THEN
+        end if
+        if(J>3) then
           A1 = X2-X(J-3)
           TM1 = (Y2-Y(J-3))/A1
-        ELSE
+        else
           TM1 = TM2+TM2-TM3
-        END IF
-        IF(J<L-1) THEN
+        end if
+        if(J<L-1) then
           A5 = X(J+2)-X5
           TM5 = (Y(J+2)-Y5)/A5
-        ELSE
+        else
           TM5 = TM4+TM4-TM3
-        END IF
+        end if
         !  NUMERICAL DIFFERENTIATION
-        IF(I/=L+1) THEN
-          W2 = ABS(TM4-TM3)
-          W3 = ABS(TM2-TM1)
+        if(I/=L+1) then
+          W2 = abs(TM4-TM3)
+          W3 = abs(TM2-TM1)
           SW = W2+W3
-          IF(SW==0._RP) THEN
+          if(SW==0._RP) then
             W2 = 0.5_RP
             W3 = 0.5_RP
             SW = 1._RP
-          END IF
+          end if
           T3 = (W2*TM2+W3*TM3)/SW
-        END IF
-        IF(I==1) THEN
+        end if
+        if(I==1) then
           T4 = T3
           SA = A3+A4
           T3 = 0.5_RP*(TM1+TM2-A4*(A3-A4)*(TM3-TM4)/(SA*SA))
@@ -310,17 +310,17 @@ CONTAINS
           Y3 = Y3-TM2*A4
           A3 = A4
           TM3 = TM2
-        ELSE
-          W3 = ABS(TM5-TM4)
-          W4 = ABS(TM3-TM2)
+        else
+          W3 = abs(TM5-TM4)
+          W4 = abs(TM3-TM2)
           SW = W3+W4
-          IF(SW==0._RP) THEN
+          if(SW==0._RP) then
             W3 = 0.5_RP
             W4 = 0.5_RP
             SW = 1._RP
-          END IF
+          end if
           T4 = (W3*TM3+W4*TM4)/SW
-          IF(I==L+1) THEN
+          if(I==L+1) then
             T3 = T4
             SA = A2+A3
             T4 = 0.5_RP*(TM4+TM5-A2*(A2-A3)*(TM2-TM3)/(SA*SA))
@@ -328,18 +328,18 @@ CONTAINS
             Y3 = Y4
             A3 = A2
             TM3 = TM4
-          END IF
-        END IF
+          end if
+        end if
         !  COMPUTATION OF THE POLYNOMIAL
         Q2 = (2._RP*(TM3-T3)+TM3-T4)/A3
         Q3 = (-TM3-TM3+T3+T4)/(A3*A3)
-      END IF
+      end if
       DX = UK-P0
       V(K) = Q0+DX*(Q1+DX*(Q2+DX*Q3))
 
-    END DO
+    end do
 
-    RETURN
-  END SUBROUTINE INTRPL
+    return
+  end subroutine INTRPL
 
-END SUBMODULE utils
+end submodule utils

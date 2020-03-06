@@ -1,27 +1,27 @@
-MODULE integration
-  USE constants ,ONLY: RP
-  IMPLICIT NONE
+module integration
+  use constants ,only: RP
+  implicit none
 
-  INTERFACE
+  interface
 
-    MODULE SUBROUTINE clenshaw_curtis( a, b, x, w, n )
-      REAL(RP), INTENT(IN) :: a, b
-      INTEGER, INTENT(IN) :: n
-      REAL(RP), INTENT(OUT), ALLOCATABLE :: w(:), x(:)
-    END SUBROUTINE clenshaw_curtis
+    module subroutine clenshaw_curtis( a, b, x, w, n )
+      real(RP), intent(in) :: a, b
+      integer, intent(in) :: n
+      real(RP), intent(out), allocatable :: w(:), x(:)
+    end subroutine clenshaw_curtis
 
-    PURE MODULE SUBROUTINE gauleg(a,b,x,w,n)
-      INTEGER, INTENT(IN) :: n
-      REAL(RP), INTENT(IN) :: a,b
-      REAL(RP), INTENT(OUT), ALLOCATABLE :: x(:),w(:)
-    END SUBROUTINE gauleg
+    pure module subroutine gauleg(a,b,x,w,n)
+      integer, intent(in) :: n
+      real(RP), intent(in) :: a,b
+      real(RP), intent(out), allocatable :: x(:),w(:)
+    end subroutine gauleg
 
-    PURE MODULE SUBROUTINE pd(sx,sw,n)
-      INTEGER, INTENT(IN) :: n
-      REAL(RP), INTENT(OUT), CONTIGUOUS :: sw(:)
-      REAL(RP), INTENT(INOUT), CONTIGUOUS :: sx(:)
-    END SUBROUTINE pd
+    pure module subroutine pd(sx,sw,n)
+      integer, intent(in) :: n
+      real(RP), intent(out), contiguous :: sw(:)
+      real(RP), intent(inout), contiguous :: sx(:)
+    end subroutine pd
 
-  END INTERFACE
+  end interface
 
-END MODULE integration
+end module integration

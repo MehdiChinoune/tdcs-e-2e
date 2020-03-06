@@ -1,47 +1,47 @@
-SUBMODULE(input) input
-  IMPLICIT NONE
+submodule(input) input
+  implicit none
 
-CONTAINS
+contains
 
-  MODULE SUBROUTINE read_input(in_unit, Ei, Es, Ee, thetas, step, Atom, Orbit, exchange)
-    INTEGER, INTENT(IN) :: in_unit
-    REAL(RP), INTENT(OUT) :: Ei, Es, Ee, thetas
-    INTEGER, INTENT(OUT) :: step(3)
-    INTEGER, OPTIONAL, INTENT(OUT) :: exchange
-    CHARACTER(LEN=2), INTENT(OUT) :: Atom, Orbit
+  module subroutine read_input(in_unit, Ei, Es, Ee, thetas, step, Atom, Orbit, exchange)
+    integer, intent(in) :: in_unit
+    real(RP), intent(out) :: Ei, Es, Ee, thetas
+    integer, intent(out) :: step(3)
+    integer, optional, intent(out) :: exchange
+    character(len=2), intent(out) :: Atom, Orbit
     !
-    READ( in_unit, * ) Atom
-    READ( in_unit, * ) Orbit
-    READ( in_unit, * ) Ei, Es, Ee
-    READ( in_unit, * ) thetas
-    READ( in_unit, * ) step
-    READ( in_unit, * ) exchange
+    read( in_unit, * ) Atom
+    read( in_unit, * ) Orbit
+    read( in_unit, * ) Ei, Es, Ee
+    read( in_unit, * ) thetas
+    read( in_unit, * ) step
+    read( in_unit, * ) exchange
     ! Rewind, to use it more than once.
-    REWIND( in_unit )
+    rewind( in_unit )
     !
-  END SUBROUTINE read_input
+  end subroutine read_input
 
-  MODULE SUBROUTINE read_orbit(orbit_file, nelec, lo, no, n, a, e )
-    CHARACTER(LEN=5), INTENT(IN)  :: orbit_file
-    INTEGER, INTENT(OUT) :: nelec, lo, no
-    INTEGER, ALLOCATABLE, INTENT(OUT) :: n(:)
-    REAL(RP), ALLOCATABLE, INTENT(OUT) :: a(:), e(:)
+  module subroutine read_orbit(orbit_file, nelec, lo, no, n, a, e )
+    character(len=5), intent(in)  :: orbit_file
+    integer, intent(out) :: nelec, lo, no
+    integer, allocatable, intent(out) :: n(:)
+    real(RP), allocatable, intent(out) :: a(:), e(:)
 
-    INTEGER :: INPUT
+    integer :: INPUT
 
-    OPEN( newunit = INPUT, FILE = 'Data/'//orbit_file//'.dat', STATUS = 'old' &
-      , ACTION = 'read')
+    open( newunit = INPUT, file = 'Data/'//orbit_file//'.dat', status = 'old' &
+      , action = 'read')
 
-    READ( INPUT, * ) nelec
-    READ( INPUT, * ) lo
-    READ( INPUT, * ) no
-    ALLOCATE ( a(no), e(no), n(no) )
-    READ( INPUT, * ) n
-    READ( INPUT, * ) a
-    READ( INPUT, * ) e
+    read( INPUT, * ) nelec
+    read( INPUT, * ) lo
+    read( INPUT, * ) no
+    allocate ( a(no), e(no), n(no) )
+    read( INPUT, * ) n
+    read( INPUT, * ) a
+    read( INPUT, * ) e
 
-    CLOSE(INPUT)
+    close(INPUT)
 
-  END SUBROUTINE read_orbit
+  end subroutine read_orbit
 
-END SUBMODULE input
+end submodule input

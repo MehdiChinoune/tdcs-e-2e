@@ -1,23 +1,23 @@
 !> Trigonometric Transformations
 
 !> This module contains some trigonometric transformations
-SUBMODULE(trigo) trigo
-  IMPLICIT NONE
+submodule(trigo) trigo
+  implicit none
 
-CONTAINS
+contains
 
-  PURE MODULE SUBROUTINE spher2cartez( km, theta, phi, k )
-    REAL(RP), INTENT(IN)  :: km, phi, theta
-    REAL(RP), INTENT(OUT) :: k(3)
-    k = km*[ SIN(theta)*COS(phi), SIN(theta)*SIN(phi), COS(theta) ]
-  END SUBROUTINE spher2cartez
+  pure module subroutine spher2cartez( km, theta, phi, k )
+    real(RP), intent(in)  :: km, phi, theta
+    real(RP), intent(out) :: k(3)
+    k = km*[ sin(theta)*cos(phi), sin(theta)*sin(phi), cos(theta) ]
+  end subroutine spher2cartez
 
-  PURE MODULE SUBROUTINE cartez2spher( k, km, theta, phi )
-    REAL(RP), INTENT(IN)  :: k(3)
-    REAL(RP), INTENT(OUT) :: km, theta, phi
-    km = NORM2(k)
-    theta = ACOS( k(3)/km )
-    phi = ATAN2( k(2), k(1) )
-  END SUBROUTINE cartez2spher
+  pure module subroutine cartez2spher( k, km, theta, phi )
+    real(RP), intent(in)  :: k(3)
+    real(RP), intent(out) :: km, theta, phi
+    km = norm2(k)
+    theta = acos( k(3)/km )
+    phi = atan2( k(2), k(1) )
+  end subroutine cartez2spher
 
-END SUBMODULE trigo
+end submodule trigo

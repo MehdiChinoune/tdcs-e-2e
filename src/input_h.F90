@@ -1,24 +1,24 @@
-MODULE input
-  USE constants ,ONLY: RP
-  IMPLICIT NONE
+module input
+  use constants ,only: RP
+  implicit none
 
-  INTERFACE
+  interface
 
-    MODULE SUBROUTINE read_input(in_unit, Ei, Es, Ee, thetas, step, Atom, Orbit, exchange)
-      INTEGER, INTENT(IN) :: in_unit
-      REAL(RP), INTENT(OUT) :: Ei, Es, Ee, thetas
-      INTEGER, INTENT(OUT) :: step(3)
-      INTEGER, OPTIONAL, INTENT(OUT) :: exchange
-      CHARACTER(LEN=2), INTENT(OUT) :: Atom, Orbit
-    END SUBROUTINE read_input
+    module subroutine read_input(in_unit, Ei, Es, Ee, thetas, step, Atom, Orbit, exchange)
+      integer, intent(in) :: in_unit
+      real(RP), intent(out) :: Ei, Es, Ee, thetas
+      integer, intent(out) :: step(3)
+      integer, optional, intent(out) :: exchange
+      character(len=2), intent(out) :: Atom, Orbit
+    end subroutine read_input
 
-    MODULE SUBROUTINE read_orbit(orbit_file, nelec, lo, no, n, a, e )
-      CHARACTER(LEN=5), INTENT(IN)  :: orbit_file
-      INTEGER, INTENT(OUT) :: nelec, lo, no
-      INTEGER, ALLOCATABLE, INTENT(OUT) :: n(:)
-      REAL(RP), ALLOCATABLE, INTENT(OUT) :: a(:), e(:)
-    END SUBROUTINE read_orbit
+    module subroutine read_orbit(orbit_file, nelec, lo, no, n, a, e )
+      character(len=5), intent(in)  :: orbit_file
+      integer, intent(out) :: nelec, lo, no
+      integer, allocatable, intent(out) :: n(:)
+      real(RP), allocatable, intent(out) :: a(:), e(:)
+    end subroutine read_orbit
 
-  END INTERFACE
+  end interface
 
-END MODULE input
+end module input

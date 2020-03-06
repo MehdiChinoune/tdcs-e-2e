@@ -5,19 +5,19 @@
 !> @param pi known
 !! @param deg to convert from degrees to radians
 !! @param eV to convert from electonVolts to Ritz(atomic unit of energy)
-MODULE constants
-  IMPLICIT NONE
+module constants
+  implicit none
   ! Machine precisions
-  INTEGER, PARAMETER :: SP = SELECTED_REAL_KIND(6,37) !> Single precision
-  INTEGER, PARAMETER :: DP = SELECTED_REAL_KIND(15,307) !> Double precision
-  INTEGER, PARAMETER :: XP = SELECTED_REAL_KIND(18,4931) !> Extended precision
-  INTEGER, PARAMETER :: QP = SELECTED_REAL_KIND(33,4931) !> Quadruple precision
-  INTEGER, PARAMETER :: RP = DP !> This my chosen precision
+  integer, parameter :: SP = selected_real_kind(6,37) !> Single precision
+  integer, parameter :: DP = selected_real_kind(15,307) !> Double precision
+  integer, parameter :: XP = selected_real_kind(18,4931) !> Extended precision
+  integer, parameter :: QP = selected_real_kind(33,4931) !> Quadruple precision
+  integer, parameter :: RP = DP !> This my chosen precision
   ! Mathematical constants
-  REAL(RP), PARAMETER :: pi = 3.141592653589793238_RP !> \pi
-  REAL(RP), PARAMETER :: deg = pi/180._RP !> one degree
+  real(RP), parameter :: pi = 3.141592653589793238_RP !> \pi
+  real(RP), parameter :: deg = pi/180._RP !> one degree
   ! Factorial and Logarithm of factorial 0-170
-  REAL(DP), PARAMETER :: fac(0:170) = [ &
+  real(DP), parameter :: fac(0:170) = [ &
     1._DP, 1._DP, 2._DP, 6._DP, 24._DP, 120._DP , 720._DP, 5040._DP, 40320._DP, & ! 0-8
     362880._DP, 3628800._DP, 39916800._DP, 479001600._DP, 6227020800._DP, &       ! 9-13
     87178291200._DP, 1307674368.E3_DP, 20922789888.E3_DP , 355687428096.E3_DP, &  ! 14-17
@@ -96,8 +96,8 @@ MODULE constants
     3.2872185855342962272633303116441E293_DP, 5.4239106661315887749844950142128E295_DP, &
     9.0036917057784373664742617235933E297_DP, 1.5036165148649990402012017078401E300_DP, &
     2.5260757449731983875380188691713E302_DP, 4.2690680090047052749392518888996E304_DP, &
-    7.2574156153079989673967282111293E306_DP ], lnfac(0:170) = LOG( x = fac )
+    7.2574156153079989673967282111293E306_DP ], lnfac(0:170) = log( x = fac )
   ! Physical constants
-  REAL(RP), PARAMETER :: eV = 1._RP/27.21165_RP !> electronVolt
+  real(RP), parameter :: eV = 1._RP/27.21165_RP !> electronVolt
   !
-END MODULE constants
+end module constants

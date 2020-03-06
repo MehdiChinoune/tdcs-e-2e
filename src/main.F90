@@ -1,47 +1,49 @@
-PROGRAM main
-  USE constants        ,ONLY: RP
-  USE fdcs_e2e         ,ONLY: fdcs_fba_dw, fdcs_fba_cw, fdcs_fba_pw, fdcs_dwb, fdcs_bbk
-
-  IMPLICIT NONE
-  INTEGER(KIND = SELECTED_INT_KIND(6)) :: start, finish
-  REAL(RP) :: rate
-  INTEGER :: in_unit, out_unit, narg
-  CHARACTER(LEN=4) :: arg1
-  LOGICAL :: input_found
+program main
+  use constants        ,only: RP
+  use fdcs_e2e         ,only: fdcs_fba_dw, fdcs_fba_cw, fdcs_fba_pw, fdcs_dwb, &
+                                fdcs_bbk
   !
-  INQUIRE( FILE = "input.dat", EXIST = input_found )
-  IF( .NOT. input_found ) ERROR STOP "The input file 'input.dat' wasn't found, write your own"
-  OPEN( newunit = in_unit, FILE = 'input.dat', STATUS = 'old', ACTION = 'read' )
-  OPEN( newunit = out_unit, FILE = 'output.dat', STATUS = 'replace', ACTION = 'write' )
+  implicit none
+  integer(kind = selected_int_kind(6)) :: start, finish
+  real(RP) :: rate
+  integer :: in_unit, out_unit, narg
+  character(len=4) :: arg1
+  logical :: input_found
   !
-  CALL SYSTEM_CLOCK(start,rate)
   !
-  narg = COMMAND_ARGUMENT_COUNT()
-  IF(narg>0) THEN
+  inquire( file = "input.dat", exist = input_found )
+  if( .not. input_found ) error stop "The input file 'input.dat' wasn't found, write your own"
+  open( newunit = in_unit, file = 'input.dat', status = 'old', action = 'read' )
+  open( newunit = out_unit, file = 'output.dat', status = 'replace', action = 'write' )
+  !
+  call system_clock(start,rate)
+  !
+  narg = command_argument_count()
+  if(narg>0) then
     !
-    CALL GET_COMMAND_ARGUMENT(1, arg1 )
+    call get_command_argument(1, arg1 )
     !
-    IF(TRIM(arg1)=='dw') THEN
-      CALL fdcs_fba_dw(in_unit,out_unit)
-    ELSEIF(TRIM(arg1)=='cw') THEN
-      CALL fdcs_fba_cw(in_unit,out_unit)
-    ELSEIF(TRIM(arg1)=='pw') THEN
-      CALL fdcs_fba_pw(in_unit,out_unit)
-    ELSEIF(TRIM(arg1)=='dwb') THEN
-      CALL fdcs_dwb(in_unit,out_unit)
-    ELSEIF(TRIM(arg1)=='bbk') THEN
-      CALL fdcs_bbk(in_unit,out_unit)
-    END IF
+    if(trim(arg1)=='dw') then
+      call fdcs_fba_dw(in_unit,out_unit)
+    elseif(trim(arg1)=='cw') then
+      call fdcs_fba_cw(in_unit,out_unit)
+    elseif(trim(arg1)=='pw') then
+      call fdcs_fba_pw(in_unit,out_unit)
+    elseif(trim(arg1)=='dwb') then
+      call fdcs_dwb(in_unit,out_unit)
+    elseif(trim(arg1)=='bbk') then
+      call fdcs_bbk(in_unit,out_unit)
+    end if
     !
-  ELSE
-    CALL fdcs_fba_dw(in_unit,out_unit)
-  ENDIF
+  else
+    call fdcs_fba_pw(in_unit,out_unit)
+  endif
 
-  CALL SYSTEM_CLOCK(finish)
+  call system_clock(finish)
 
-  CLOSE(in_unit)
-  CLOSE(out_unit)
+  close(in_unit)
+  close(out_unit)
 
-  PRINT*, (finish-start)/rate
+  print*, (finish-start)/rate
 
-END PROGRAM main
+end program main

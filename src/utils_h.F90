@@ -1,41 +1,41 @@
-MODULE utils
-  USE constants, ONLY : RP
-  IMPLICIT NONE
+module utils
+  use constants, only : RP
+  implicit none
 
-  INTERFACE
+  interface
 
-    ELEMENTAL REAL(RP) MODULE FUNCTION norm_fac(e,n)
-      REAL(RP), INTENT(IN) :: e
-      INTEGER , INTENT(IN) :: n
-    END FUNCTION
+    elemental real(RP) module function norm_fac(e,n)
+      real(RP), intent(in) :: e
+      integer , intent(in) :: n
+    end function
 
-    ELEMENTAL REAL(RP) MODULE FUNCTION y1y2y3(l1, l2, l3, m1, m2, m3 )
-      INTEGER, INTENT(IN) :: l1, l2, l3, m1, m2, m3
-    END FUNCTION y1y2y3
+    elemental real(RP) module function y1y2y3(l1, l2, l3, m1, m2, m3 )
+      integer, intent(in) :: l1, l2, l3, m1, m2, m3
+    end function y1y2y3
 
     !> ode_second_dw
     !!
     !! This subroutine solve Equation of the form
     !! s_l''(r) +f_l(r)*s_l(r) = km**2*s_l(r)
 
-    MODULE SUBROUTINE ode_second_dw(km, lmax, rc, z, f, s, delta )
-      INTEGER, INTENT(IN) :: lmax, z
-      REAL(RP), INTENT(IN)  :: f(0:,0:), rc, km
-      REAL(RP), INTENT(OUT) :: s(0:,0:), delta(0:lmax)
-    END SUBROUTINE ode_second_dw
+    module subroutine ode_second_dw(km, lmax, rc, z, f, s, delta )
+      integer, intent(in) :: lmax, z
+      real(RP), intent(in)  :: f(0:,0:), rc, km
+      real(RP), intent(out) :: s(0:,0:), delta(0:lmax)
+    end subroutine ode_second_dw
 
-    MODULE SUBROUTINE calculate_U(Atom, Orbit, r, U, state )
-      CHARACTER(LEN=2), INTENT(IN) :: Atom, Orbit
-      REAL(RP)   , INTENT(IN) :: r(:)
-      REAL(RP)   , INTENT(OUT) :: U(:)
-      INTEGER :: state
-    END SUBROUTINE calculate_U
+    module subroutine calculate_U(Atom, Orbit, r, U, state )
+      character(len=2), intent(in) :: Atom, Orbit
+      real(RP)   , intent(in) :: r(:)
+      real(RP)   , intent(out) :: U(:)
+      integer :: state
+    end subroutine calculate_U
 
-    PURE MODULE SUBROUTINE INTRPL(X, Y, U, V )
-      REAL(RP), INTENT(IN) :: X(:), Y(:), U(:)
-      REAL(RP), INTENT(OUT) :: V(:)
-    END SUBROUTINE INTRPL
+    pure module subroutine INTRPL(X, Y, U, V )
+      real(RP), intent(in) :: X(:), Y(:), U(:)
+      real(RP), intent(out) :: V(:)
+    end subroutine INTRPL
 
-  END INTERFACE
+  end interface
 
-END MODULE utils
+end module utils
