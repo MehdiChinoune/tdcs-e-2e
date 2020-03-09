@@ -8,14 +8,14 @@
 module constants
   implicit none
   ! Machine precisions
-  integer, parameter :: SP = selected_real_kind(6,37) !> Single precision
-  integer, parameter :: DP = selected_real_kind(15,307) !> Double precision
-  integer, parameter :: XP = selected_real_kind(18,4931) !> Extended precision
-  integer, parameter :: QP = selected_real_kind(33,4931) !> Quadruple precision
-  integer, parameter :: RP = DP !> This my chosen precision
+  integer, parameter :: sp = selected_real_kind(6,37) !> Single precision
+  integer, parameter :: dp = selected_real_kind(15,307) !> Double precision
+  integer, parameter :: xp = selected_real_kind(18,4931) !> Extended precision
+  integer, parameter :: qp = selected_real_kind(33,4931) !> Quadruple precision
+  integer, parameter :: wp = dp !> This my chosen precision
   ! Mathematical constants
-  real(RP), parameter :: pi = 3.141592653589793238_RP !> \pi
-  real(RP), parameter :: deg = pi/180._RP !> one degree
+  real(wp), parameter :: pi = 3.141592653589793238_wp !> \pi
+  real(wp), parameter :: deg = pi/180._wp !> one degree
   ! Factorial and Logarithm of factorial 0-170
   real(DP), parameter :: fac(0:170) = [ &
     1._DP, 1._DP, 2._DP, 6._DP, 24._DP, 120._DP , 720._DP, 5040._DP, 40320._DP, & ! 0-8
@@ -98,6 +98,6 @@ module constants
     2.5260757449731983875380188691713E302_DP, 4.2690680090047052749392518888996E304_DP, &
     7.2574156153079989673967282111293E306_DP ], lnfac(0:170) = log( x = fac )
   ! Physical constants
-  real(RP), parameter :: eV = 1._RP/27.21165_RP !> electronVolt
+  real(wp), parameter :: eV = 1._wp/27.21165_wp !> electronVolt
   !
 end module constants

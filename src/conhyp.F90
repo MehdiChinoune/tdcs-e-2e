@@ -3,10 +3,10 @@
   !      VOL. 18, NO. 3, SEPTEMBER, 1992, PP. 345-349.
 submodule(conhyp_m) conhyp_m
   implicit none
-  integer, parameter :: length = 777, bits = digits(1._RP) + 1
-  integer, parameter :: min_exp = max( minexponent(1._RP), -74 )
-  integer, parameter :: max_exp = min( maxexponent(1._RP), 74 )
-  real(RP), parameter :: pi = acos(-1._RP)
+  integer, parameter :: length = 777, bits = digits(1._wp) + 1
+  integer, parameter :: min_exp = max( minexponent(1._wp), -74 )
+  integer, parameter :: max_exp = min( maxexponent(1._wp), 74 )
+  real(wp), parameter :: pi = acos(-1._wp)
   !
 contains
 
@@ -46,23 +46,23 @@ contains
   !     *  Subprograms called: BITS, CHGF                              *
   !     *                                                              *
   !     ****************************************************************
-  elemental complex(RP) module function conhyp(A,B,Z,Lnchf,Ip)
+  elemental complex(wp) module function conhyp(A,B,Z,Lnchf,Ip)
     !
     integer, intent(in) :: Lnchf, Ip
-    complex(RP), intent(in) :: A, B, Z
+    complex(wp), intent(in) :: A, B, Z
     !
     integer :: i
-    real(RP) :: nterm, fx, term1, max, term2, ang
+    real(wp) :: nterm, fx, term1, max, term2, ang
     !
-    if ( abs(Z)/=0._RP ) then
-      ang = atan2(aimag(Z),real(Z,RP))
+    if ( abs(Z)/=0._wp ) then
+      ang = atan2(aimag(Z),real(Z,wp))
     else
-      ang = 1._RP
+      ang = 1._wp
     end if
     if ( abs(ang)<(pi*0.5) ) then
-      ang = 1._RP
+      ang = 1._wp
     else
-      ang = sin(abs(ang)-(pi*0.5_RP)) + 1._RP
+      ang = sin(abs(ang)-(pi*0.5_wp)) + 1._wp
     end if
     max = 0
     nterm = 0
@@ -71,11 +71,11 @@ contains
     do
       nterm = nterm + 1
       term2 = abs((A+nterm-1)*Z/((B+nterm-1)*nterm))
-      if ( term2==0._RP ) exit
-      if ( term2<1._RP ) then
-        if ( (real(A,RP)+nterm-1)>1._RP ) then
-          if ( (real(B,RP)+nterm-1)>1._RP ) then
-            if ( (term2-term1)<0._RP ) exit
+      if ( term2==0._wp ) exit
+      if ( term2<1._wp ) then
+        if ( (real(A,wp)+nterm-1)>1._wp ) then
+          if ( (real(B,wp)+nterm-1)>1._wp ) then
+            if ( (term2-term1)<0._wp ) exit
           end if
         end if
       end if
@@ -83,7 +83,7 @@ contains
       if ( fx>max ) max = fx
       term1 = term2
     end do
-    max = max*2/(bits*log(2._RP))
+    max = max*2/(bits*log(2._wp))
     i = int(max*ang) + 7
     if ( i<5 ) i = 5
     if ( Ip>i ) i = Ip
@@ -103,61 +103,61 @@ contains
   !     *  Subprograms called: armult, arydiv, cmpadd, cmpmul          *
   !     *                                                              *
   !     ****************************************************************
-  elemental complex(RP) function chgf(A,B,Z,L,Lnchf)
+  elemental complex(wp) function chgf(A,B,Z,L,Lnchf)
     !
     integer, intent(in) :: L, Lnchf
-    complex(RP), intent(in) :: A, B, Z
+    complex(wp), intent(in) :: A, B, Z
     !
-    real(RP) :: ar, ai, cr, ci, xr, xi, cnt, sigfig, mx1, mx2, rmax, ar2, &
+    real(wp) :: ar, ai, cr, ci, xr, xi, cnt, sigfig, mx1, mx2, rmax, ar2, &
       ai2, cr2, ci2, xr2, xi2
-    complex(RP) :: final
+    complex(wp) :: final
     !
-    real(RP) :: sumr(-1:length), sumi(-1:length), numr(-1:length), &
+    real(wp) :: sumr(-1:length), sumi(-1:length), numr(-1:length), &
       numi(-1:length), denomr(-1:length), denomi(-1:length), &
       qr1(-1:length), qr2(-1:length), qi1(-1:length), qi2(-1:length), &
       dumr(-1:length), dumi(-1:length)
     !
-    rmax = 2._RP**(bits/2)
-    sigfig = 2._RP**(bits/4)
+    rmax = 2._wp**(bits/2)
+    sigfig = 2._wp**(bits/4)
     !
-    ar2 = real(A,RP)*sigfig
+    ar2 = real(A,wp)*sigfig
     ar = aint(ar2)
     ar2 = anint((ar2-ar)*rmax)
     ai2 = aimag(A)*sigfig
     ai = aint(ai2)
     ai2 = anint((ai2-ai)*rmax)
     !
-    cr2 = real(B,RP)*sigfig
+    cr2 = real(B,wp)*sigfig
     cr = aint(cr2)
     cr2 = anint((cr2-cr)*rmax)
     ci2 = aimag(B)*sigfig
     ci = aint(ci2)
     ci2 = anint((ci2-ci)*rmax)
     !
-    xr2 = real(Z,RP)*sigfig
+    xr2 = real(Z,wp)*sigfig
     xr = aint(xr2)
     xr2 = anint((xr2-xr)*rmax)
     xi2 = aimag(Z)*sigfig
     xi = aint(xi2)
     xi2 = anint((xi2-xi)*rmax)
     !
-    sumr(-1) = 1._RP
-    sumi(-1) = 1._RP
-    numr(-1) = 1._RP
-    numi(-1) = 1._RP
-    denomr(-1) = 1._RP
-    denomi(-1) = 1._RP
+    sumr(-1) = 1._wp
+    sumi(-1) = 1._wp
+    numr(-1) = 1._wp
+    numi(-1) = 1._wp
+    denomr(-1) = 1._wp
+    denomi(-1) = 1._wp
     !
-    sumr(0:L+1) = 0._RP
-    sumi(0:L+1) = 0._RP
-    numr(0:L+1) = 0._RP
-    numi(0:L+1) = 0._RP
-    denomr(0:L+1) = 0._RP
-    denomi(0:L+1) = 0._RP
+    sumr(0:L+1) = 0._wp
+    sumi(0:L+1) = 0._wp
+    numr(0:L+1) = 0._wp
+    numi(0:L+1) = 0._wp
+    denomr(0:L+1) = 0._wp
+    denomi(0:L+1) = 0._wp
     !
-    sumr(1) = 1._RP
-    numr(1) = 1._RP
-    denomr(1) = 1._RP
+    sumr(1) = 1._wp
+    numr(1) = 1._wp
+    denomr(1) = 1._wp
     !
     cnt = sigfig
     do
@@ -178,9 +178,9 @@ contains
     end if
     !
     if ( mx1-mx2>2.0 ) then
-      if ( cr>0._RP ) then
-        if ( abs(cmplx(ar,ai,RP)*cmplx(xr,xi,RP)/(cmplx(cr,ci,RP)*cnt)) &
-            <=1._RP ) then
+      if ( cr>0._wp ) then
+        if ( abs(cmplx(ar,ai,wp)*cmplx(xr,xi,wp)/(cmplx(cr,ci,wp)*cnt)) &
+            <=1._wp ) then
           call arydiv(sumr,sumi,denomr,denomi,final,L,Lnchf,rmax,bits)
           CHGF = final
           return
@@ -248,13 +248,13 @@ contains
   pure subroutine aradd(A,B,C,L,Rmax)
     !
     integer, intent(in) :: L
-    real(RP), intent(in) :: A(-1:), B(-1:), Rmax
-    real(RP), intent(out) :: C(-1:)
+    real(wp), intent(in) :: A(-1:), B(-1:), Rmax
+    real(wp), intent(out) :: C(-1:)
     !
     integer :: ediff, i, j
-    real(RP) :: z(-1:length)
+    real(wp) :: z(-1:length)
     !
-    z(0:L+1) = 0._RP
+    z(0:L+1) = 0._wp
     ediff = nint(A(L+1)-B(L+1))
     if ( abs(A(1))<0.5 .OR. ediff<=-L ) then
       C(-1:L+1) = B(-1:L+1)
@@ -293,14 +293,14 @@ contains
             z(i) = A(i) + B(i-ediff) + z(i)
             if ( z(i)>=Rmax ) then
               z(i) = z(i) - Rmax
-              z(i-1) = 1._RP
+              z(i-1) = 1._wp
             end if
           end do
           do i = ediff, 1, -1
             z(i) = A(i) + z(i)
             if ( z(i)>=Rmax ) then
               z(i) = z(i) - Rmax
-              z(i-1) = 1._RP
+              z(i-1) = 1._wp
             end if
           end do
           if ( z(0)>0.5 ) then
@@ -308,7 +308,7 @@ contains
               z(i) = z(i-1)
             end do
             z(L+1) = z(L+1) + 1
-            z(0) = 0._RP
+            z(0) = 0._wp
           end if
         else if ( ediff<0 ) then
           z(L+1) = B(L+1)
@@ -316,22 +316,22 @@ contains
             z(i) = A(i+ediff) + B(i) + z(i)
             if ( z(i)>=Rmax ) then
               z(i) = z(i) - Rmax
-              z(i-1) = 1._RP
+              z(i-1) = 1._wp
             end if
           end do
           do i = 0 - ediff, 1, -1
             z(i) = B(i) + z(i)
             if ( z(i)>=Rmax ) then
               z(i) = z(i) - Rmax
-              z(i-1) = 1._RP
+              z(i-1) = 1._wp
             end if
           end do
           if ( z(0)>0.5 ) then
             do i = L, 1, -1
               z(i) = z(i-1)
             end do
-            z(L+1) = z(L+1) + 1._RP
-            z(0) = 0._RP
+            z(L+1) = z(L+1) + 1._wp
+            z(0) = 0._wp
           end if
         else
           z(L+1) = A(L+1)
@@ -339,15 +339,15 @@ contains
             z(i) = A(i) + B(i) + z(i)
             if ( z(i)>=Rmax ) then
               z(i) = z(i) - Rmax
-              z(i-1) = 1._RP
+              z(i-1) = 1._wp
             end if
           end do
           if ( z(0)>0.5 ) then
             do i = L, 1, -1
               z(i) = z(i-1)
             end do
-            z(L+1) = z(L+1) + 1._RP
-            z(0) = 0._RP
+            z(L+1) = z(L+1) + 1._wp
+            z(0) = 0._wp
           end if
         end if
         goto 300
@@ -356,24 +356,24 @@ contains
         if ( ediff>0 ) then
           do i = L, 1 + ediff, -1
             z(i) = A(i) - B(i-ediff) + z(i)
-            if ( z(i)<0._RP ) then
+            if ( z(i)<0._wp ) then
               z(i) = z(i) + Rmax
-              z(i-1) = -1._RP
+              z(i-1) = -1._wp
             end if
           end do
           do i = ediff, 1, -1
             z(i) = A(i) + z(i)
-            if ( z(i)<0._RP ) then
+            if ( z(i)<0._wp ) then
               z(i) = z(i) + Rmax
-              z(i-1) = -1._RP
+              z(i-1) = -1._wp
             end if
           end do
         else
           do i = L, 1, -1
             z(i) = A(i) - B(i) + z(i)
-            if ( z(i)<0._RP ) then
+            if ( z(i)<0._wp ) then
               z(i) = z(i) + Rmax
-              z(i-1) = -1._RP
+              z(i-1) = -1._wp
             end if
           end do
         end if
@@ -384,24 +384,24 @@ contains
       if ( ediff<0 ) then
         do i = L, 1 - ediff, -1
           z(i) = B(i) - A(i+ediff) + z(i)
-          if ( z(i)<0._RP ) then
+          if ( z(i)<0._wp ) then
             z(i) = z(i) + Rmax
-            z(i-1) = -1._RP
+            z(i-1) = -1._wp
           end if
         end do
         do i = 0 - ediff, 1, -1
           z(i) = B(i) + z(i)
-          if ( z(i)<0._RP ) then
+          if ( z(i)<0._wp ) then
             z(i) = z(i) + Rmax
-            z(i-1) = -1._RP
+            z(i-1) = -1._wp
           end if
         end do
       else
         do i = L, 1, -1
           z(i) = B(i) - A(i) + z(i)
-          if ( z(i)<0._RP ) then
+          if ( z(i)<0._wp ) then
             z(i) = z(i) + Rmax
-            z(i-1) = -1._RP
+            z(i-1) = -1._wp
           end if
         end do
       end if
@@ -414,15 +414,15 @@ contains
         i = i + 1
         if ( z(i)>=0.5 .OR. i>=L+1 ) then
           if ( i==L+1 ) then
-            z(-1) = 1._RP
-            z(L+1) = 0._RP
+            z(-1) = 1._wp
+            z(L+1) = 0._wp
             exit
           end if
           do j = 1, L + 1 - i
             z(j) = z(j+i-1)
           end do
           do j = L + 2 - i, L
-            z(j) = 0._RP
+            z(j) = 0._wp
           end do
           z(L+1) = z(L+1) - i + 1
           exit
@@ -433,8 +433,8 @@ contains
     C(-1:L+1) = z(-1:L+1)
     311 continue
     if ( C(1)<0.5 ) then
-      C(-1) = 1._RP
-      C(L+1) = 0._RP
+      C(-1) = 1._wp
+      C(L+1) = 0._wp
     end if
     !
   end subroutine aradd
@@ -456,10 +456,10 @@ contains
   pure subroutine arsub(A,B,C,L,Rmax)
     !
     integer, intent(in) :: L
-    real(RP), intent(in) :: A(-1:), B(-1:), Rmax
-    real(RP), intent(out) :: C(-1:)
+    real(wp), intent(in) :: A(-1:), B(-1:), Rmax
+    real(wp), intent(out) :: C(-1:)
     !
-    real(RP) :: b2(-1:length)
+    real(wp) :: b2(-1:length)
     !
     b2(0:L+1) = B(0:L+1)
     b2(-1) = -B(-1)
@@ -483,21 +483,21 @@ contains
   pure subroutine armult(A,B,C,L,Rmax)
     !
     integer, intent(in) :: L
-    real(RP), intent(in) :: A(-1:), B, Rmax
-    real(RP), intent(out) :: C(-1:)
+    real(wp), intent(in) :: A(-1:), B, Rmax
+    real(wp), intent(out) :: C(-1:)
     !
     integer :: i
-    real(RP) :: b2, carry, rmax2
-    real(RP) :: z(-1:length)
+    real(wp) :: b2, carry, rmax2
+    real(wp) :: z(-1:length)
     !
-    rmax2 = 1._RP/Rmax
-    z(-1) = sign(1._RP,B)*A(-1)
+    rmax2 = 1._wp/Rmax
+    z(-1) = sign(1._wp,B)*A(-1)
     b2 = abs(B)
     z(L+1) = A(L+1)
-    z(0:L) = 0._RP
+    z(0:L) = 0._wp
     if ( b2<=1.0D-10 .OR. A(1)<=1.0D-10 ) then
-      z(-1) = 1._RP
-      z(L+1) = 0._RP
+      z(-1) = 1._wp
+      z(L+1) = 0._wp
       goto 198
     end if
     do i = L, 1, -1
@@ -512,15 +512,15 @@ contains
       do i = L, 1, -1
         z(i) = z(i-1)
       end do
-      z(L+1) = z(L+1) + 1._RP
-      z(0) = 0._RP
+      z(L+1) = z(L+1) + 1._wp
+      z(0) = 0._wp
     end if
     !
 198 continue
     C(-1:L+1) = z(-1:L+1)
     if ( C(1)<0.5 ) then
-      C(-1) = 1._RP
-      C(L+1) = 0._RP
+      C(-1) = 1._wp
+      C(L+1) = 0._wp
     end if
     !
   end subroutine armult
@@ -542,8 +542,8 @@ contains
   pure subroutine cmpadd(Ar,Ai,Br,Bi,Cr,Ci,L,Rmax)
     !
     integer, intent(in) :: L
-    real(RP), intent(in) :: Ar(-1:), Ai(-1:), Br(-1:), Bi(-1:), Rmax
-    real(RP), intent(out) :: Cr(-1:), Ci(-1:)
+    real(wp), intent(in) :: Ar(-1:), Ai(-1:), Br(-1:), Bi(-1:), Rmax
+    real(wp), intent(out) :: Cr(-1:), Ci(-1:)
     !
     call aradd(Ar,Br,Cr,L,Rmax)
     call aradd(Ai,Bi,Ci,L,Rmax)
@@ -567,8 +567,8 @@ contains
   pure subroutine cmpsub(Ar,Ai,Br,Bi,Cr,Ci,L,Rmax)
     !
     integer, intent(in) :: L
-    real(RP), intent(in) :: Ar(-1:), Ai(-1:), Br(-1:), Bi(-1:), Rmax
-    real(RP), intent(out) :: Cr(-1:), Ci(-1:)
+    real(wp), intent(in) :: Ar(-1:), Ai(-1:), Br(-1:), Bi(-1:), Rmax
+    real(wp), intent(out) :: Cr(-1:), Ci(-1:)
     !
     call arsub(Ar,Br,Cr,L,Rmax)
     call arsub(Ai,Bi,Ci,L,Rmax)
@@ -591,10 +591,10 @@ contains
   pure subroutine cmpmul(Ar,Ai,Br,Bi,Cr,Ci,L,Rmax)
     !
     integer, intent(in) :: L
-    real(RP), intent(in) :: Ar(-1:), Ai(-1:), Br, Bi, Rmax
-    real(RP), intent(out) :: Cr(-1:), Ci(-1:)
+    real(wp), intent(in) :: Ar(-1:), Ai(-1:), Br, Bi, Rmax
+    real(wp), intent(out) :: Cr(-1:), Ci(-1:)
     !
-    real(RP) :: d1(-1:length), d2(-1:length)
+    real(wp) :: d1(-1:length), d2(-1:length)
     !
     call armult(Ar,Br,d1,L,Rmax)
     call armult(Ai,Bi,d2,L,Rmax)
@@ -622,43 +622,43 @@ contains
   pure subroutine arydiv(Ar,Ai,Br,Bi,C,L,Lnchf,Rmax,Bit)
     !
     integer, intent(in) :: L, Bit, Lnchf
-    real(RP), intent(in) :: Ar(-1:), Ai(-1:), Br(-1:), Bi(-1:), Rmax
-    complex(RP), intent(out) :: C
+    real(wp), intent(in) :: Ar(-1:), Ai(-1:), Br(-1:), Bi(-1:), Rmax
+    complex(wp), intent(out) :: C
     !
     integer :: rexp, ir10, ii10
-    real(RP) :: phi, n1, n2, n3, e1, e2, e3, rr10, ri10, x, x1, x2, dum1, dum2
+    real(wp) :: phi, n1, n2, n3, e1, e2, e3, rr10, ri10, x, x1, x2, dum1, dum2
     !
-    real(RP) :: ae(2,2), be(2,2), ce(2,2)
+    real(wp) :: ae(2,2), be(2,2), ce(2,2)
     !
     rexp = Bit/2
     x = rexp*(Ar(L+1)-2)
-    rr10 = x*log10(2._RP)/log10(10._RP)
+    rr10 = x*log10(2._wp)/log10(10._wp)
     ir10 = int(rr10)
     rr10 = rr10 - ir10
     x = rexp*(Ai(L+1)-2)
-    ri10 = x*log10(2._RP)/log10(10._RP)
+    ri10 = x*log10(2._wp)/log10(10._wp)
     ii10 = int(ri10)
     ri10 = ri10 - ii10
     dum1 = sign(Ar(1)*Rmax*Rmax+Ar(2)*Rmax+Ar(3),Ar(-1))
     dum2 = sign(Ai(1)*Rmax*Rmax+Ai(2)*Rmax+Ai(3),Ai(-1))
     dum1 = dum1*10**rr10
     dum2 = dum2*10**ri10
-    call conv12(cmplx(dum1,dum2,RP),ae)
+    call conv12(cmplx(dum1,dum2,wp),ae)
     ae(1,2) = ae(1,2) + ir10
     ae(2,2) = ae(2,2) + ii10
     x = rexp*(Br(L+1)-2)
-    rr10 = x*log10(2._RP)/log10(10._RP)
+    rr10 = x*log10(2._wp)/log10(10._wp)
     ir10 = int(rr10)
     rr10 = rr10 - ir10
     x = rexp*(Bi(L+1)-2)
-    ri10 = x*log10(2._RP)/log10(10._RP)
+    ri10 = x*log10(2._wp)/log10(10._wp)
     ii10 = int(ri10)
     ri10 = ri10 - ii10
     dum1 = sign(Br(1)*Rmax*Rmax+Br(2)*Rmax+Br(3),Br(-1))
     dum2 = sign(Bi(1)*Rmax*Rmax+Bi(2)*Rmax+Bi(3),Bi(-1))
     dum1 = dum1*10**rr10
     dum2 = dum2*10**ri10
-    call conv12(cmplx(dum1,dum2,RP),be)
+    call conv12(cmplx(dum1,dum2,wp),be)
     be(1,2) = be(1,2) + ir10
     be(2,2) = be(2,2) + ii10
     call ecpdiv(ae,be,ce)
@@ -672,14 +672,14 @@ contains
       e1 = ce(1,2) - ce(2,2)
       x2 = ce(2,1)
       if ( e1>max_exp ) then
-        x1 = 1._RP * 10._RP**max_exp
+        x1 = 1._wp * 10._wp**max_exp
       else if ( e1<min_exp ) then
-        x1 = 0._RP
+        x1 = 0._wp
       else
         x1 = n1*(10**e1)
       end if
       phi = atan2(x2,x1)
-      C = cmplx(0.50D0*(log(n3)+e3*log(10._RP)),phi,RP)
+      C = cmplx(0.50D0*(log(n3)+e3*log(10._wp)),phi,wp)
     end if
     !
   end subroutine arydiv
@@ -698,14 +698,14 @@ contains
   !     ****************************************************************
   elemental subroutine emult(N1,E1,N2,E2,Nf,Ef)
     !
-    real(RP), intent(in) :: N1, E1, N2, E2
-    real(RP), intent(out) :: Nf, Ef
+    real(wp), intent(in) :: N1, E1, N2, E2
+    real(wp), intent(out) :: Nf, Ef
     !
     Nf = N1*N2
     Ef = E1 + E2
-    if ( abs(Nf)>=10._RP ) then
-      Nf = Nf/10._RP
-      Ef = Ef + 1._RP
+    if ( abs(Nf)>=10._wp ) then
+      Nf = Nf/10._wp
+      Ef = Ef + 1._wp
     end if
     !
   end subroutine emult
@@ -723,14 +723,14 @@ contains
   !     ****************************************************************
   elemental subroutine ediv(N1,E1,N2,E2,Nf,Ef)
     !
-    real(RP), intent(in) :: N1, E1, N2, E2
-    real(RP), intent(out) :: Nf, Ef
+    real(wp), intent(in) :: N1, E1, N2, E2
+    real(wp), intent(out) :: Nf, Ef
     !
     Nf = N1/N2
     Ef = E1 - E2
-    if ( (abs(Nf)<1._RP) .AND. (Nf/=0._RP) ) then
-      Nf = Nf*10._RP
-      Ef = Ef - 1._RP
+    if ( (abs(Nf)<1._wp) .AND. (Nf/=0._wp) ) then
+      Nf = Nf*10._wp
+      Ef = Ef - 1._wp
     end if
     !
   end subroutine ediv
@@ -748,28 +748,28 @@ contains
   !     ****************************************************************
   elemental subroutine eadd(N1,E1,N2,E2,Nf,Ef)
     !
-    real(RP), intent(in) :: N1, E1, N2, E2
-    real(RP), intent(out) :: Nf, Ef
+    real(wp), intent(in) :: N1, E1, N2, E2
+    real(wp), intent(out) :: Nf, Ef
     !
-    real(RP) :: ediff
+    real(wp) :: ediff
     !
     ediff = E1 - E2
-    if ( ediff>36._RP ) then
+    if ( ediff>36._wp ) then
       Nf = N1
       Ef = E1
-    else if ( ediff<-36._RP ) then
+    else if ( ediff<-36._wp ) then
       Nf = N2
       Ef = E2
     else
-      Nf = N1*(10._RP**ediff) + N2
+      Nf = N1*(10._wp**ediff) + N2
       Ef = E2
-      do while ( abs(Nf)>=10._RP )
-        Nf = Nf/10._RP
-        Ef = Ef + 1._RP
+      do while ( abs(Nf)>=10._wp )
+        Nf = Nf/10._wp
+        Ef = Ef + 1._wp
       end do
-      do while ( (abs(Nf)<1._RP) .AND. (Nf/=0._RP) )
-        Nf = Nf*10._RP
-        Ef = Ef - 1._RP
+      do while ( (abs(Nf)<1._wp) .AND. (Nf/=0._wp) )
+        Nf = Nf*10._wp
+        Ef = Ef - 1._wp
       end do
     end if
     !
@@ -788,8 +788,8 @@ contains
   !     ****************************************************************
   elemental subroutine esub(N1,E1,N2,E2,Nf,Ef)
     !
-    real(RP), intent(in) :: N1, E1, N2, E2
-    real(RP), intent(out) :: Nf, Ef
+    real(wp), intent(in) :: N1, E1, N2, E2
+    real(wp), intent(out) :: Nf, Ef
     !
     call eadd(N1,E1,-N2,E2,Nf,Ef)
     !
@@ -808,28 +808,28 @@ contains
   !     ****************************************************************
   pure subroutine conv12(Cn,Cae)
     !
-    complex(RP), intent(in) :: Cn
-    real(RP), intent(out) :: Cae(2,2)
+    complex(wp), intent(in) :: Cn
+    real(wp), intent(out) :: Cae(2,2)
     !
-    Cae(1,1) = real(Cn,RP)
-    Cae(1,2) = 0._RP
-    do while ( abs(Cae(1,1))>=10._RP )
-      Cae(1,1) = Cae(1,1)/10._RP
-      Cae(1,2) = Cae(1,2) + 1._RP
+    Cae(1,1) = real(Cn,wp)
+    Cae(1,2) = 0._wp
+    do while ( abs(Cae(1,1))>=10._wp )
+      Cae(1,1) = Cae(1,1)/10._wp
+      Cae(1,2) = Cae(1,2) + 1._wp
     end do
-    do while ( (abs(Cae(1,1))<1._RP) .AND. (Cae(1,1)/=0._RP) )
-      Cae(1,1) = Cae(1,1)*10._RP
-      Cae(1,2) = Cae(1,2) - 1._RP
+    do while ( (abs(Cae(1,1))<1._wp) .AND. (Cae(1,1)/=0._wp) )
+      Cae(1,1) = Cae(1,1)*10._wp
+      Cae(1,2) = Cae(1,2) - 1._wp
     end do
     Cae(2,1) = aimag(Cn)
-    Cae(2,2) = 0._RP
-    do while ( abs(Cae(2,1))>=10._RP )
-      Cae(2,1) = Cae(2,1)/10._RP
-      Cae(2,2) = Cae(2,2) + 1._RP
+    Cae(2,2) = 0._wp
+    do while ( abs(Cae(2,1))>=10._wp )
+      Cae(2,1) = Cae(2,1)/10._wp
+      Cae(2,2) = Cae(2,2) + 1._wp
     end do
-    do while ( (abs(Cae(2,1))<1._RP) .AND. (Cae(2,1)/=0._RP) )
-      Cae(2,1) = Cae(2,1)*10._RP
-      Cae(2,2) = Cae(2,2) - 1._RP
+    do while ( (abs(Cae(2,1))<1._wp) .AND. (Cae(2,1)/=0._wp) )
+      Cae(2,1) = Cae(2,1)*10._wp
+      Cae(2,2) = Cae(2,2) - 1._wp
     end do
     !
   end subroutine conv12
@@ -847,18 +847,18 @@ contains
   !     ****************************************************************
   pure subroutine conv21(Cae,Cn)
     !
-    real(RP), intent(in) :: Cae(2,2)
-    complex(RP), intent(out) :: Cn
+    real(wp), intent(in) :: Cae(2,2)
+    complex(wp), intent(out) :: Cn
     !
-    real(RP) :: a
+    real(wp) :: a
     !
     if ( Cae(1,2)>max_exp .OR. Cae(2,2)>max_exp ) then
-      a = 10._RP**max_exp
-      Cn = cmplx( a, a, RP )
+      a = 10._wp**max_exp
+      Cn = cmplx( a, a, wp )
     else if ( Cae(2,2)<min_exp ) then
-      Cn = cmplx(Cae(1,1)*(10**Cae(1,2)),0._RP,RP)
+      Cn = cmplx(Cae(1,1)*(10**Cae(1,2)),0._wp,wp)
     else
-      Cn = cmplx(Cae(1,1)*(10**Cae(1,2)),Cae(2,1)*(10**Cae(2,2)),RP)
+      Cn = cmplx(Cae(1,1)*(10**Cae(1,2)),Cae(2,1)*(10**Cae(2,2)),wp)
     end if
     !
   end subroutine conv21
@@ -877,10 +877,10 @@ contains
   !     ****************************************************************
   pure subroutine ecpmul(A,B,C)
     !
-    real(RP), intent(in) :: A(2,2), B(2,2)
-    real(RP), intent(out) :: C(2,2)
+    real(wp), intent(in) :: A(2,2), B(2,2)
+    real(wp), intent(out) :: C(2,2)
     !
-    real(RP) :: n1, e1, n2, e2, c2(2,2)
+    real(wp) :: n1, e1, n2, e2, c2(2,2)
     !
     call emult(A(1,1),A(1,2),B(1,1),B(1,2),n1,e1)
     call emult(A(2,1),A(2,2),B(2,1),B(2,2),n2,e2)
@@ -906,14 +906,14 @@ contains
   !     ****************************************************************
   pure subroutine ecpdiv(A,B,C)
     !
-    real(RP), intent(in) :: A(2,2), B(2,2)
-    real(RP), intent(out) :: C(2,2)
+    real(wp), intent(in) :: A(2,2), B(2,2)
+    real(wp), intent(out) :: C(2,2)
     !
-    real(RP) :: n1, e1, n2, e2, b2(2,2), n3, e3, c2(2,2)
+    real(wp) :: n1, e1, n2, e2, b2(2,2), n3, e3, c2(2,2)
     !
     b2(1,1) = B(1,1)
     b2(1,2) = B(1,2)
-    b2(2,1) = -1._RP*B(2,1)
+    b2(2,1) = -1._wp*B(2,1)
     b2(2,2) = B(2,2)
     call ecpmul(A,b2,c2)
     call emult(B(1,1),B(1,2),B(1,1),B(1,2),n1,e1)

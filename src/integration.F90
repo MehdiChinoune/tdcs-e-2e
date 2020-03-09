@@ -28,12 +28,12 @@ contains
   !    Output, real ( kind = 8 ) W(n), the weights.
 
   module subroutine clenshaw_curtis( a, b, x, w, n )
-    use constants ,only: pi
-    real(RP), intent(in) :: a, b
+    use constants, only : pi
+    real(wp), intent(in) :: a, b
     integer, intent(in) :: n
-    real(RP), intent(out), allocatable :: w(:), x(:)
+    real(wp), intent(out), allocatable :: w(:), x(:)
 
-    real(RP) :: theta !,bj
+    real(wp) :: theta !,bj
     integer :: i, j
 
 !    IF ( n<3 ) THEN
@@ -42,15 +42,15 @@ contains
 
     allocate(x(n),w(n))
 
-    x(1) = -1._RP
+    x(1) = -1._wp
     x(2:n-1) = [ ( cos( (n-i)*pi/(n-1) ), i = 2,n-1 ) ]
-    x(n) = 1._RP
+    x(n) = 1._wp
 
     if ( mod(n,2)==1 ) then
-      x((n+1)/2) = 0._RP
+      x((n+1)/2) = 0._wp
     end if
 
-    w = 1._RP
+    w = 1._wp
     do i = 1,n
       theta = (i-1)*pi/(n-1)
 
@@ -76,10 +76,10 @@ contains
   end subroutine clenshaw_curtis
 
   pure module subroutine gauleg(a,b,x,w,n)
-    use constants ,only: pi
+    use constants, only : pi
     integer, intent(in) :: n
-    real(RP), intent(in) :: a,b
-    real(RP), intent(out), allocatable :: x(:),w(:)
+    real(wp), intent(in) :: a,b
+    real(wp), intent(out), allocatable :: x(:),w(:)
     integer :: i
 
     allocate(x(n),w(n))
@@ -100,28 +100,28 @@ contains
 
   pure module subroutine pd(sx,sw,n)
     integer, intent(in) :: n
-    real(RP), intent(out), contiguous :: sw(:)
-    real(RP), intent(inout), contiguous :: sx(:)
+    real(wp), intent(out), contiguous :: sw(:)
+    real(wp), intent(inout), contiguous :: sx(:)
 
-    real(RP),parameter :: eps = epsilon(eps)
-    real(RP), dimension((n+1)/2) :: dp0,dp1,dp2,dp
+    real(wp),parameter :: eps = epsilon(eps)
+    real(wp), dimension((n+1)/2) :: dp0,dp1,dp2,dp
     integer :: i
 
-    dp2 = 0._RP
+    dp2 = 0._wp
     do
-      dp0 = 1._RP
+      dp0 = 1._wp
       dp1 = sx
       do i = 1,n-1
-        dp2 = ((2.*i+1._RP)*sx*dp1-i*dp0)/(i+1._RP)
+        dp2 = ((2.*i+1._wp)*sx*dp1-i*dp0)/(i+1._wp)
         dp0 = dp1
         dp1 = dp2
       enddo
-      dp = n*(dp0-sx*dp1)/(1._RP-sx**2)
+      dp = n*(dp0-sx*dp1)/(1._wp-sx**2)
       sx = sx-dp2/dp
 
       if( all(abs(dp2/dp)<=eps) ) exit
     enddo
-    sw = 2._RP/((1._RP-sx**2)*dp**2)
+    sw = 2._wp/((1._wp-sx**2)*dp**2)
   end subroutine pd
 
 end submodule integration

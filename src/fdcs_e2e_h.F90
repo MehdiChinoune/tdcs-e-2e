@@ -1,5 +1,5 @@
 module fdcs_e2e
-  use constants ,only: RP
+  use constants, only : wp
   implicit none
 
   logical :: show_output = .true.

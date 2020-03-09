@@ -1,25 +1,25 @@
 module integration
-  use constants ,only: RP
+  use constants, only : wp
   implicit none
 
   interface
 
     module subroutine clenshaw_curtis( a, b, x, w, n )
-      real(RP), intent(in) :: a, b
+      real(wp), intent(in) :: a, b
       integer, intent(in) :: n
-      real(RP), intent(out), allocatable :: w(:), x(:)
+      real(wp), intent(out), allocatable :: w(:), x(:)
     end subroutine clenshaw_curtis
 
     pure module subroutine gauleg(a,b,x,w,n)
       integer, intent(in) :: n
-      real(RP), intent(in) :: a,b
-      real(RP), intent(out), allocatable :: x(:),w(:)
+      real(wp), intent(in) :: a,b
+      real(wp), intent(out), allocatable :: x(:),w(:)
     end subroutine gauleg
 
     pure module subroutine pd(sx,sw,n)
       integer, intent(in) :: n
-      real(RP), intent(out), contiguous :: sw(:)
-      real(RP), intent(inout), contiguous :: sx(:)
+      real(wp), intent(out), contiguous :: sw(:)
+      real(wp), intent(inout), contiguous :: sx(:)
     end subroutine pd
 
   end interface

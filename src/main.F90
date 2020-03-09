@@ -1,11 +1,11 @@
 program main
-  use constants        ,only: RP
   use fdcs_e2e         ,only: fdcs_fba_dw, fdcs_fba_cw, fdcs_fba_pw, fdcs_dwb, &
                                 fdcs_bbk
+  use constants       , only : wp
   !
   implicit none
   integer(kind = selected_int_kind(6)) :: start, finish
-  real(RP) :: rate
+  real(wp) :: rate
   integer :: in_unit, out_unit, narg
   character(len=4) :: arg1
   logical :: input_found
