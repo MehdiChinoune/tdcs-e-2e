@@ -3,7 +3,7 @@ name: Github actions
 on:
   push:
   schedule:
-    - cron: '0 2 * * 1,4'
+    - cron: '0 2 * * 1'
 
 jobs:
   Build:
@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
+      fail-fast: false
       matrix:
         image_tag: [old, stable, trunk]
         build_type: [Debug, Release]
@@ -20,7 +21,7 @@ jobs:
     container: chinoune/debian-gfortran-testing:${{ matrix.image_tag }}
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Configuring
       run: |
         mkdir build
