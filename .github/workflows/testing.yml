@@ -60,3 +60,34 @@ jobs:
           cmake .. -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
       - name: Building
         run: make -C build -j$(nproc)
+
+  Nvidia:
+    name: Nvidia-${{ matrix.build_type }}
+
+    runs-on: ubuntu-20.04
+
+    strategy:
+      fail-fast: false
+      matrix:
+        build_type: [Debug, Release]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install Nvidia HPC Compiler
+        run: |
+          echo "deb [trusted=yes] https://developer.download.nvidia.com/hpc-sdk/ubuntu/amd64 /" > nvhpc.list
+          sudo cp nvhpc.list /etc/apt/sources.list.d/
+          sudo apt-get update -y
+          sudo apt-get install -y nvhpc-22-5
+          echo "/opt/nvidia/hpc_sdk/Linux_x86_64/22.5/compilers/bin" >> $GITHUB_PATH
+          echo "LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_x86_64/22.5/compilers/lib" >> $GITHUB_ENV
+      - name: Configuring
+        run: |
+          mkdir build
+          cd build
+          cmake .. \
+            -DCMAKE_Fortran_COMPILER=nvfortran \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+      - name: Building
+        run: make -C build -j$(nproc)
