@@ -6,19 +6,16 @@ on:
     - cron: '0 2 * * 1'
 
 jobs:
-  Build:
+  GNU:
+    name: GNU-${{ matrix.gnu_ver }}-${{ matrix.build_type }}
 
-    name: build
-
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     strategy:
       fail-fast: false
       matrix:
-        image_tag: [old, stable, trunk]
+        gnu_ver: [9, 10]
         build_type: [Debug, Release]
-
-    container: chinoune/debian-gfortran-testing:${{ matrix.image_tag }}
 
     steps:
     - uses: actions/checkout@v2
@@ -26,6 +23,37 @@ jobs:
       run: |
         mkdir build
         cd build
-        cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        cmake .. -DCMAKE_Fortran_COMPILER=gfortran-${{ matrix.gnu_ver }} \
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
     - name: Building
       run: make -C build -j$(nproc)
+
+  Intel:
+    name: Intel-${{ matrix.build_type }}
+
+    runs-on: ubuntu-20.04
+
+    strategy:
+      fail-fast: false
+      matrix:
+        build_type: [Debug, Release]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install Intel compilers
+        run: |
+          wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+          sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+          rm GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+          sudo add-apt-repository "deb https://apt.repos.intel.com/oneapi all main"
+          sudo apt install --no-install-recommends intel-oneapi-compiler-fortran
+          source /opt/intel/oneapi/setvars.sh
+          printenv >> $GITHUB_ENV
+      - name: Configuring
+        run: |
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_Fortran_COMPILER=ifort -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+      - name: Building
+        run: make -C build -j$(nproc)
