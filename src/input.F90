@@ -5,17 +5,19 @@ contains
 
   module subroutine read_input(in_unit, Ei, Es, Ee, thetas, step, Atom, Orbit, exchange)
     integer, intent(in) :: in_unit
+    character(len=2), intent(out) :: Atom, Orbit
     real(wp), intent(out) :: Ei, Es, Ee, thetas
     integer, intent(out) :: step(3)
-    integer, optional, intent(out) :: exchange
-    character(len=2), intent(out) :: Atom, Orbit
+    integer, intent(out), optional :: exchange
     !
     read( in_unit, * ) Atom
     read( in_unit, * ) Orbit
     read( in_unit, * ) Ei, Es, Ee
     read( in_unit, * ) thetas
     read( in_unit, * ) step
-    read( in_unit, * ) exchange
+    if( present(exchange) ) then
+      read( in_unit, * ) exchange
+    end if
     ! Rewind, to use it more than once.
     rewind( in_unit )
     !
