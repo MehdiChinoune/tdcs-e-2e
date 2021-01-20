@@ -7,12 +7,17 @@ if(NOT CMAKE_BUILD_TYPE)
   message(STATUS "No CMAKE_BUILD_TYPE selected, default to ${CMAKE_BUILD_TYPE}")
 endif()
 
+Option( TARGET "Generate target optimized binaries" ON )
+
 if ( "${CMAKE_Fortran_COMPILER_ID}" MATCHES "GNU" )
 
   set( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -Wall -Wimplicit-procedure -Wunused-parameter -std=f2018" )
   set( CMAKE_Fortran_FLAGS_FAST "-Ofast -flto" )
   set( CMAKE_Fortran_FLAGS_RELEASE "-O3 -flto" )
   set( CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -fcheck=all -ffpe-trap=zero,overflow,invalid -fbacktrace" )
+  if( TARGET )
+    set( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -march=native" )
+  endif()
 
 elseif ( "${CMAKE_Fortran_COMPILER_ID}" MATCHES "Intel" )
 
@@ -20,6 +25,9 @@ elseif ( "${CMAKE_Fortran_COMPILER_ID}" MATCHES "Intel" )
   set( CMAKE_Fortran_FLAGS_FAST "-Ofast -ipo" )
   set( CMAKE_Fortran_FLAGS_RELEASE "-O3 -ipo" )
   set( CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -check all -fpe-all=0 -traceback" )
+  if( TARGET )
+    set( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -xHost" )
+  endif()
 
 else ()
 
