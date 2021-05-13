@@ -3,7 +3,7 @@ name: Build
 on:
   push:
   schedule:
-    - cron: '0 2 * * 1'
+    - cron: '0 8 * * 0'
 
 jobs:
   GNU:
@@ -14,11 +14,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        gnu_ver: [9, 10]
+        gnu_ver: [10, 11]
         build_type: [Debug, Release]
 
     steps:
     - uses: actions/checkout@v2
+    - name: Install gfortran
+      run: |
+        sudo apt install -y gfortran-${{ matrix.gnu_ver }}
     - name: Configuring
       run: |
         mkdir build
