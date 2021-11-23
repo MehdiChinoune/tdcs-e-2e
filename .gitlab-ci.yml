@@ -1,0 +1,41 @@
+default:
+  image: ubuntu:20.04
+
+stages:
+  - build_ubuntu
+  - build_mingw
+
+build-ubuntu:
+  stage: build_ubuntu
+  script:
+    - apt update
+    - apt install -y gfortran-${GCC} cmake ninja-build
+    - mkdir build && cd build
+    - cmake .. -GNinja -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_Fortran_COMPILER=gfortran-${GCC}
+    - ninja
+  parallel:
+    matrix:
+      - BUILD_TYPE: [Release, Debug]
+        GCC: [9, 10]
+
+build-mingw:
+  stage: build_mingw
+  tags:
+    - shared-windows
+    - windows
+    - windows-1809
+  script:
+    - Invoke-WebRequest -Uri 'https://github.com/msys2/msys2-installer/releases/download/nightly-x86_64/msys2-base-x86_64-latest.sfx.exe' -OutFile 'msys2.exe'
+    - .\msys2.exe -y -oC:\
+    - Remove-Item msys2.exe
+    - $env:PATH = "C:\msys64\ucrt64\bin;C:\msys64\usr\bin;$env:PATH"
+    - bash -lc ' '
+    - pacman --noconfirm -Syuu
+    - pacman --noconfirm -Syuu
+    - $env:CHERE_INVOKING = 'yes'
+    - $env:MSYSTEM = 'UCRT64'
+    - pacman -S --noconfirm mingw-w64-ucrt-x86_64-gcc-fortran mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-ninja
+    - mkdir build
+    - cd build
+    - cmake .. -GNinja
+    - ninja
