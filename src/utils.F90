@@ -136,7 +136,7 @@ contains
     integer :: nelec, lo, no, i1, i2, nocup
     character(len=2) :: orbit_i
 
-    open( newunit = in, file = 'Data/'//Atom//'.dat', status = 'old', action = 'read')
+    open( newunit = in, file = 'data/'//Atom//'.dat', status = 'old', action = 'read')
 
     U = 0._wp
     do

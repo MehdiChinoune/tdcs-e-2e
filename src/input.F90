@@ -31,7 +31,7 @@ contains
 
     integer :: INPUT
 
-    open( newunit = INPUT, file = 'Data/'//orbit_file//'.dat', status = 'old' &
+    open( newunit = INPUT, file = 'data/'//orbit_file//'.dat', status = 'old' &
       , action = 'read')
 
     read( INPUT, * ) nelec
