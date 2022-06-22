@@ -12,14 +12,11 @@ build-mingw:
     - Invoke-WebRequest -Uri 'https://github.com/msys2/msys2-installer/releases/download/nightly-x86_64/msys2-base-x86_64-latest.sfx.exe' -OutFile 'msys2.exe'
     - .\msys2.exe -y -oC:\
     - Remove-Item msys2.exe
-    - $env:PATH = "C:\msys64\ucrt64\bin;C:\msys64\usr\bin;$env:PATH"
-    - bash -lc ' '
-    - pacman --noconfirm -Syuu
-    - pacman --noconfirm -Syuu
+    - C:\msys64\usr\bin\bash -lc ' '
+    - C:\msys64\usr\bin\bash -lc "pacman --noconfirm -Syuu"
+    - C:\msys64\usr\bin\bash -lc "pacman --noconfirm -Syuu"
     - $env:CHERE_INVOKING = 'yes'
     - $env:MSYSTEM = 'UCRT64'
-    - pacman -S --noconfirm mingw-w64-ucrt-x86_64-gcc-fortran mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-ninja
-    - mkdir build
-    - cd build
-    - cmake .. -GNinja
-    - ninja
+    - C:\msys64\usr\bin\bash -lc "pacman -S --noconfirm mingw-w64-ucrt-x86_64-gcc-fortran mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-ninja"
+    - C:\msys64\usr\bin\bash -lc "cmake -GNinja -Bbuild"
+    - C:\msys64\usr\bin\bash -lc "cmake --build build"
