@@ -16,7 +16,7 @@ jobs:
         build_type: [Debug, Release]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Install gfortran
         run: |
           sudo apt install -y gfortran-${{ matrix.gnu_ver }}
@@ -47,7 +47,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Install Intel compilers
         run: |
           wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
@@ -83,15 +83,15 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Install Nvidia HPC Compiler
         run: |
           echo "deb [trusted=yes] https://developer.download.nvidia.com/hpc-sdk/ubuntu/amd64 /" > nvhpc.list
           sudo cp nvhpc.list /etc/apt/sources.list.d/
           sudo apt-get update
-          sudo apt-get install -y nvhpc-22-5
-          echo "/opt/nvidia/hpc_sdk/Linux_x86_64/22.5/compilers/bin" >> $GITHUB_PATH
-          echo "LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_x86_64/22.5/compilers/lib" >> $GITHUB_ENV
+          sudo apt-get install -y nvhpc-22-7
+          echo "/opt/nvidia/hpc_sdk/Linux_x86_64/22.7/compilers/bin" >> $GITHUB_PATH
+          echo "LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_x86_64/22.7/compilers/lib" >> $GITHUB_ENV
       - name: Configuring
         run: |
           mkdir build
