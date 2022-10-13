@@ -98,10 +98,10 @@ jobs:
           sudo cp nvhpc.list /etc/apt/sources.list.d/
           sudo apt-get update
           sudo apt install --no-install-recommends -y \
-            nvhpc-22-7 \
+            nvhpc-22-9 \
             ninja-build
-          echo "/opt/nvidia/hpc_sdk/Linux_x86_64/22.7/compilers/bin" >> $GITHUB_PATH
-          echo "LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_x86_64/22.7/compilers/lib" >> $GITHUB_ENV
+          echo "/opt/nvidia/hpc_sdk/Linux_x86_64/22.9/compilers/bin" >> $GITHUB_PATH
+          echo "LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_x86_64/22.9/compilers/lib" >> $GITHUB_ENV
       - name: Configuring
         run: |
           mkdir build
