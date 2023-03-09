@@ -94,14 +94,14 @@ jobs:
         uses: actions/checkout@v3
       - name: Install Nvidia HPC Compiler
         run: |
-          echo "deb [trusted=yes] https://developer.download.nvidia.com/hpc-sdk/ubuntu/amd64 /" > nvhpc.list
-          sudo cp nvhpc.list /etc/apt/sources.list.d/
+          curl https://developer.download.nvidia.com/hpc-sdk/ubuntu/DEB-GPG-KEY-NVIDIA-HPC-SDK | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg
+          echo 'deb [signed-by=/usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg] https://developer.download.nvidia.com/hpc-sdk/ubuntu/amd64 /' | sudo tee /etc/apt/sources.list.d/nvhpc.list
           sudo apt-get update
           sudo apt install --no-install-recommends -y \
-            nvhpc-22-11 \
+            nvhpc-23-1 \
             ninja-build
-          echo "/opt/nvidia/hpc_sdk/Linux_x86_64/22.11/compilers/bin" >> $GITHUB_PATH
-          echo "LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_x86_64/22.11/compilers/lib" >> $GITHUB_ENV
+          echo "/opt/nvidia/hpc_sdk/Linux_x86_64/23.1/compilers/bin" >> $GITHUB_PATH
+          echo "LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_x86_64/23.1/compilers/lib" >> $GITHUB_ENV
       - name: Configuring
         run: |
           mkdir build
