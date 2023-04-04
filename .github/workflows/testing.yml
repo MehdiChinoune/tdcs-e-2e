@@ -48,11 +48,12 @@ jobs:
           ./main fdcs dwb
 
   MSYS2:
-    name: MSYS2/UCRT64 (${{ matrix.build_type }})
+    name: MSYS2/${{ matrix.msystem }} (${{ matrix.build_type }})
     runs-on: windows-2025
     strategy:
       fail-fast: false
       matrix:
+        msystem: [UCRT64, CLANG64]
         build_type: [Debug, Release]
     defaults:
       run:
@@ -63,7 +64,7 @@ jobs:
       - name: Install compiler
         uses: msys2/setup-msys2@v2
         with:
-          msystem: UCRT64
+          msystem: ${{ matrix.msystem }}
           release: true
           update: true
           pacboy: fc:p cmake:p ninja:p flint:p
