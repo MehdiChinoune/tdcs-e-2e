@@ -52,6 +52,10 @@ endif()
 
 include( CheckIPOSupported )
 check_ipo_supported( RESULT IPO_SUPPORTED OUTPUT IPO_MESSAGE LANGUAGES Fortran )
+# LTO is broken with MINGW/binutils https://sourceware.org/bugzilla/show_bug.cgi?id=12762
+if( MINGW AND CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" )
+  set( IPO_SUPPORTED OFF )
+endif()
 if( IPO_SUPPORTED )
   set( CMAKE_INTERPROCEDURAL_OPTIMIZATION ON )
 endif()
