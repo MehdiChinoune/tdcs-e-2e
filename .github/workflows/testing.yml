@@ -42,6 +42,41 @@ jobs:
           ./main dw
           ./main dwb
 
+  MSYS2:
+    name: MSYS2-${{ matrix.build_type }}
+    runs-on: windows-2022
+    strategy:
+      fail-fast: false
+      matrix:
+        build_type: [Debug, Release]
+    defaults:
+      run:
+        shell: msys2 {0}
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install compiler
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          release: false
+          update: true
+          pacboy: fc:p cmake:p ninja:p
+      - name: Configuring
+        run: |
+          mkdir build && cd build
+          cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+      - name: Building
+        run: cmake --build build
+      - name: Running
+        run: |
+          cd build
+          mv input_example.dat input.dat
+          ./main
+          ./main cw
+          ./main dw
+          ./main dwb
+
   Intel:
     name: Intel ${{ matrix.compiler }}-${{ matrix.build_type }}
     runs-on: ubuntu-22.04
