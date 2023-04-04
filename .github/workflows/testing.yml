@@ -43,11 +43,12 @@ jobs:
           ./main dwb
 
   MSYS2:
-    name: MSYS2-${{ matrix.build_type }}
+    name: MSYS2-${{ matrix.msystem }}-${{ matrix.build_type }}
     runs-on: windows-2022
     strategy:
       fail-fast: false
       matrix:
+        msystem: [UCRT64, CLANG64]
         build_type: [Debug, Release]
     defaults:
       run:
@@ -58,10 +59,10 @@ jobs:
       - name: Install compiler
         uses: msys2/setup-msys2@v2
         with:
-          msystem: UCRT64
+          msystem: ${{ matrix.msystem }}
           release: false
           update: true
-          pacboy: fc:p cmake:p ninja:p
+          pacboy: fc:p cc:p cmake:p ninja:p
       - name: Configuring
         run: |
           mkdir build && cd build
