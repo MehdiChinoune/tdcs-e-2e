@@ -12,13 +12,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        gnu_ver: [11, 12]
+        gnu_ver: [12, 13]
         build_type: [Debug, Release]
 
     steps:
       - uses: actions/checkout@v3
       - name: Install gfortran
         run: |
+          sudo apt update
           sudo apt install --no-install-recommends -y \
             gfortran-${{ matrix.gnu_ver }} \
             ninja-build
@@ -26,10 +27,12 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake .. -DCMAKE_Fortran_COMPILER=gfortran-${{ matrix.gnu_ver }} \
+          cmake .. \
+            -GNinja \
+            -DCMAKE_Fortran_COMPILER=gfortran-${{ matrix.gnu_ver }} \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
       - name: Building
-        run: make -C build -j$(nproc)
+        run: cmake --build build
       - name: Running
         run: |
           cd build
@@ -71,7 +74,7 @@ jobs:
             -DCMAKE_Fortran_COMPILER=${{ matrix.compiler }} \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
       - name: Building
-        run: cmake --build build -j$(nproc)
+        run: cmake --build build
       - name: Running
         run: |
           cd build
