@@ -30,7 +30,7 @@ elseif ( "${CMAKE_Fortran_COMPILER_ID}" MATCHES "Intel" )
 
   set( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -warn all -stand f18 -standard-semantics" )
   set( CMAKE_Fortran_FLAGS_FAST "-Ofast" )
-  set( CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} -check all,nouninit -fpe-all=0 -traceback" )
+  set( CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} -check all -fpe-all=0 -traceback" )
   if( TARGET )
     set( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -xHost" )
   endif()
