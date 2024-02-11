@@ -8,7 +8,7 @@ program main
   real(wp) :: rate
   integer :: in_unit, out_unit, narg
   character(len=4) :: arg1
-  logical :: input_found
+  logical :: input_found = .FALSE.
   !
   !
   inquire( file = "input.dat", exist = input_found )
