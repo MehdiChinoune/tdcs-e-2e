@@ -5,6 +5,8 @@ cmake_policy(SET CMP0083 NEW) # POSITION_INDEPENDENT_CODE
 
 project(TDCS-e-2e Fortran)
 
+set( CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH} )
+
 set( CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}" )
 set( CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/modules )
 
@@ -65,6 +67,8 @@ check_pie_supported( OUTPUT_VARIABLE PIE_MESSAGE LANGUAGES Fortran )
 if( CMAKE_Fortran_LINK_PIE_SUPPORTED )
   set( CMAKE_POSITION_INDEPENDENT_CODE TRUE )
 endif()
+
+find_package(arb 2.20 REQUIRED)
 
 add_subdirectory(src)
 
