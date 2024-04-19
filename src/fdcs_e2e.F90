@@ -476,9 +476,9 @@ contains
         ylme(le,-1:-le:-2,i) = -ylme(le,1:le:2,i)
       end do
     end do
-!!$OMP PARALLEL DO PRIVATE(sigma, mo, termd, termx, le, ls, me)
-
     write( out_unit, * ) "Theta TDCS_DWBA"
+
+    !$OMP PARALLEL DO PRIVATE(sigma, mo, termd, termx, le, ls, me)
     do i = step(1), step(2), step(3)
 
       sigma = 0._wp
