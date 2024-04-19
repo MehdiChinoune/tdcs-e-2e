@@ -30,7 +30,8 @@ jobs:
           cmake .. \
             -GNinja \
             -DCMAKE_Fortran_COMPILER=gfortran-${{ matrix.gnu_ver }} \
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DOpenMP=ON
       - name: Building
         run: cmake --build build
       - name: Running
@@ -65,7 +66,9 @@ jobs:
       - name: Configuring
         run: |
           mkdir build && cd build
-          cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          cmake .. \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DOpenMP=ON
       - name: Building
         run: cmake --build build
       - name: Running
@@ -107,7 +110,8 @@ jobs:
           cmake .. \
             -GNinja \
             -DCMAKE_Fortran_COMPILER=${{ matrix.compiler }} \
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DOpenMP=ON
       - name: Building
         run: cmake --build build
       - name: Running
@@ -147,7 +151,8 @@ jobs:
           cmake .. \
             -GNinja \
             -DCMAKE_Fortran_COMPILER=nvfortran \
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DOpenMP=ON
       - name: Building
         run: cmake --build build
       - name: Running
