@@ -7,7 +7,7 @@ on:
 
 jobs:
   GNU:
-    name: GNU-${{ matrix.gnu_ver }}-${{ matrix.build_type }}
+    name: GNU ${{ matrix.gnu_ver }} (${{ matrix.build_type }})
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
@@ -44,7 +44,7 @@ jobs:
           ./main dwb
 
   MSYS2:
-    name: MSYS2-${{ matrix.build_type }}
+    name: MSYS2/UCRT64 (${{ matrix.build_type }})
     runs-on: windows-2022
     strategy:
       fail-fast: false
@@ -81,13 +81,12 @@ jobs:
           ./main dwb
 
   Intel:
-    name: Intel ${{ matrix.compiler }}-${{ matrix.build_type }}
+    name: Intel (${{ matrix.build_type }})
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
         build_type: [Debug, Release]
-        compiler: [ifort, ifx]
 
     steps:
       - name: Checkout
@@ -109,7 +108,7 @@ jobs:
           cd build
           cmake .. \
             -GNinja \
-            -DCMAKE_Fortran_COMPILER=${{ matrix.compiler }} \
+            -DCMAKE_Fortran_COMPILER=ifx \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
             -DOpenMP=ON
       - name: Building
@@ -124,7 +123,7 @@ jobs:
           ./main dwb
 
   Nvidia:
-    name: Nvidia-${{ matrix.build_type }}
+    name: Nvidia (${{ matrix.build_type }})
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
