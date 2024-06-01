@@ -22,7 +22,8 @@ jobs:
           sudo apt update
           sudo apt install --no-install-recommends -y \
             gfortran-${{ matrix.gnu_ver }} \
-            ninja-build
+            ninja-build \
+            libflint-dev
       - name: Configuring
         run: |
           mkdir build
@@ -64,7 +65,7 @@ jobs:
           msystem: UCRT64
           release: false
           update: true
-          pacboy: fc:p cmake:p ninja:p
+          pacboy: fc:p cmake:p ninja:p flint:p
       - name: Configuring
         run: |
           mkdir build && cd build
@@ -103,7 +104,8 @@ jobs:
           sudo apt update
           sudo apt install --no-install-recommends -y \
             intel-oneapi-compiler-fortran \
-            ninja-build
+            ninja-build \
+            libflint-dev
           source /opt/intel/oneapi/setvars.sh
           printenv >> $GITHUB_ENV
       - name: Configuring
@@ -146,7 +148,8 @@ jobs:
           sudo apt-get update
           sudo apt install --no-install-recommends -y \
             nvhpc-24-5 \
-            ninja-build
+            ninja-build \
+            libflint-dev
           echo "/opt/nvidia/hpc_sdk/Linux_x86_64/24.5/compilers/bin" >> $GITHUB_PATH
           echo "LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_x86_64/24.5/compilers/lib" >> $GITHUB_ENV
       - name: Configuring
