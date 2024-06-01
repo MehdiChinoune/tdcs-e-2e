@@ -30,9 +30,12 @@ jobs:
           cmake .. \
             -GNinja \
             -DCMAKE_Fortran_COMPILER=gfortran-${{ matrix.gnu_ver }} \
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DBUILD_TESTS=ON
       - name: Building
         run: cmake --build build
+      - name: Testing
+        run: ctest --output-on-failure --test-dir build
       - name: Running
         run: |
           cd build
@@ -66,9 +69,12 @@ jobs:
         run: |
           mkdir build && cd build
           cmake .. \
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DBUILD_TESTS=ON
       - name: Building
         run: cmake --build build
+      - name: Testing
+        run: ctest --output-on-failure --test-dir build
       - name: Running
         run: |
           cd build
@@ -107,9 +113,12 @@ jobs:
           cmake .. \
             -GNinja \
             -DCMAKE_Fortran_COMPILER=ifx \
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DBUILD_TESTS=ON
       - name: Building
         run: cmake --build build
+      - name: Testing
+        run: ctest --output-on-failure --test-dir build
       - name: Running
         run: |
           cd build
@@ -147,9 +156,12 @@ jobs:
           cmake .. \
             -GNinja \
             -DCMAKE_Fortran_COMPILER=nvfortran \
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DBUILD_TESTS=ON
       - name: Building
         run: cmake --build build
+      - name: Testing
+        run: ctest --output-on-failure --test-dir build
       - name: Running
         run: |
           cd build
