@@ -40,10 +40,8 @@ else ()
 
 endif ()
 
-option( OpenMP "Enable OpenMP" OFF )
-if( OpenMP )
-  find_package( OpenMP REQUIRED )
-endif()
+find_package( OpenMP COMPONENTS Fortran)
+option( ENABLE_OPENMP "Enable OpenMP" ${OpenMP_Fortran_FOUND} )
 
 option( Profiling "Enable profiling with gprof" OFF )
 if( Profiling )

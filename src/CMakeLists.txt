@@ -19,7 +19,7 @@ set( srcs
 
 add_library( tdcs_e_2e SHARED ${srcs} )
 
-if( OpenMP )
+if( ENABLE_OPENMP )
   target_link_libraries( tdcs_e_2e PUBLIC OpenMP::OpenMP_Fortran )
 endif()
 
