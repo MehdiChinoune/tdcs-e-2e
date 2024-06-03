@@ -260,32 +260,11 @@ contains
       C(-1:L+1) = B(-1:L+1)
     elseif ( abs(B(1))<0.5 .OR. ediff>=L ) then
       C(-1:L+1) = A(-1:L+1)
-    else
+    else ! |A(1)|>=0.5 |B(1)|>=0.5 -L<ediff<L
       z(-1) = A(-1)
       if ( abs(A(-1)-B(-1))>=0.5 ) then
         if ( ediff>0 ) then
           z(L+1) = A(L+1)
-          goto 233
-        end if
-        if ( ediff<0 ) then
-          z(L+1) = B(L+1)
-          z(-1) = B(-1)
-          goto 266
-        end if
-        do i = 1, L
-          if ( A(i)>B(i) ) then
-            z(L+1) = A(L+1)
-            goto 233
-          end if
-          if ( A(i)<B(i) ) then
-            z(L+1) = B(L+1)
-            z(-1) = B(-1)
-            goto 266
-          end if
-        end do
-
-        233   continue
-        if ( ediff>0 ) then
           do i = L, 1 + ediff, -1
             z(i) = A(i) - B(i-ediff) + z(i)
             if ( z(i)<0._wp ) then
@@ -300,19 +279,9 @@ contains
               z(i-1) = -1._wp
             end if
           end do
-        else
-          do i = L, 1, -1
-            z(i) = A(i) - B(i) + z(i)
-            if ( z(i)<0._wp ) then
-              z(i) = z(i) + Rmax
-              z(i-1) = -1._wp
-            end if
-          end do
-        end if
-        goto 290
-
-        266 continue
-        if ( ediff<0 ) then
+        elseif ( ediff<0 ) then
+          z(L+1) = B(L+1)
+          z(-1) = B(-1)
           do i = L, 1 - ediff, -1
             z(i) = B(i) - A(i+ediff) + z(i)
             if ( z(i)<0._wp ) then
@@ -327,17 +296,37 @@ contains
               z(i-1) = -1._wp
             end if
           end do
-        else
-          do i = L, 1, -1
-            z(i) = B(i) - A(i) + z(i)
-            if ( z(i)<0._wp ) then
-              z(i) = z(i) + Rmax
-              z(i-1) = -1._wp
+        else ! ediff=0
+          loop: do i = 1, L
+            if ( A(i)>B(i) ) then
+              z(L+1) = A(L+1)
+              exit loop
+            elseif ( A(i)<B(i) ) then
+              z(L+1) = B(L+1)
+              z(-1) = B(-1)
+              exit loop
             end if
-          end do
-        end if
+          end do loop
+          !
+          if( A(i)>B(i) ) then
+            do i = L, 1, -1
+              z(i) = A(i) - B(i) + z(i)
+              if ( z(i)<0._wp ) then
+                z(i) = z(i) + Rmax
+                z(i-1) = -1._wp
+              end if
+            end do
+          else
+            do i = L, 1, -1
+              z(i) = B(i) - A(i) + z(i)
+              if ( z(i)<0._wp ) then
+                z(i) = z(i) + Rmax
+                z(i-1) = -1._wp
+              end if
+            end do
+          end if
+        endif
 
-        290 continue
         if ( z(1)<=0.5 ) then
           i = 1
           do
