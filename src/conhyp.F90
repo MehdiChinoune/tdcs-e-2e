@@ -1,6 +1,6 @@
-  !      ALGORITHM 707, COLLECTED ALGORITHMS FROM ACM.
-  !      THIS WORK PUBLISHED IN TRANSACTIONS ON MATHEMATICAL SOFTWARE,
-  !      VOL. 18, NO. 3, SEPTEMBER, 1992, PP. 345-349.
+!      ALGORITHM 707, COLLECTED ALGORITHMS FROM ACM.
+!      THIS WORK PUBLISHED IN TRANSACTIONS ON MATHEMATICAL SOFTWARE,
+!      VOL. 18, NO. 3, SEPTEMBER, 1992, PP. 345-349.
 submodule(conhyp_m) conhyp_m
   use constants, only: pi
   implicit none
@@ -161,70 +161,70 @@ contains
     !
     cnt = sigfig
     do
-    if ( sumr(1)<0.5 ) then
-      mx1 = sumi(L+1)
-    else if ( sumi(1)<0.5 ) then
-      mx1 = sumr(L+1)
-    else
-      mx1 = max(sumr(L+1),sumi(L+1))
-    end if
-    !
-    if ( numr(1)<0.5 ) then
-      mx2 = numi(L+1)
-    else if ( numi(1)<0.5 ) then
-      mx2 = numr(L+1)
-    else
-      mx2 = max(numr(L+1),numi(L+1))
-    end if
-    !
-    if ( mx1-mx2>2.0 ) then
-      if ( cr>0._wp ) then
-        if ( abs(cmplx(ar,ai,wp)*cmplx(xr,xi,wp)/(cmplx(cr,ci,wp)*cnt)) &
-            <=1._wp ) then
-          call arydiv(sumr,sumi,denomr,denomi,final,L,Lnchf,rmax,bits)
-          CHGF = final
-          return
+      if ( sumr(1)<0.5 ) then
+        mx1 = sumi(L+1)
+      else if ( sumi(1)<0.5 ) then
+        mx1 = sumr(L+1)
+      else
+        mx1 = max(sumr(L+1),sumi(L+1))
+      end if
+      !
+      if ( numr(1)<0.5 ) then
+        mx2 = numi(L+1)
+      else if ( numi(1)<0.5 ) then
+        mx2 = numr(L+1)
+      else
+        mx2 = max(numr(L+1),numi(L+1))
+      end if
+      !
+      if ( mx1-mx2>2.0 ) then
+        if ( cr>0._wp ) then
+          if ( abs(cmplx(ar,ai,wp)*cmplx(xr,xi,wp)/(cmplx(cr,ci,wp)*cnt)) &
+              <=1._wp ) then
+            call arydiv(sumr,sumi,denomr,denomi,final,L,Lnchf,rmax,bits)
+            CHGF = final
+            return
+          end if
         end if
       end if
-    end if
-    call cmpmul(sumr,sumi,cr,ci,qr1,qi1,L,rmax)
-    call cmpmul(sumr,sumi,cr2,ci2,qr2,qi2,L,rmax)
-    qr2(L+1) = qr2(L+1) - 1
-    qi2(L+1) = qi2(L+1) - 1
-    call cmpadd(qr1,qi1,qr2,qi2,sumr,sumi,L,rmax)
-    !
-    dumr(-1:L+1) = sumr(-1:L+1)
-    dumi(-1:L+1) = sumi(-1:L+1)
-    call armult(dumr,cnt,sumr,L,rmax)
-    call armult(dumi,cnt,sumi,L,rmax)
-    call cmpmul(denomr,denomi,cr,ci,qr1,qi1,L,rmax)
-    call cmpmul(denomr,denomi,cr2,ci2,qr2,qi2,L,rmax)
-    qr2(L+1) = qr2(L+1) - 1
-    qi2(L+1) = qi2(L+1) - 1
-    call cmpadd(qr1,qi1,qr2,qi2,denomr,denomi,L,rmax)
-    !
-    dumr(-1:L+1) = denomr(-1:L+1)
-    dumi(-1:L+1) = denomi(-1:L+1)
-    call armult(dumr,cnt,denomr,L,rmax)
-    call armult(dumi,cnt,denomi,L,rmax)
-    call cmpmul(numr,numi,ar,ai,qr1,qi1,L,rmax)
-    call cmpmul(numr,numi,ar2,ai2,qr2,qi2,L,rmax)
-    qr2(L+1) = qr2(L+1) - 1
-    qi2(L+1) = qi2(L+1) - 1
-    call cmpadd(qr1,qi1,qr2,qi2,numr,numi,L,rmax)
+      call cmpmul(sumr,sumi,cr,ci,qr1,qi1,L,rmax)
+      call cmpmul(sumr,sumi,cr2,ci2,qr2,qi2,L,rmax)
+      qr2(L+1) = qr2(L+1) - 1
+      qi2(L+1) = qi2(L+1) - 1
+      call cmpadd(qr1,qi1,qr2,qi2,sumr,sumi,L,rmax)
+      !
+      dumr(-1:L+1) = sumr(-1:L+1)
+      dumi(-1:L+1) = sumi(-1:L+1)
+      call armult(dumr,cnt,sumr,L,rmax)
+      call armult(dumi,cnt,sumi,L,rmax)
+      call cmpmul(denomr,denomi,cr,ci,qr1,qi1,L,rmax)
+      call cmpmul(denomr,denomi,cr2,ci2,qr2,qi2,L,rmax)
+      qr2(L+1) = qr2(L+1) - 1
+      qi2(L+1) = qi2(L+1) - 1
+      call cmpadd(qr1,qi1,qr2,qi2,denomr,denomi,L,rmax)
+      !
+      dumr(-1:L+1) = denomr(-1:L+1)
+      dumi(-1:L+1) = denomi(-1:L+1)
+      call armult(dumr,cnt,denomr,L,rmax)
+      call armult(dumi,cnt,denomi,L,rmax)
+      call cmpmul(numr,numi,ar,ai,qr1,qi1,L,rmax)
+      call cmpmul(numr,numi,ar2,ai2,qr2,qi2,L,rmax)
+      qr2(L+1) = qr2(L+1) - 1
+      qi2(L+1) = qi2(L+1) - 1
+      call cmpadd(qr1,qi1,qr2,qi2,numr,numi,L,rmax)
 
-    call cmpmul(numr,numi,xr,xi,qr1,qi1,L,rmax)
-    call cmpmul(numr,numi,xr2,xi2,qr2,qi2,L,rmax)
-    qr2(L+1) = qr2(L+1) - 1
-    qi2(L+1) = qi2(L+1) - 1
-    call cmpadd(qr1,qi1,qr2,qi2,numr,numi,L,rmax)
-    !
-    dumr(-1:L+1) = sumr(-1:L+1)
-    dumi(-1:L+1) = sumi(-1:L+1)
-    call cmpadd(dumr,dumi,numr,numi,sumr,sumi,L,rmax)
-    cnt = cnt + sigfig
-    ar = ar + sigfig
-    cr = cr + sigfig
+      call cmpmul(numr,numi,xr,xi,qr1,qi1,L,rmax)
+      call cmpmul(numr,numi,xr2,xi2,qr2,qi2,L,rmax)
+      qr2(L+1) = qr2(L+1) - 1
+      qi2(L+1) = qi2(L+1) - 1
+      call cmpadd(qr1,qi1,qr2,qi2,numr,numi,L,rmax)
+      !
+      dumr(-1:L+1) = sumr(-1:L+1)
+      dumi(-1:L+1) = sumi(-1:L+1)
+      call cmpadd(dumr,dumi,numr,numi,sumr,sumi,L,rmax)
+      cnt = cnt + sigfig
+      ar = ar + sigfig
+      cr = cr + sigfig
     end do
     !
     return
@@ -352,7 +352,7 @@ contains
         end if
         goto 300
 
-  233   continue
+        233   continue
         if ( ediff>0 ) then
           do i = L, 1 + ediff, -1
             z(i) = A(i) - B(i-ediff) + z(i)
@@ -380,7 +380,7 @@ contains
         goto 290
       end if
 
-  266 continue
+      266 continue
       if ( ediff<0 ) then
         do i = L, 1 - ediff, -1
           z(i) = B(i) - A(i+ediff) + z(i)
@@ -407,7 +407,7 @@ contains
       end if
     end if
 
-290 continue
+    290 continue
     if ( z(1)<=0.5 ) then
       i = 1
       do
@@ -429,7 +429,7 @@ contains
         end if
       end do
     end if
-300 continue
+    300 continue
     C(-1:L+1) = z(-1:L+1)
     311 continue
     if ( C(1)<0.5 ) then
@@ -516,7 +516,7 @@ contains
       z(0) = 0._wp
     end if
     !
-198 continue
+    198 continue
     C(-1:L+1) = z(-1:L+1)
     if ( C(1)<0.5 ) then
       C(-1) = 1._wp
