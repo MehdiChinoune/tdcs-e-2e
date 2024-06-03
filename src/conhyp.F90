@@ -258,127 +258,123 @@ contains
     ediff = nint(A(L+1)-B(L+1))
     if ( abs(A(1))<0.5 .OR. ediff<=-L ) then
       C(-1:L+1) = B(-1:L+1)
-      goto 311
+    elseif ( abs(B(1))<0.5 .OR. ediff>=L ) then
+      C(-1:L+1) = A(-1:L+1)
     else
-      if ( abs(B(1))<0.5 .OR. ediff>=L ) then
-        C(-1:L+1) = A(-1:L+1)
-        goto 311
-      else
-        z(-1) = A(-1)
-        if ( abs(A(-1)-B(-1))>=0.5 ) then
-          if ( ediff>0 ) then
+      z(-1) = A(-1)
+      if ( abs(A(-1)-B(-1))>=0.5 ) then
+        if ( ediff>0 ) then
+          z(L+1) = A(L+1)
+          goto 233
+        end if
+        if ( ediff<0 ) then
+          z(L+1) = B(L+1)
+          z(-1) = B(-1)
+          goto 266
+        end if
+        do i = 1, L
+          if ( A(i)>B(i) ) then
             z(L+1) = A(L+1)
             goto 233
           end if
-          if ( ediff<0 ) then
+          if ( A(i)<B(i) ) then
             z(L+1) = B(L+1)
             z(-1) = B(-1)
             goto 266
           end if
-          do i = 1, L
-            if ( A(i)>B(i) ) then
-              z(L+1) = A(L+1)
-              goto 233
-            end if
-            if ( A(i)<B(i) ) then
-              z(L+1) = B(L+1)
-              z(-1) = B(-1)
-              goto 266
-            end if
-          end do
+        end do
 
-        else if ( ediff>0 ) then
-          z(L+1) = A(L+1)
-          do i = L, 1 + ediff, -1
-            z(i) = A(i) + B(i-ediff) + z(i)
-            if ( z(i)>=Rmax ) then
-              z(i) = z(i) - Rmax
-              z(i-1) = 1._wp
-            end if
-          end do
-          do i = ediff, 1, -1
-            z(i) = A(i) + z(i)
-            if ( z(i)>=Rmax ) then
-              z(i) = z(i) - Rmax
-              z(i-1) = 1._wp
-            end if
-          end do
-          if ( z(0)>0.5 ) then
-            do i = L, 1, -1
-              z(i) = z(i-1)
-            end do
-            z(L+1) = z(L+1) + 1
-            z(0) = 0._wp
+      else if ( ediff>0 ) then
+        z(L+1) = A(L+1)
+        do i = L, 1 + ediff, -1
+          z(i) = A(i) + B(i-ediff) + z(i)
+          if ( z(i)>=Rmax ) then
+            z(i) = z(i) - Rmax
+            z(i-1) = 1._wp
           end if
-        else if ( ediff<0 ) then
-          z(L+1) = B(L+1)
-          do i = L, 1 - ediff, -1
-            z(i) = A(i+ediff) + B(i) + z(i)
-            if ( z(i)>=Rmax ) then
-              z(i) = z(i) - Rmax
-              z(i-1) = 1._wp
-            end if
-          end do
-          do i = 0 - ediff, 1, -1
-            z(i) = B(i) + z(i)
-            if ( z(i)>=Rmax ) then
-              z(i) = z(i) - Rmax
-              z(i-1) = 1._wp
-            end if
-          end do
-          if ( z(0)>0.5 ) then
-            do i = L, 1, -1
-              z(i) = z(i-1)
-            end do
-            z(L+1) = z(L+1) + 1._wp
-            z(0) = 0._wp
+        end do
+        do i = ediff, 1, -1
+          z(i) = A(i) + z(i)
+          if ( z(i)>=Rmax ) then
+            z(i) = z(i) - Rmax
+            z(i-1) = 1._wp
           end if
-        else
-          z(L+1) = A(L+1)
+        end do
+        if ( z(0)>0.5 ) then
           do i = L, 1, -1
-            z(i) = A(i) + B(i) + z(i)
-            if ( z(i)>=Rmax ) then
-              z(i) = z(i) - Rmax
-              z(i-1) = 1._wp
-            end if
+            z(i) = z(i-1)
           end do
-          if ( z(0)>0.5 ) then
-            do i = L, 1, -1
-              z(i) = z(i-1)
-            end do
-            z(L+1) = z(L+1) + 1._wp
-            z(0) = 0._wp
+          z(L+1) = z(L+1) + 1
+          z(0) = 0._wp
+        end if
+      else if ( ediff<0 ) then
+        z(L+1) = B(L+1)
+        do i = L, 1 - ediff, -1
+          z(i) = A(i+ediff) + B(i) + z(i)
+          if ( z(i)>=Rmax ) then
+            z(i) = z(i) - Rmax
+            z(i-1) = 1._wp
           end if
-        end if
-        goto 300
-
-        233   continue
-        if ( ediff>0 ) then
-          do i = L, 1 + ediff, -1
-            z(i) = A(i) - B(i-ediff) + z(i)
-            if ( z(i)<0._wp ) then
-              z(i) = z(i) + Rmax
-              z(i-1) = -1._wp
-            end if
-          end do
-          do i = ediff, 1, -1
-            z(i) = A(i) + z(i)
-            if ( z(i)<0._wp ) then
-              z(i) = z(i) + Rmax
-              z(i-1) = -1._wp
-            end if
-          end do
-        else
+        end do
+        do i = 0 - ediff, 1, -1
+          z(i) = B(i) + z(i)
+          if ( z(i)>=Rmax ) then
+            z(i) = z(i) - Rmax
+            z(i-1) = 1._wp
+          end if
+        end do
+        if ( z(0)>0.5 ) then
           do i = L, 1, -1
-            z(i) = A(i) - B(i) + z(i)
-            if ( z(i)<0._wp ) then
-              z(i) = z(i) + Rmax
-              z(i-1) = -1._wp
-            end if
+            z(i) = z(i-1)
           end do
+          z(L+1) = z(L+1) + 1._wp
+          z(0) = 0._wp
         end if
-        goto 290
+      else
+        z(L+1) = A(L+1)
+        do i = L, 1, -1
+          z(i) = A(i) + B(i) + z(i)
+          if ( z(i)>=Rmax ) then
+            z(i) = z(i) - Rmax
+            z(i-1) = 1._wp
+          end if
+        end do
+        if ( z(0)>0.5 ) then
+          do i = L, 1, -1
+            z(i) = z(i-1)
+          end do
+          z(L+1) = z(L+1) + 1._wp
+          z(0) = 0._wp
+        end if
       end if
+      goto 300
+
+      233   continue
+      if ( ediff>0 ) then
+        do i = L, 1 + ediff, -1
+          z(i) = A(i) - B(i-ediff) + z(i)
+          if ( z(i)<0._wp ) then
+            z(i) = z(i) + Rmax
+            z(i-1) = -1._wp
+          end if
+        end do
+        do i = ediff, 1, -1
+          z(i) = A(i) + z(i)
+          if ( z(i)<0._wp ) then
+            z(i) = z(i) + Rmax
+            z(i-1) = -1._wp
+          end if
+        end do
+      else
+        do i = L, 1, -1
+          z(i) = A(i) - B(i) + z(i)
+          if ( z(i)<0._wp ) then
+            z(i) = z(i) + Rmax
+            z(i-1) = -1._wp
+          end if
+        end do
+      end if
+      goto 290
 
       266 continue
       if ( ediff<0 ) then
@@ -405,33 +401,32 @@ contains
           end if
         end do
       end if
-    end if
 
-    290 continue
-    if ( z(1)<=0.5 ) then
-      i = 1
-      do
-        i = i + 1
-        if ( z(i)>=0.5 .OR. i>=L+1 ) then
-          if ( i==L+1 ) then
-            z(-1) = 1._wp
-            z(L+1) = 0._wp
+      290 continue
+      if ( z(1)<=0.5 ) then
+        i = 1
+        do
+          i = i + 1
+          if ( z(i)>=0.5 .OR. i>=L+1 ) then
+            if ( i==L+1 ) then
+              z(-1) = 1._wp
+              z(L+1) = 0._wp
+              exit
+            end if
+            do j = 1, L + 1 - i
+              z(j) = z(j+i-1)
+            end do
+            do j = L + 2 - i, L
+              z(j) = 0._wp
+            end do
+            z(L+1) = z(L+1) - i + 1
             exit
           end if
-          do j = 1, L + 1 - i
-            z(j) = z(j+i-1)
-          end do
-          do j = L + 2 - i, L
-            z(j) = 0._wp
-          end do
-          z(L+1) = z(L+1) - i + 1
-          exit
-        end if
-      end do
+        end do
+      end if
+      300 continue
+      C(-1:L+1) = z(-1:L+1)
     end if
-    300 continue
-    C(-1:L+1) = z(-1:L+1)
-    311 continue
     if ( C(1)<0.5 ) then
       C(-1) = 1._wp
       C(L+1) = 0._wp
