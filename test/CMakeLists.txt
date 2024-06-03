@@ -6,6 +6,7 @@ target_link_libraries(arb_bindings arb::arb tdcs_e_2e)
 
 set(tests
   test_conhyp_01
+  test_conhyp_opt
   test_arb_hypgeom_01
   test_arb_hypgeom_02
   test_arb_hypgeom_03
