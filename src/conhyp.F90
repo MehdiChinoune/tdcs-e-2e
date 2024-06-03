@@ -498,25 +498,24 @@ contains
     if ( b2<=1.0D-10 .OR. A(1)<=1.0D-10 ) then
       z(-1) = 1._wp
       z(L+1) = 0._wp
-      goto 198
-    end if
-    do i = L, 1, -1
-      z(i) = A(i)*b2 + z(i)
-      if ( z(i)>=Rmax ) then
-        carry = aint(z(i)/Rmax)
-        z(i) = z(i) - carry*Rmax
-        z(i-1) = carry
-      end if
-    end do
-    if ( z(0)>=0.5 ) then
+    else
       do i = L, 1, -1
-        z(i) = z(i-1)
+        z(i) = A(i)*b2 + z(i)
+        if ( z(i)>=Rmax ) then
+          carry = aint(z(i)/Rmax)
+          z(i) = z(i) - carry*Rmax
+          z(i-1) = carry
+        end if
       end do
-      z(L+1) = z(L+1) + 1._wp
-      z(0) = 0._wp
-    end if
+      if ( z(0)>=0.5 ) then
+        do i = L, 1, -1
+          z(i) = z(i-1)
+        end do
+        z(L+1) = z(L+1) + 1._wp
+        z(0) = 0._wp
+      end if
+    endif
     !
-    198 continue
     C(-1:L+1) = z(-1:L+1)
     if ( C(1)<0.5 ) then
       C(-1) = 1._wp
