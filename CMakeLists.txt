@@ -72,6 +72,7 @@ file(COPY data DESTINATION ./ )
 file(COPY input_example.dat DESTINATION ./ )
 
 option( BUILD_TESTS "Build Tests" OFF)
+option( BUILD_SLOW_TESTS "Build Tests" OFF)
 if(BUILD_TESTS)
   enable_testing()
   add_subdirectory(test)

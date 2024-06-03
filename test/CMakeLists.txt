@@ -7,10 +7,15 @@ target_link_libraries(arb_bindings arb::arb tdcs_e_2e)
 set(tests
   test_conhyp_01
   test_conhyp_opt
-  test_arb_hypgeom_01
-  test_arb_hypgeom_02
-  test_arb_hypgeom_03
 )
+
+if(BUILD_SLOW_TESTS)
+  list(APPEND tests
+    test_arb_hypgeom_01
+    test_arb_hypgeom_02
+    test_arb_hypgeom_03
+  )
+endif()
 
 INCLUDE_DIRECTORIES( ${CMAKE_BINARY_DIR}/modules )
 
