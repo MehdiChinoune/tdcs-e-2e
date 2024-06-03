@@ -893,20 +893,20 @@ contains
   elemental complex(wp) module function conhyp_opt(ai,zi)
     real(wp), intent(in) :: ai, zi
     integer :: i
-    complex(wp) :: u
+    complex(wp) :: u, conhyp_opt_f
     real(wp), parameter :: eps = sqrt( epsilon(1._wp) )
 
-    conhyp_opt = (1._wp,0._wp)
-    if( zi==0._wp ) return
-    !
-    u = (1._wp, 0._wp)
-    do i = 1, 10240
-      u = (zi/i**2)*cmplx( -ai, (i-1), wp )*u
-      conhyp_opt = conhyp_opt +u
-      if( abs(u/conhyp_opt)<=eps ) exit
-    end do
-
-    return
+    conhyp_opt_f = (1._wp,0._wp)
+    if( zi /= 0._wp ) then
+      u = (1._wp, 0._wp)
+      do i = 1, 10240
+        u = (zi/i**2)*cmplx( -ai, (i-1), wp )*u
+        conhyp_opt_f = conhyp_opt_f +u
+        if( abs(conhyp_opt_f) == 0._wp ) cycle
+        if( abs(u/conhyp_opt_f)<=eps ) exit
+      end do
+    endif
+    conhyp_opt = conhyp_opt_f
   end function conhyp_opt
 
 end submodule special_functions
