@@ -19,8 +19,8 @@ program test_conhyp_01
     do ja = 1, 6
       do ib = 1, 8
         do jb = 1, 8
-          do iz = 1, 6
-            do jz = 1, 6
+          do iz = 1, 7
+            do jz = 1, 7
               a = cmplx( i_tst(ia)*1._dp, i_tst(ja)*1._dp, dp)
               b = cmplx( i_tst(ib)*1._dp, i_tst(jb)*1._dp, dp)
               z = cmplx( i_tst(iz)*1._dp, i_tst(jz)*1._dp, dp)
