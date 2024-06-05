@@ -47,6 +47,7 @@ jobs:
           ./main fdcs cw
           ./main fdcs dw
           ./main fdcs dwb
+          ./main fdcs bbk
 
   MSYS2:
     name: MSYS2/${{ matrix.msystem }} (${{ matrix.build_type }})
@@ -89,6 +90,7 @@ jobs:
           ./main fdcs cw
           ./main fdcs dw
           ./main fdcs dwb
+          ./main fdcs bbk
 
   Intel:
     name: Intel (${{ matrix.build_type }})
@@ -136,6 +138,7 @@ jobs:
           ./main fdcs cw
           ./main fdcs dw
           ./main fdcs dwb
+          ./main fdcs bbk
 
   Nvidia:
     name: Nvidia (${{ matrix.build_type }})
@@ -182,3 +185,4 @@ jobs:
           ./main fdcs cw
           ./main fdcs dw
           ./main fdcs dwb
+          ./main fdcs bbk
