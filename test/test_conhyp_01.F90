@@ -6,7 +6,7 @@ program test_conhyp_01
   !
   complex(wp) :: a, b, z, zh, ch
   integer :: i, ia, ib, iz, ja, jb, jz
-  integer, dimension(8) :: i_tst = [ 1, 2, 5, 10, 20, 50, 100, 200 ]
+  integer, dimension(9) :: i_tst = [ 0, 1, 2, 5, 10, 20, 50, 100, 200 ]
   ! Test 1F1(a,b,0)=1 when a is real and b is pure complex
   z = (0._wp,0._wp)
   do i = 1, 200
@@ -16,18 +16,19 @@ program test_conhyp_01
   end do
   ! Test against flint/arb hypgeom_1f1
   !$OMP PARALLEL DO COLLAPSE(6) PRIVATE(a, b, z, zh ,ch)
-  do ia = 1, 6
-    do ja = 1, 6
-      do ib = 1, 8
-        do jb = 1, 8
-          do iz = 1, 7
-            do jz = 1, 7
+  do ia = 1, 7
+    do ja = 1, 7
+      do ib = 1, 9
+        do jb = 1, 9
+          do iz = 1, 8
+            do jz = 1, 8
+              if(ib==1 .AND. jb==1) cycle ! b/=0
               a = cmplx( i_tst(ia)*1._dp, i_tst(ja)*1._dp, dp)
               b = cmplx( i_tst(ib)*1._dp, i_tst(jb)*1._dp, dp)
               z = cmplx( i_tst(iz)*1._dp, i_tst(jz)*1._dp, dp)
               zh = zhypgeom_1f1(a, b, z)
               ch = conhyp(a, b, z, 0, 10)
-              if( abs(ch-zh)/abs(zh)>1.e-7 ) then
+              if( abs(ch-zh)/abs(zh)>1.e-7_dp ) then
                 print*, "a= ", a
                 print*, "b= ", b
                 print*, "z= ", z
