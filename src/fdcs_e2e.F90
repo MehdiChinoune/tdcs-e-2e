@@ -555,6 +555,7 @@ contains
     use input, only : read_fdcs_input, read_orbit
     use trigo, only : spher2cartez
     use types, only: orbit
+    use utils, only : norm_fac
     !
     integer, intent(in) :: in_unit
     !
@@ -563,14 +564,14 @@ contains
     real(wp) :: thetas
     integer :: step(3)
     type(orbit) :: orbit_target
-    integer :: out_unit
+    integer :: out_unit, ze, zs
 
     real(wp), parameter   :: phie = 0._wp
-    real(wp) :: kim, ksm, kem, km
+    real(wp) :: kim, ksm, kem, km, alpha
     real(wp) :: ki(3), ks(3), ke(3), k(3)
 
-    real(wp) :: factor, sigma
-    complex(wp) :: D_term
+    real(wp) :: factor, sigma, factor_bbk, sigma_bbk
+    complex(wp) :: term, term_bbk
     integer :: i, io, mo
 
     call factorial()
@@ -581,7 +582,10 @@ contains
 
     kim = sqrt(2.*Ei*eV)
     ksm = sqrt(2.*Es*eV)
+    zs = -1 ! Charge of the projectile
     kem = sqrt(2.*Ee*eV)
+    ze = -1 ! Charge of ejected particle
+    alpha = -ze/kem
 
     call spher2cartez( kim, 0._wp, 0._wp, ki )
     call spher2cartez( ksm, thetas*deg, pi, ks )
@@ -589,34 +593,94 @@ contains
     km = norm2(k)
 
     factor = orbit_target%nelec/(2._wp*orbit_target%l+1._wp) *4._wp*ksm*kem/(kim)
+    !\abs{ \exp{\pi\alpha/2}*\Gamma(1-i\alpha) }^2
+    if(ze/=0) factor = factor*2.*pi*alpha/(1._wp-exp(-2.*pi*alpha))
+    factor_bbk = factor/(2*pi)**3
 
     open( newunit = out_unit, file = 'tdcs_bbk_'//trim(Atom_name)//'_'//Orbit_name//'.dat', &
       status = 'replace', action = 'write' )
     write( out_unit, * ) "Theta TDCS_BBK"
     !
+    !$omp parallel do private(ke, sigma, sigma_bbk, term, term_bbk)
     do i = step(1), step(2), step(3)
 
       call spher2cartez( kem, i*deg, phie, ke )
 
       sigma = 0._wp
+      sigma_bbk = 0._wp
       do mo = 0, orbit_target%l
-
-        D_term = (0._wp,0._wp)
+        term = (0._wp,0._wp)
+        term_bbk = (0._wp,0._wp)
         do io = 1, orbit_target%nf
-          D_term = D_term +orbit_target%a(io)*( tpw(orbit_target%n(io), orbit_target%l, mo, orbit_target%e(io), ke, k ) &
-            -tpw(orbit_target%n(io), orbit_target%l, mo, orbit_target%e(io), ke ) )
+          term = term +orbit_target%a(io)*(tcw(orbit_target%n(io), orbit_target%l, mo, orbit_target%e(io), &
+            alpha, ke, k)-tcw0(orbit_target%n(io), orbit_target%l, mo, orbit_target%e(io), alpha, ke))
+          term_bbk = term_bbk +orbit_target%a(io)*norm_fac(orbit_target%e(io), orbit_target%n(io))&
+            *bbk_integral(orbit_target%n(io), orbit_target%l, mo, orbit_target%e(io), alpha, ke, k )
         end do
-        sigma = sigma +(1+mo)*abs(D_term/km**2)**2
+        sigma = sigma +(mo+1)*abs(term)**2
+        sigma_bbk = sigma_bbk +(mo+1)*abs(term_bbk)**2
       end do
 
-      sigma = factor*sigma
+      sigma = factor*sigma/(2._wp*orbit_target%l+1._wp)
+      sigma_bbk = factor_bbk*sigma_bbk/(2._wp*orbit_target%l+1._wp)
 
-      if( show_output ) print'(1x,i4,1x,es15.8)',i,sigma
-      write( out_unit, '(1x,i4,1x,es15.8)' ) i, sigma
+      if( show_output ) then
+        print'(1x,i4,1x,es15.8)',i,sigma_bbk
+        print'(1x,es15.8)',sigma
+        print'(1x,es15.8)',sigma_bbk/sigma
+      endif
+      write( out_unit, '(1x,i4,1x,es15.8)' ) i, sigma_bbk
     end do
     !
     close(out_unit)
     !
+  contains
+    complex(wp) function bbk_integral(n, l, m, e, alpha, ke, k)
+      use conhyp_m, only : conhyp
+      use special_functions, only: spherical_harmonic
+      use integration, only : gauleg
+      use trigo, only : cartez2spher
+      !
+      real(wp), intent(in) :: alpha, e
+      real(wp), intent(in) :: ke(3), k(3)
+      integer, intent(in) :: n, l, m
+      !
+      real(wp) :: kem, thetae, phie
+      complex(wp) :: a, b, z, kr, ker
+      real(wp) :: rv(3)
+      real(wp), allocatable :: x(:), w(:), r_x(:,:), r_w(:,:), theta_x(:), theta_w(:), phi_x(:), phi_w(:)
+      integer :: i, ir, it, ip
+      !
+      call cartez2spher(ke, kem, thetae, phie)
+      allocate(r_x(3,48), r_w(3,48))
+      call gauleg(0._wp, 4._wp, x, w, 48)
+      r_x(1,:) = x; r_w(1,:) = w
+      call gauleg(4._wp, 10._wp, x, w, 48)
+      r_x(2,:) = x; r_w(2,:) = w
+      call gauleg(10._wp, 20._wp, x, w, 48)
+      r_x(3,:) = x; r_w(3,:) = w
+      call gauleg(0._wp, pi, theta_x, theta_w, 56)
+      call gauleg(0._wp, 2._wp*pi, phi_x, phi_w, 56)
+      !
+      a = cmplx(0._wp, alpha, wp)
+      b = cmplx(1._wp, 0._wp, wp)
+      bbk_integral = cmplx(0._wp, 0._wp, wp)
+      !!$omp parallel do collapse(4) private(rv, z) reduction(+:bbk_integral)
+      do i=1,2; do ir = 1, size(r_x, 2)
+        do it = 1, size(theta_x)
+          do ip = 1, size(phi_x)
+            call spher2cartez(r_x(i, ir), theta_x(it), phi_x(ip), rv)
+            kr = cmplx(0._wp, dot_product(k, rv), wp)
+            ker = cmplx(0._wp, dot_product(-ke, rv), wp)
+            z = cmplx(0._wp, (kem*r_x(i, ir) + dot_product(ke, rv)), wp)
+            bbk_integral = bbk_integral + r_x(i, ir)**(n-1)*exp(-e*r_x(i, ir)) &
+              *spherical_harmonic(l, m, theta_x(it), phi_x(ip)) &
+              *conhyp(a, b, z, 0, 10)*exp(ker)*(exp(kr)-1._wp) &
+              *r_x(i, ir)**2*sin(theta_x(it))*r_w(i, ir)*theta_w(it)*phi_w(ip)
+          end do
+        end do
+      end do; end do
+    end function bbk_integral
   end subroutine fdcs_bbk
 
   complex(wp) function U_bbk(alpha1, alpha2, alpha3, k1, k2, k3, lam1, lam2, lam3 &
