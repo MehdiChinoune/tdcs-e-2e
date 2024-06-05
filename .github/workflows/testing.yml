@@ -46,7 +46,9 @@ jobs:
           ./main cw
           ./main dw
           ./main dwb
-          ./main bbk
+          if [[ ${{ matrix.build_type }} == Release ]]; then
+            ./main bbk
+          fi
 
   MSYS2:
     name: MSYS2/UCRT64 (${{ matrix.build_type }})
@@ -87,7 +89,9 @@ jobs:
           ./main cw
           ./main dw
           ./main dwb
-          ./main bbk
+          if [[ ${{ matrix.build_type }} == Release ]]; then
+            ./main bbk
+          fi
 
   Intel:
     name: Intel (${{ matrix.build_type }})
@@ -134,7 +138,9 @@ jobs:
           ./main cw
           ./main dw
           ./main dwb
-          ./main bbk
+          if [[ ${{ matrix.build_type }} == Release ]]; then
+            ./main bbk
+          fi
 
   Nvidia:
     name: Nvidia (${{ matrix.build_type }})
@@ -180,4 +186,6 @@ jobs:
           ./main cw
           ./main dw
           ./main dwb
-          ./main bbk
+          if [[ ${{ matrix.build_type }} == Release ]]; then
+            ./main bbk
+          fi
