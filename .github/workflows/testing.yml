@@ -32,8 +32,9 @@ jobs:
             -GNinja \
             -DCMAKE_Fortran_COMPILER=gfortran-${{ matrix.gnu_ver }} \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-            -DBUILD_TESTS=ON \
-            -DBUILD_SLOW_TESTS=$([[ ${{ matrix.build_type }} == Release ]] && echo "ON" || echo "OFF")
+            -DTDCS_TARGET_NATIVE=ON \
+            -DTDCS_BUILD_TESTS=ON \
+            -DTDCS_BUILD_SLOW_TESTS=$([[ ${{ matrix.build_type }} == Release ]] && echo "ON" || echo "OFF")
       - name: Building
         run: cmake --build build
       - name: Testing
@@ -73,8 +74,9 @@ jobs:
           mkdir build && cd build
           cmake .. \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-            -DBUILD_TESTS=ON \
-            -DBUILD_SLOW_TESTS=$([[ ${{ matrix.build_type }} == Release ]] && echo "ON" || echo "OFF")
+            -DTDCS_TARGET_NATIVE=ON \
+            -DTDCS_BUILD_TESTS=ON \
+            -DTDCS_BUILD_SLOW_TESTS=$([[ ${{ matrix.build_type }} == Release ]] && echo "ON" || echo "OFF")
       - name: Building
         run: cmake --build build
       - name: Testing
@@ -119,8 +121,9 @@ jobs:
             -GNinja \
             -DCMAKE_Fortran_COMPILER=ifx \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-            -DBUILD_TESTS=ON \
-            -DBUILD_SLOW_TESTS=$([[ ${{ matrix.build_type }} == Release ]] && echo "ON" || echo "OFF")
+            -DTDCS_TARGET_NATIVE=ON \
+            -DTDCS_BUILD_TESTS=ON \
+            -DTDCS_BUILD_SLOW_TESTS=$([[ ${{ matrix.build_type }} == Release ]] && echo "ON" || echo "OFF")
       - name: Building
         run: cmake --build build
       - name: Testing
@@ -164,8 +167,9 @@ jobs:
             -GNinja \
             -DCMAKE_Fortran_COMPILER=nvfortran \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-            -DBUILD_TESTS=ON \
-            -DBUILD_SLOW_TESTS=$([[ ${{ matrix.build_type }} == Release ]] && echo "ON" || echo "OFF")
+            -DTDCS_TARGET_NATIVE=ON \
+            -DTDCS_BUILD_TESTS=ON \
+            -DTDCS_BUILD_SLOW_TESTS=$([[ ${{ matrix.build_type }} == Release ]] && echo "ON" || echo "OFF")
       - name: Building
         run: cmake --build build
       - name: Testing

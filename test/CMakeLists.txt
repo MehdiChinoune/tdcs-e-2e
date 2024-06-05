@@ -3,7 +3,7 @@ set(tests
   test_orbit_wf
 )
 
-if(BUILD_SLOW_TESTS)
+if(TDCS_BUILD_SLOW_TESTS)
   list(APPEND tests test_eikr_element)
 endif()
 
@@ -17,7 +17,7 @@ if(NOT (WIN32 AND "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "LLVMFlang"))
     test_conhyp_01
     test_conhyp_opt
   )
-  if(BUILD_SLOW_TESTS)
+  if(TDCS_BUILD_SLOW_TESTS)
     list(APPEND tests
       test_arb_hypgeom_01
       test_arb_hypgeom_02
@@ -34,7 +34,7 @@ foreach( tst ${tests} )
   if(NOT (WIN32 AND "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "LLVMFlang"))
     target_link_libraries( ${tst} arb_bindings )
   endif()
-  if( ENABLE_OPENMP )
+  if( TDCS_OPENMP )
     target_link_libraries( ${tst} OpenMP::OpenMP_Fortran )
   endif()
   add_test( NAME ${tst} COMMAND ./${tst} WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
