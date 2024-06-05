@@ -12,7 +12,7 @@ contains
     real(wp), intent(in) :: e
     integer , intent(in) :: n
 
-    norm_fac = sqrt( (2.*e)**(2*n+1) / fac(2*n) )
+    norm_fac = ((2._wp*e)**n *sqrt(2._wp*e)) / sqrt( fac(2*n) )
 
   end function
 

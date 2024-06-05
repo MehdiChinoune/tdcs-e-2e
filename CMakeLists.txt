@@ -52,6 +52,16 @@ elseif ( "${CMAKE_Fortran_COMPILER_ID}" MATCHES "Intel" )
   endif()
   set( CMAKE_Fortran_FLAGS_FAST "-Ofast" )
 
+elseif ( "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "NVHPC" )
+
+  set( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -Mallocatable=03 -Minform=warn -Mstandard" )
+  set( CMAKE_Fortran_FLAGS_FAST "-fast" )
+  set( CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} -Minfo=all -Mneginfo=all -Kieee" )
+  #-Ktrap=fp" ) #for some reason it makes it read same line twice.
+  if( TDCS_TARGET_NATIVE )
+    set( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -tp host" )
+  endif()
+
 else ()
 
   set( CMAKE_Fortran_FLAGS_RELEASE "-O3" )

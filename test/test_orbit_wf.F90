@@ -36,10 +36,10 @@ program test_orbital_wave_functions
                 fac(at1%n(j1)+at2%n(j2))/(at1%e(j1)+at2%e(j2))**(at1%n(j1)+at2%n(j2)+1)
             end do; end do
             if ( i1==i2 .AND. abs(integ-1._wp) >= 1.e-5_wp) then
-              print*, "orbit number: ", i1, "from ", atom_names(i1), " is not normalized"
+              print*, "orbit number: ", i1, "from ", atom_names(i), " is not normalized"
               print*, at1%l, integ
             elseif( i1/=i2 .AND. abs(integ) >= 1.e-5_wp) then
-              print*, "orbitals number: ", i1, " and ", i2, "from ", atom_names(i1), " are not orthogonal"
+              print*, "orbitals number: ", i1, " and ", i2, "from ", atom_names(i), " are not orthogonal"
               print*, at1%l, integ
             endif
           endif
