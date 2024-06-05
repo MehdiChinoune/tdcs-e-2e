@@ -6,7 +6,7 @@ program test_conhyp_01
   !
   complex(wp) :: a, b, z, zh, ch
   integer :: i, ia, ib, iz, ja, jb, jz
-  integer, dimension(8) :: i_tst = [ 1, 2, 5, 10, 20, 50, 100, 200 ]
+  integer, dimension(9) :: i_tst = [ 0, 1, 2, 5, 10, 20, 50, 100, 200 ]
   ! Test 1F1(a,b,0)=1 when a is real and b is pure complex
   z = (0._wp,0._wp)
   do i = 1, 200
@@ -15,12 +15,13 @@ program test_conhyp_01
     if( conhyp( a, b, z, 0, 10 )/=(1._wp,0._wp) ) error stop " Failed : 1_F_1(a,b,z=0)/=1"
   end do
   ! Test against flint/arb hypgeom_1f1
-  do ia = 1, 6
-    do ja = 1, 6
-      do ib = 1, 8
-        do jb = 1, 8
-          do iz = 1, 7
-            do jz = 1, 7
+  do ia = 1, 8
+    do ja = 1, 7
+      do ib = 1, 9
+        do jb = 1, 9
+          do iz = 1, 8
+            do jz = 2, 8
+              if(ib==1 .AND. jb==1) cycle ! b/=0
               a = cmplx( i_tst(ia)*1._dp, i_tst(ja)*1._dp, dp)
               b = cmplx( i_tst(ib)*1._dp, i_tst(jb)*1._dp, dp)
               z = cmplx( i_tst(iz)*1._dp, i_tst(jz)*1._dp, dp)
