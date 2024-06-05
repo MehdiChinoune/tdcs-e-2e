@@ -33,7 +33,7 @@ jobs:
             -DCMAKE_Fortran_COMPILER=gfortran-${{ matrix.gnu_ver }} \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
             -DTDCS_TARGET_NATIVE=ON \
-            -DBUILD_TESTS=ON
+            -DTDCS_BUILD_TESTS=ON
       - name: Building
         run: cmake --build build
       - name: Testing
@@ -74,7 +74,7 @@ jobs:
           cmake .. \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
             -DTDCS_TARGET_NATIVE=ON \
-            -DBUILD_TESTS=ON
+            -DTDCS_BUILD_TESTS=ON
       - name: Building
         run: cmake --build build
       - name: Testing
@@ -121,7 +121,7 @@ jobs:
             -DCMAKE_Fortran_COMPILER=ifx \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
             -DTDCS_TARGET_NATIVE=ON \
-            -DBUILD_TESTS=ON
+            -DTDCS_BUILD_TESTS=ON
       - name: Building
         run: cmake --build build
       - name: Testing
@@ -167,7 +167,7 @@ jobs:
             -DCMAKE_Fortran_COMPILER=nvfortran \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
             -DTDCS_TARGET_NATIVE=ON \
-            -DBUILD_TESTS=ON
+            -DTDCS_BUILD_TESTS=ON
       - name: Building
         run: cmake --build build
       - name: Testing

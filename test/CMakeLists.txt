@@ -9,7 +9,7 @@ set(tests
   test_conhyp_opt
 )
 
-if(BUILD_SLOW_TESTS)
+if(TDCS_BUILD_SLOW_TESTS)
   list(APPEND tests
     test_arb_hypgeom_01
     test_arb_hypgeom_02
@@ -22,7 +22,7 @@ INCLUDE_DIRECTORIES( ${CMAKE_BINARY_DIR}/modules )
 foreach( tst ${tests} )
   add_executable( ${tst} "${tst}.F90" )
   target_link_libraries( ${tst} tdcs_e_2e arb_bindings )
-  if( ENABLE_OPENMP )
+  if( TDCS_OPENMP )
     target_link_libraries( ${tst} OpenMP::OpenMP_Fortran )
   endif()
   add_test( NAME ${tst} COMMAND ./${tst} WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
