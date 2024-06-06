@@ -5,8 +5,8 @@ submodule(conhyp_m) conhyp_m
   use constants, only: pi
   implicit none
   integer, parameter :: length = 777, bits = digits(1._wp) + 1
-  integer, parameter :: min_exp = minexponent(1._wp)
-  integer, parameter :: max_exp = maxexponent(1._wp)
+  integer, parameter :: min_exp = minexponent(1._wp) + 1
+  integer, parameter :: max_exp = maxexponent(1._wp) - 1
   !
 contains
 
