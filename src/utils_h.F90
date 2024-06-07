@@ -28,7 +28,7 @@ module utils
       character(len=2), intent(in) :: Atom, Orbit
       real(wp)   , intent(in) :: r(:)
       real(wp)   , intent(out) :: U(:)
-      integer :: state
+      integer, intent(in) :: state
     end subroutine calculate_U
 
     pure module subroutine INTRPL(X, Y, U, V )
