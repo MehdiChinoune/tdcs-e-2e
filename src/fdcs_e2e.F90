@@ -90,7 +90,6 @@ contains
 
   end subroutine fdcs_fba_pw
 
-
   module subroutine fdcs_fba_cw(in_unit,out_unit)
     use constants, only : ev, deg, pi
     use trigo, only : spher2cartez
