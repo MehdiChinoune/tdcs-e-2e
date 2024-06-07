@@ -3,6 +3,10 @@ submodule(utils) utils
 
 contains
 
+  !> norm_fac
+  !!
+  !! Calculate the normalisation factor for an STO function
+  !!
   elemental real(wp) module function norm_fac(e,n)
     use special_functions, only : fac
     real(wp), intent(in) :: e
@@ -49,7 +53,7 @@ contains
     end do
 
     y1y2y3 = (-1)**m3*sqrt( (2*l1+1)*(2*l2+1)*(2*l3+1)/(4.*pi) )*s1 &
-     *( exp(lnfac(l1+l2-l3)-0.3*lnfac(l1+l2+l3+1) )*s0 )
+      *( exp(lnfac(l1+l2-l3)-0.3*lnfac(l1+l2+l3+1) )*s0 )
     !IF( ieee_is_nan(y1y2y3) .OR. (.NOT. ieee_is_finite(y1y2y3)) ) ERROR STOP 'y1y2y3 overflow'
 
   end function y1y2y3
@@ -58,7 +62,6 @@ contains
   !!
   !! This subroutine solve Equation of the form
   !! s_l''(r) +f_l(r)*s_l(r) = km**2*s_l(r)
-
   module subroutine ode_second_dw(km, lmax, rc, z, f, s, delta )
     use special_functions, only : coul90, ricbes
     integer, intent(in) :: lmax, z
@@ -106,6 +109,10 @@ contains
 
   end subroutine ode_second_dw
 
+  !> Uij
+  !!
+  !! Calculate the element <\phi(n_i,e_i)| \frac{1}{\vec{r}-\vec{r}_i} |\phi(n_j,e_j>
+  !!
   elemental real(wp) function Uij(ni, ei, nj, ej, r)
     use special_functions, only : fac
     real(wp), intent(in) :: ei, ej, r
@@ -122,6 +129,16 @@ contains
 
   end function Uij
 
+  !> Calculate_U
+  !!
+  !! This subroutine calculate the short range potential around an atom.
+  !! Input:
+  !!   Atom: the abbreviation of the atom in two letters (ex: Hy for Hydrogen)
+  !!   Orbit: The orbit we calculate the potential for (ex: 2s, 3p...etc)
+  !!   r: an array of radius values
+  !!   state: charge of the atom (0, 1, 2)
+  !! Output:
+  !!   U: an array that holds the values of the calculated potential.
   module subroutine calculate_U(Atom, Orbit, r, U, state )
     use input, only : read_orbit
     character(len=2), intent(in) :: Atom, Orbit
@@ -163,31 +180,28 @@ contains
 
   end subroutine calculate_U
 
+  !> INTRPL
+  !
+  !  REAL(WP) INTERPOLATION OF A SINGLE VALUED FUNCTION
+  !  THIS SUBROUTINE INTERPOLATES, FROM VALUES OF THE FUNCTION
+  !  GIVEN  AS ORDINATES OF INPUT DATA POINTS IN AN X-Y PLANE
+  !  AND FOR A GIVEN SET OF X VALUES(ABSCISSAE),THE VALUES OF
+  !  A SINGLE VALUED FUNCTION Y = Y(X).
+  !
+  !  THE INPUT PARAMETERS ARE:
+  !
+  !  X = ARRAY OF DIMENSION L STORING THE X VALUES OF INPUT DATA POINTS (IN ASCENDING ORDER)
+  !  Y = ARRAY OF DIMENSION L STORING THE Y VALUES OF INPUT DATA POINTS
+  !  U = ARRAY OF DIMENSION N STORING THE X VALUES OF THE DESIRED POINTS
+  !
+  !  THE OUTPUT PARAMETER IS:
+  !
+  !  V = ARRAY OF DIMENSION N WHERE THE INTERPOLATED Y VALUES ARE TO BE DISPLAYED
   pure module subroutine INTRPL(X, Y, U, V )
-    use CONSTANTS, only : wp
+    use constants, only : wp
     implicit none
     real(wp), intent(in) :: X(:), Y(:), U(:)
     real(wp), intent(out) :: V(:)
-    !
-    !  REAL(WP) INTERPOLATION OF A SINGLE VALUED FUNCTION
-    !  THIS SUBROUTINE INTERPOLATES, FROM VALUES OF THE FUNCTION
-    !  GIVEN  AS ORDINATES OF INPUT DATA POINTS IN AN X-Y PLANE
-    !  AND FOR A GIVEN SET OF X VALUES(ABSCISSAE),THE VALUES OF
-    !  A SINGLE VALUED FUNCTION Y = Y(X).
-    !
-    !  THE INPUT PARAMETERS ARE:
-    !
-    !  L = NUMBER OF DATA POINTS (MUST BE TWO OR GREATER)
-    !  X = ARRAY OF DIMENSION L STORING THE X VALUES OF INPUT DATA POINTS (IN ASCENDING ORDER)
-    !  Y = ARRAY OF DIMENSION L STORING THE Y VALUES OF INPUT DATA POINTS
-    !  N = NUMBER OF POINTS AT WHICH INTERPOLATION OF THE Y-VALUES IS REQUIRED
-    !      (MUST BE 1 OR GREATER)
-    !  U = ARRAY OF DIMENSION N STORING THE X VALUES OF THE DESIRED POINTS
-    !
-    !  THE OUTPUT PARAMETER IS:
-    !
-    !  V = ARRAY OF DIMENSION N WHERE THE INTERPOLATED Y VALUES ARE TO BE DISPLAYED
-    !
     !  DECLARATION STATEMENTS
     real(wp) :: A2, A3, A4, T4, TM2, TM3, TM4, X4, Y4
     integer :: I, IMN, IMX, IPV, J, K, L, N
@@ -338,8 +352,6 @@ contains
       V(K) = Q0+DX*(Q1+DX*(Q2+DX*Q3))
 
     end do
-
-    return
   end subroutine INTRPL
 
 end submodule utils
