@@ -20,24 +20,23 @@ program main
   !
   narg = command_argument_count()
   if(narg>0) then
-    !
     call get_command_argument(1, arg1 )
-    !
-    if(trim(arg1)=='dw') then
-      call fdcs_fba_dw(in_unit,out_unit)
-    elseif(trim(arg1)=='cw') then
-      call fdcs_fba_cw(in_unit,out_unit)
-    elseif(trim(arg1)=='pw') then
-      call fdcs_fba_pw(in_unit,out_unit)
-    elseif(trim(arg1)=='dwb') then
-      call fdcs_dwb(in_unit,out_unit)
-    elseif(trim(arg1)=='bbk') then
-      call fdcs_bbk(in_unit,out_unit)
-    end if
-    !
   else
-    call fdcs_fba_pw(in_unit,out_unit)
+    print*, "Which method do you want to use?"
+    read*, arg1
   endif
+
+  if(trim(arg1)=='pw') then
+    call fdcs_fba_pw(in_unit,out_unit)
+  elseif(trim(arg1)=='cw') then
+    call fdcs_fba_cw(in_unit,out_unit)
+  elseif(trim(arg1)=='dw') then
+    call fdcs_fba_dw(in_unit,out_unit)
+  elseif(trim(arg1)=='dwb') then
+    call fdcs_dwb(in_unit,out_unit)
+  elseif(trim(arg1)=='bbk') then
+    call fdcs_bbk(in_unit,out_unit)
+  end if
 
   call system_clock(finish)
 

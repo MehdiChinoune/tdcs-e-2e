@@ -41,7 +41,7 @@ jobs:
         run: |
           cd build
           mv input_example.dat input.dat
-          ./main
+          ./main pw
           ./main cw
           ./main dw
           ./main dwb
@@ -80,7 +80,7 @@ jobs:
         run: |
           cd build
           mv input_example.dat input.dat
-          ./main
+          ./main pw
           ./main cw
           ./main dw
           ./main dwb
@@ -125,7 +125,7 @@ jobs:
         run: |
           cd build
           mv input_example.dat input.dat
-          ./main
+          ./main pw
           ./main cw
           ./main dw
           ./main dwb
@@ -169,7 +169,7 @@ jobs:
         run: |
           cd build
           mv input_example.dat input.dat
-          ./main
+          ./main pw
           ./main cw
           ./main dw
           ./main dwb
