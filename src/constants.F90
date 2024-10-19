@@ -98,6 +98,6 @@ module constants
     2.5260757449731983875380188691713E302_DP, 4.2690680090047052749392518888996E304_DP, &
     7.2574156153079989673967282111293E306_DP ], lnfac(0:170) = log( x = fac )
   ! Physical constants
-  real(wp), parameter :: eV = 1._wp/27.21165_wp !> electronVolt
+  real(wp), parameter :: eV = 1._wp/27.211386245981_wp !> electronVolt
   !
 end module constants
