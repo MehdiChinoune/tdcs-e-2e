@@ -15,6 +15,7 @@ contains
     real(wp) :: Ei, Es, Ee
     real(wp) :: thetas
     integer :: step(3), exchange
+    real(wp) :: Ie
     integer :: nelec
     integer :: lo, no
     real(wp), allocatable :: a(:), e(:)
@@ -35,7 +36,7 @@ contains
 
     call read_input(in_unit,Ei, Es, Ee, thetas, step, Atom, orbit, exchange)
 
-    call read_orbit(Atom//'_'//Orbit, nelec, lo, no, n, a, e )
+    call read_orbit(Atom//'_'//Orbit, Ie, nelec, lo, no, n, a, e )
 
     kim = sqrt(2.*Ei*eV)
     ksm = sqrt(2.*Es*eV)
@@ -102,6 +103,7 @@ contains
     real(wp) :: Ei, Es, Ee
     real(wp) :: thetas
     integer :: step(3), exchange
+    real(wp) :: Ie
     integer :: nelec, ze, zs
     integer :: lo, no
     real(wp), allocatable :: a(:), e(:)
@@ -119,7 +121,7 @@ contains
 
     call read_input(in_unit,Ei, Es, Ee, thetas, step, Atom, orbit, exchange)
 
-    call read_orbit(Atom//'_'//Orbit, nelec, lo, no, n, a, e )
+    call read_orbit(Atom//'_'//Orbit, Ie, nelec, lo, no, n, a, e )
 
     kim = sqrt(2.*Ei*eV)
     ksm = sqrt(2.*Es*eV)
@@ -177,6 +179,7 @@ contains
     real(wp) :: Ei, Es, Ee
     real(wp) :: thetas
     integer :: step(3), exchange
+    real(wp) :: Ie
     integer :: nelec
     integer :: lo, no
     real(wp), allocatable :: a(:), e(:)
@@ -207,7 +210,7 @@ contains
 
     call read_input(in_unit,Ei, Es, Ee, thetas, step, Atom, orbit, exchange )
 
-    call read_orbit(Atom//'_'//Orbit, nelec, lo, no, n, a, e )
+    call read_orbit(Atom//'_'//Orbit, Ie, nelec, lo, no, n, a, e )
 
     kim = sqrt(2.*Ei*eV)
     ksm = sqrt(2.*Es*eV)
@@ -336,6 +339,7 @@ contains
     real(wp) :: Ei, Es, Ee
     real(wp) :: thetas
     integer :: step(3), exchange, PCI = 2
+    real(wp) :: Ie
     integer :: nelec
     integer :: lo, no
     real(wp), allocatable :: a(:), e(:)
@@ -383,7 +387,7 @@ contains
 
     call read_input(in_unit,Ei, Es, Ee, thetas, step, Atom, orbit, exchange )
 
-    call read_orbit(Atom//'_'//Orbit, nelec, lo, no, n, a, e )
+    call read_orbit(Atom//'_'//Orbit, Ie, nelec, lo, no, n, a, e )
 
     kim = sqrt(2.*Ei*eV)
     ksm = sqrt(2.*Es*eV)
@@ -551,6 +555,7 @@ contains
     character(len=2) :: Atom, Orbit
     real(wp) :: Ei, Es, Ee
     real(wp) :: thetas
+    real(wp) :: Ie
     integer :: step(3)
     integer :: nelec
     integer :: lo, no
@@ -569,7 +574,7 @@ contains
 
     call read_input(in_unit,Ei, Es, Ee, thetas, step, Atom, orbit)
 
-    call read_orbit(Atom//'_'//Orbit, nelec, lo, no, n, a, e )
+    call read_orbit(Atom//'_'//Orbit, Ie, nelec, lo, no, n, a, e )
 
     kim = sqrt(2.*Ei*eV)
     ksm = sqrt(2.*Es*eV)

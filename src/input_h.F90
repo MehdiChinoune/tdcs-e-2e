@@ -12,8 +12,9 @@ module input
       character(len=2), intent(out) :: Atom, Orbit
     end subroutine read_input
 
-    module subroutine read_orbit(orbit_file, nelec, lo, no, n, a, e )
+    module subroutine read_orbit(orbit_file, Ie, nelec, lo, no, n, a, e )
       character(len=5), intent(in)  :: orbit_file
+      real(wp), intent(out) :: Ie
       integer, intent(out) :: nelec, lo, no
       integer, allocatable, intent(out) :: n(:)
       real(wp), allocatable, intent(out) :: a(:), e(:)

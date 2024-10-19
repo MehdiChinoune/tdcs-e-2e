@@ -151,6 +151,7 @@ contains
     real(wp), allocatable :: a(:),e(:)
     integer, allocatable :: n(:)
     integer :: nelec, lo, no, i1, i2, nocup
+    real(wp) :: Ie
     character(len=2) :: orbit_i
 
     open( newunit = in, file = 'data/'//Atom//'.dat', status = 'old', action = 'read')
@@ -160,7 +161,7 @@ contains
       read(in, fmt=*, iostat = lo ) orbit_i
       if(lo<0) exit
 
-      call read_orbit(Atom//'_'//orbit_i, nelec, lo, no, n, a, e)
+      call read_orbit(Atom//'_'//orbit_i, Ie, nelec, lo, no, n, a, e)
       nocup = nelec*(2*lo+1)
       if(orbit_i==Orbit ) nocup = nocup -state
 

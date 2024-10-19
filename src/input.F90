@@ -23,8 +23,9 @@ contains
     !
   end subroutine read_input
 
-  module subroutine read_orbit(orbit_file, nelec, lo, no, n, a, e )
+  module subroutine read_orbit(orbit_file, Ie, nelec, lo, no, n, a, e )
     character(len=5), intent(in)  :: orbit_file
+    real(wp), intent(out) :: Ie
     integer, intent(out) :: nelec, lo, no
     integer, allocatable, intent(out) :: n(:)
     real(wp), allocatable, intent(out) :: a(:), e(:)
@@ -41,6 +42,7 @@ contains
     read( INPUT, * ) n
     read( INPUT, * ) a
     read( INPUT, * ) e
+    read( INPUT, * ) Ie
 
     close(INPUT)
 
