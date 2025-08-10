@@ -8,7 +8,7 @@ contains
   !! Calculate the normalisation factor for an STO function
   !!
   elemental real(wp) module function norm_fac(e,n)
-    use special_functions, only : fac
+    use constants, only : fac
     real(wp), intent(in) :: e
     integer , intent(in) :: n
 
