@@ -1,5 +1,5 @@
 
-set( srcs 
+set( srcs
   constants.F90
   conhyp_h.F90
   conhyp.F90
@@ -15,6 +15,7 @@ set( srcs
   utils.F90
   fdcs_e2e_h.F90
   fdcs_e2e.F90
+  types.F90
 )
 
 add_library( tdcs_e_2e SHARED ${srcs} )

@@ -139,39 +139,40 @@ contains
   !!   state: charge of the atom (0, 1, 2)
   !! Output:
   !!   U: an array that holds the values of the calculated potential.
-  module subroutine calculate_U(Atom, Orbit, r, U, state )
+  module subroutine calculate_U(Atom_name, Orbit_name, r, U, state )
     use input, only : read_orbit
-    character(len=2), intent(in) :: Atom, Orbit
+    use types, only: orbit
+    character(len=2), intent(in) :: Atom_name, Orbit_name
     real(wp)   , intent(in) :: r(:)
     real(wp)   , intent(out) :: U(:)
     integer, intent(in) :: state
 
     integer :: in
 
-    real(wp), allocatable :: a(:),e(:)
-    integer, allocatable :: n(:)
-    integer :: nelec, lo, no, i1, i2, nocup
-    real(wp) :: Ie
+    type(orbit) :: orbit_tmp
+    integer :: i1, i2, nocup
     character(len=2) :: orbit_i
 
-    open( newunit = in, file = 'data/'//Atom//'.dat', status = 'old', action = 'read')
+    open( newunit = in, file = 'data/'//Atom_name//'.dat', status = 'old', action = 'read')
 
     U = 0._wp
     do
-      read(in, fmt=*, iostat = lo ) orbit_i
-      if(lo<0) exit
+      read(in, fmt=*, iostat = nocup ) orbit_i
+      if(nocup<0) exit
 
-      call read_orbit(Atom//'_'//orbit_i, Ie, nelec, lo, no, n, a, e)
-      nocup = nelec*(2*lo+1)
-      if(orbit_i==Orbit ) nocup = nocup -state
+      call read_orbit(Atom_name//'_'//orbit_i, orbit_tmp)
+      nocup = orbit_tmp%nelec*(2*orbit_tmp%l+1)
+      if(orbit_i==Orbit_name ) nocup = nocup -state
 
       if(nocup==0) cycle
 
-      do i1 = 1,no
-        U = U +nocup*a(i1)**2*Uij( n(i1), e(i1), n(i1), e(i1), r )
+      do i1 = 1,orbit_tmp%nf
+        U = U +nocup*orbit_tmp%a(i1)**2*Uij( orbit_tmp%n(i1), orbit_tmp%e(i1), &
+          orbit_tmp%n(i1), orbit_tmp%e(i1), r )
         if(i1==1) cycle
         do i2 = 1,i1-1
-          U = U +2*nocup*a(i1)*a(i2)*Uij( n(i1), e(i1), n(i2), e(i2), r )
+          U = U +2*nocup*orbit_tmp%a(i1)*orbit_tmp%a(i2)*Uij( orbit_tmp%n(i1), &
+            orbit_tmp%e(i1), orbit_tmp%n(i2), orbit_tmp%e(i2), r )
         end do
       end do
 

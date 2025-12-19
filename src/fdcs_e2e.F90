@@ -7,19 +7,16 @@ contains
     use special_functions, only : factorial
     use input, only : read_input, read_orbit
     use trigo, only : spher2cartez
+    use types, only: orbit
 
     integer, intent(in) :: in_unit
     integer, intent(in) :: out_unit
 
-    character(len=2) :: Atom, Orbit
+    character(len=2) :: Atom_name, Orbit_name
     real(wp) :: Ei, Es, Ee
     real(wp) :: thetas
     integer :: step(3), exchange
-    real(wp) :: Ie
-    integer :: nelec
-    integer :: lo, no
-    real(wp), allocatable :: a(:), e(:)
-    integer, allocatable :: n(:)
+    type(orbit) :: orbit_target
 
     real(wp), parameter   :: phie = 0._wp
     real(wp) :: kim, ksm, kem, km
@@ -34,9 +31,9 @@ contains
 
     call factorial()
 
-    call read_input(in_unit,Ei, Es, Ee, thetas, step, Atom, orbit, exchange)
+    call read_input(in_unit,Ei, Es, Ee, thetas, step, Atom_name, Orbit_name, exchange)
 
-    call read_orbit(Atom//'_'//Orbit, Ie, nelec, lo, no, n, a, e )
+    call read_orbit(Atom_name//'_'//Orbit_name, orbit_target )
 
     kim = sqrt(2.*Ei*eV)
     ksm = sqrt(2.*Es*eV)
@@ -47,7 +44,7 @@ contains
     k = ki -ks
     km = norm2(k)
 
-    factor = nelec*4._wp*ksm*kem/kim
+    factor = orbit_target%nelec/(2._wp*orbit_target%l+1._wp) *4._wp*ksm*kem/kim
 
     write( out_unit, * ) "Theta TDCS_PW"
     do i = step(1), step(2), step(3)
@@ -60,20 +57,20 @@ contains
       end if
 
       sigma = 0._wp
-      do mo = 0, lo
+      do mo = 0, orbit_target%l
 
         D_term = (0._wp,0._wp)
-        do io = 1, no
-          D_term = D_term +a(io)*( tpw(n(io), lo, mo, e(io), ke, k ) &
-            -tpw(n(io), lo, mo, e(io), ke ) )
+        do io = 1, orbit_target%nf
+          D_term = D_term +orbit_target%a(io)*( tpw(orbit_target%n(io), orbit_target%l, mo, orbit_target%e(io), ke, k ) &
+            -tpw(orbit_target%n(io), orbit_target%l, mo, orbit_target%e(io), ke ) )
         end do
 
         if(exchange==1) then
           E_term = (0._wp,0._wp)
-          do io = 1, no
+          do io = 1, orbit_target%nf
             E_term = E_term &
-              +a(io)*( tpw(n(io), lo, mo, e(io), ks, k2 ) &
-              -tpw(n(io), lo, mo, e(io), ks ) )
+              +orbit_target%a(io)*( tpw(orbit_target%n(io), orbit_target%l, mo, orbit_target%e(io), ks, k2 ) &
+              -tpw(orbit_target%n(io), orbit_target%l, mo, orbit_target%e(io), ks ) )
           end do
           sigma = sigma +(1+mo)*( abs(D_term/km**2)**2 +abs(E_term/k2m**2)**2 &
             -real( D_term*conjg(E_term)/(km**2*k2m**2 ), wp ) )
@@ -96,18 +93,17 @@ contains
     use trigo, only : spher2cartez
     use special_functions, only : factorial
     use input, only : read_input, read_orbit
+    use types, only: orbit
+    !
     integer, intent(in) :: in_unit
     integer, intent(in) :: out_unit
 
-    character(len=2) :: Atom, Orbit
+    character(len=2) :: Atom_name, Orbit_name
     real(wp) :: Ei, Es, Ee
     real(wp) :: thetas
     integer :: step(3), exchange
-    real(wp) :: Ie
-    integer :: nelec, ze, zs
-    integer :: lo, no
-    real(wp), allocatable :: a(:), e(:)
-    integer, allocatable :: n(:)
+    integer :: ze, zs
+    type(orbit) :: orbit_target
 
     real(wp), parameter   :: phie = 0._wp
     real(wp) :: kim, ksm, kem, km, alpha
@@ -119,9 +115,9 @@ contains
 
     call factorial()
 
-    call read_input(in_unit,Ei, Es, Ee, thetas, step, Atom, orbit, exchange)
+    call read_input(in_unit,Ei, Es, Ee, thetas, step, Atom_name, Orbit_name, exchange)
 
-    call read_orbit(Atom//'_'//Orbit, Ie, nelec, lo, no, n, a, e )
+    call read_orbit(Atom_name//'_'//Orbit_name, orbit_target )
 
     kim = sqrt(2.*Ei*eV)
     ksm = sqrt(2.*Es*eV)
@@ -135,7 +131,7 @@ contains
     k = ki -ks
     km = norm2(k)
 
-    factor = nelec*4._wp*ksm*kem / (kim*km**4)
+    factor = orbit_target%nelec/(2._wp*orbit_target%l+1._wp) *4._wp*ksm*kem / (kim*km**4)
     !\abs{ \exp{\pi\alpha/2}*\Gamma(1-i\alpha) }^2
     if(ze/=0) factor = factor*2.*pi*alpha/(1._wp-exp(-2.*pi*alpha))
 
@@ -146,16 +142,16 @@ contains
       call spher2cartez( kem, i*deg, phie, ke )
 
       sigma = 0._wp
-      do mo = 0, lo
+      do mo = 0, orbit_target%l
         term = (0._wp,0._wp)
-        do io = 1, no
-          term = term +a(io)*( tcw(n(io), lo, mo, e(io), alpha, ke, k ) &
-            +zs*tcw0(n(io), lo, mo, e(io), alpha, ke ) )
+        do io = 1, orbit_target%nf
+          term = term +orbit_target%a(io)*( tcw(orbit_target%n(io), orbit_target%l, mo, orbit_target%e(io), alpha, ke, k ) &
+            +zs*tcw0(orbit_target%n(io), orbit_target%l, mo, orbit_target%e(io), alpha, ke ) )
         end do
         sigma = sigma +(mo+1)*abs(term)**2
       end do
 
-      sigma = factor*sigma/(2*lo+1)
+      sigma = factor*sigma/(2*orbit_target%l+1)
 
       if( show_output ) print'(1x,i4,1x,es15.8)',i,sigma
       write( out_unit, '(1x,i4,1x,es15.8)' ) i, sigma
@@ -171,19 +167,16 @@ contains
     use utils, only : norm_fac, y1y2y3, calculate_U, ode_second_dw
     use input, only : read_input, read_orbit
     use trigo, only : spher2cartez, cartez2spher
+    use types, only: orbit
 
     integer, intent(in) :: in_unit
     integer, intent(in) :: out_unit
 
-    character(len=2) :: Atom, Orbit
+    character(len=2) :: Atom_name, Orbit_name
     real(wp) :: Ei, Es, Ee
     real(wp) :: thetas
     integer :: step(3), exchange
-    real(wp) :: Ie
-    integer :: nelec
-    integer :: lo, no
-    real(wp), allocatable :: a(:), e(:)
-    integer, allocatable :: n(:)
+    type(orbit) :: orbit_target
 
     real(wp), parameter   :: phie = 0._wp
     real(wp) :: kim, ksm, kem, km
@@ -208,9 +201,9 @@ contains
 
     call factorial()
 
-    call read_input(in_unit,Ei, Es, Ee, thetas, step, Atom, orbit, exchange )
+    call read_input(in_unit,Ei, Es, Ee, thetas, step, Atom_name, Orbit_name, exchange )
 
-    call read_orbit(Atom//'_'//Orbit, Ie, nelec, lo, no, n, a, e )
+    call read_orbit(Atom_name//'_'//Orbit_name, orbit_target )
 
     kim = sqrt(2.*Ei*eV)
     ksm = sqrt(2.*Es*eV)
@@ -222,7 +215,7 @@ contains
     k = ki -ks
     call cartez2spher( k, km, theta, phi)
 
-    factor = nelec*4._wp*ksm*kem / (kim*km**4)
+    factor = orbit_target%nelec/(2._wp*orbit_target%l+1._wp) *4._wp*ksm*kem / (kim*km**4)
     factor = factor*2./(pi*kem**2)
 
     rc = 10._wp
@@ -244,7 +237,7 @@ contains
     end where
 
     allocate( U(0:np,0:lemax), U_tmp(0:np) )
-    call calculate_U(Atom, Orbit, x, U_tmp, 1 )
+    call calculate_U(Atom_name, Orbit_name, x, U_tmp, 1 )
 
     if(ze/=0) then
       U(0,:) = -huge(1._wp)
@@ -262,8 +255,8 @@ contains
     deallocate(U,U_tmp)
 
     wf = 0._wp
-    do io = 1, no
-      wf = wf +a(io)*norm_fac(e(io), n(io) )*x**n(io)*exp(-e(io)*x)
+    do io = 1, orbit_target%nf
+      wf = wf +orbit_target%a(io)*norm_fac(orbit_target%e(io), orbit_target%n(io) )*x**orbit_target%n(io)*exp(-orbit_target%e(io)*x)
     end do
 
     do le = 0,lemax
@@ -275,14 +268,14 @@ contains
     integral = 0._wp
     do l = 0,lmax
       do le = 0,lemax
-        if( mod(le+l+lo,2)/=0 ) cycle
+        if( mod(le+l+orbit_target%l,2)/=0 ) cycle
         integral(le, l) = 0.5*h*sum( wf(1:np)*chi_b(1:np,le)*chi_0a(1:np,l) &
           +wf(0:np-1)*chi_b(0:np-1,le)*chi_0a(0:np-1,l) )
       end do
     end do
 
-    term0 = zi**(-lo)*exp( cmplx(0._wp, -(sigma_le(lo)+delta(lo)), wp ) ) &
-      *0.5*h*sum( wf(1:np)*chi_b(1:np,lo) +wf(0:np-1)*chi_b(0:np-1,lo) )
+    term0 = zi**(-orbit_target%l)*exp( cmplx(0._wp, -(sigma_le(orbit_target%l)+delta(orbit_target%l)), wp ) ) &
+      *0.5*h*sum( wf(1:np)*chi_b(1:np,orbit_target%l) +wf(0:np-1)*chi_b(0:np-1,orbit_target%l) )
 
 
     write( out_unit, * ) "Theta TDCS_DW"
@@ -291,16 +284,16 @@ contains
       call spher2cartez( kem, i*deg, phie, ke )
 
       sigma = 0._wp
-      do mo = 0, lo
+      do mo = 0, orbit_target%l
 
         term = (0._wp, 0._wp)
         do l = 0,lmax
           do le = 0,lemax
-            if( mod(le+l+lo,2)/=0 ) cycle
+            if( mod(le+l+orbit_target%l,2)/=0 ) cycle
             tmp_z = (0._wp, 0._wp)
             do me = -le,le
               if( abs(me-mo)>l ) cycle
-              tmp_z = tmp_z +y1y2y3(le, l, lo, -me, me-mo, mo) &
+              tmp_z = tmp_z +y1y2y3(le, l, orbit_target%l, -me, me-mo, mo) &
                 *spherical_harmonic(le, me, i*deg, phie) &
                 *spherical_harmonic(l, mo-me, theta, phi)
             end do
@@ -312,11 +305,11 @@ contains
         term = 4.*pi*term
 
         sigma = sigma +(mo+1)*abs( term &
-          -spherical_harmonic(lo, mo, i*deg, phie)*term0 )**2
+          -spherical_harmonic(orbit_target%l, mo, i*deg, phie)*term0 )**2
 
       end do
 
-      sigma = factor*sigma/(2*lo+1)
+      sigma = factor*sigma/(2*orbit_target%l+1)
 
       if( show_output ) print'(1x,i4,1x,es15.8)',i,sigma
       write(out_unit, '(1x,i4,1x,es15.8)' ) i, sigma
@@ -331,19 +324,16 @@ contains
     use input, only : read_input, read_orbit
     use trigo, only : spher2cartez
     use integration, only : gauleg
+    use types, only: orbit
 
     integer, intent(in) :: in_unit
     integer, intent(in) :: out_unit
 
-    character(len=2) :: Atom, Orbit
+    character(len=2) :: Atom_name, Orbit_name
     real(wp) :: Ei, Es, Ee
     real(wp) :: thetas
     integer :: step(3), exchange, PCI = 2
-    real(wp) :: Ie
-    integer :: nelec
-    integer :: lo, no
-    real(wp), allocatable :: a(:), e(:)
-    integer, allocatable :: n(:)
+    type(orbit) :: orbit_target
 
     real(wp), parameter   :: phie = 0._wp
     real(wp) :: kim, ksm, kem
@@ -385,9 +375,9 @@ contains
 
     call factorial()
 
-    call read_input(in_unit,Ei, Es, Ee, thetas, step, Atom, orbit, exchange )
+    call read_input(in_unit,Ei, Es, Ee, thetas, step, Atom_name, Orbit_name, exchange )
 
-    call read_orbit(Atom//'_'//Orbit, Ie, nelec, lo, no, n, a, e )
+    call read_orbit(Atom_name//'_'//Orbit_name, orbit_target )
 
     kim = sqrt(2.*Ei*eV)
     ksm = sqrt(2.*Es*eV)
@@ -396,7 +386,7 @@ contains
     etas = -zs/ksm
     etae = -ze/kem
 
-    factor = nelec* (2.*pi)**4*ksm*kem / kim
+    factor = orbit_target%nelec/(2._wp*orbit_target%l+1._wp) *(2.*pi)**4*ksm*kem / kim
     factor = factor*2._wp/pi**4 /(kem*ksm*kim)**2
 
     rc = 250._wp
@@ -418,10 +408,10 @@ contains
 
     allocate( U_tmp(0:nr) )
 
-    call calculate_U(Atom, Orbit, r, U_tmp, 0)
+    call calculate_U(Atom_name, Orbit_name, r, U_tmp, 0)
     call calculate_chi( kim, r, U_tmp, 0, x, chi_0, delta_li )
 
-    call calculate_U(Atom, Orbit, r, U_tmp, 1)
+    call calculate_U(Atom_name, Orbit_name, r, U_tmp, 1)
     call calculate_chi( ksm, r, U_tmp, zs, x, chi_a, delta_ls )
     call calculate_chi( kem, r, U_tmp, ze, x, chi_b, delta_le )
 
@@ -429,12 +419,12 @@ contains
 
     allocate(wf(nx))
     wf = 0._wp
-    do io = 1, no
-      wf = wf +a(io)*norm_fac(e(io), n(io) )*x**n(io)*exp(-e(io)*x)
+    do io = 1, orbit_target%nf
+      wf = wf +orbit_target%a(io)*norm_fac(orbit_target%e(io), orbit_target%n(io) )*x**orbit_target%n(io)*exp(-orbit_target%e(io)*x)
     end do
 
-    chi_b(:,lo) = chi_b(:,lo) -wf*sum( w*chi_b(:,lo)*wf )
-    chi_a(:,lo) = chi_a(:,lo) -wf*sum( w*chi_a(:,lo)*wf )
+    chi_b(:,orbit_target%l) = chi_b(:,orbit_target%l) -wf*sum( w*chi_b(:,orbit_target%l)*wf )
+    chi_a(:,orbit_target%l) = chi_a(:,orbit_target%l) -wf*sum( w*chi_a(:,orbit_target%l)*wf )
 
     tmp_z = cgamma( cmplx( 1._wp, etae, wp), 0 )
     sigma_le(0) = atan2( aimag(tmp_z), real(tmp_z, wp) )
@@ -451,10 +441,10 @@ contains
     sigma_ls = sigma_ls +delta_ls
 
     call dwb_integrals(chi_0, chi_a, chi_b, delta_li, sigma_ls, sigma_le &
-      , wf, x, w, lo, integral)
+      , wf, x, w, orbit_target%l, integral)
     if(exchange==1) then
       call dwb_integrals(chi_0, chi_b, chi_a, delta_li, sigma_le, sigma_ls &
-        , wf, x, w, lo, integralx)
+        , wf, x, w, orbit_target%l, integralx)
     end if
 
     ylms = (0._wp, 0._wp)
@@ -485,7 +475,7 @@ contains
     do i = step(1), step(2), step(3)
 
       sigma = 0._wp
-      do mo = 0, lo
+      do mo = 0, orbit_target%l
 
         termd = (0._wp, 0._wp)
         do le = 0,lemax
@@ -515,7 +505,7 @@ contains
           -real( conjg(termd)*termx, wp ) )
       end do
 
-      sigma = factor*sigma/(2*lo+1)
+      sigma = factor*sigma/(2*orbit_target%l+1)
       if(PCI>=1) then
         call PCI_EFFECTS(i,sigma)
       end if
@@ -548,19 +538,16 @@ contains
     use special_functions, only : factorial
     use input, only : read_input, read_orbit
     use trigo, only : spher2cartez
+    use types, only: orbit
 
     integer, intent(in) :: in_unit
     integer, intent(in) :: out_unit
 
-    character(len=2) :: Atom, Orbit
+    character(len=2) :: Atom_name, Orbit_name
     real(wp) :: Ei, Es, Ee
     real(wp) :: thetas
-    real(wp) :: Ie
     integer :: step(3)
-    integer :: nelec
-    integer :: lo, no
-    real(wp), allocatable :: a(:), e(:)
-    integer, allocatable :: n(:)
+    type(orbit) :: orbit_target
 
     real(wp), parameter   :: phie = 0._wp
     real(wp) :: kim, ksm, kem, km
@@ -572,9 +559,9 @@ contains
 
     call factorial()
 
-    call read_input(in_unit,Ei, Es, Ee, thetas, step, Atom, orbit)
+    call read_input(in_unit,Ei, Es, Ee, thetas, step, Atom_name, Orbit_name)
 
-    call read_orbit(Atom//'_'//Orbit, Ie, nelec, lo, no, n, a, e )
+    call read_orbit(Atom_name//'_'//Orbit_name, orbit_target )
 
     kim = sqrt(2.*Ei*eV)
     ksm = sqrt(2.*Es*eV)
@@ -585,19 +572,19 @@ contains
     k = ki -ks
     km = norm2(k)
 
-    factor = nelec*4._wp*ksm*kem/(kim)
+    factor = orbit_target%nelec/(2._wp*orbit_target%l+1._wp) *4._wp*ksm*kem/(kim)
 
     do i = step(1), step(2), step(3)
 
       call spher2cartez( kem, i*deg, phie, ke )
 
       sigma = 0._wp
-      do mo = 0, lo
+      do mo = 0, orbit_target%l
 
         D_term = (0._wp,0._wp)
-        do io = 1, no
-          D_term = D_term +a(io)*( tpw(n(io), lo, mo, e(io), ke, k ) &
-            -tpw(n(io), lo, mo, e(io), ke ) )
+        do io = 1, orbit_target%nf
+          D_term = D_term +orbit_target%a(io)*( tpw(orbit_target%n(io), orbit_target%l, mo, orbit_target%e(io), ke, k ) &
+            -tpw(orbit_target%n(io), orbit_target%l, mo, orbit_target%e(io), ke ) )
         end do
         sigma = sigma +(1+mo)*abs(D_term/km**2)**2
       end do

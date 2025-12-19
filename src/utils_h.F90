@@ -24,8 +24,8 @@ module utils
       real(wp), intent(out) :: s(0:,0:), delta(0:lmax)
     end subroutine ode_second_dw
 
-    module subroutine calculate_U(Atom, Orbit, r, U, state )
-      character(len=2), intent(in) :: Atom, Orbit
+    module subroutine calculate_U(Atom_name, Orbit_name, r, U, state )
+      character(len=2), intent(in) :: Atom_name, Orbit_name
       real(wp)   , intent(in) :: r(:)
       real(wp)   , intent(out) :: U(:)
       integer, intent(in) :: state
