@@ -28,3 +28,11 @@ endif()
 
 add_executable( main "main.F90" )
 target_link_libraries( main tdcs_e_2e )
+
+if(WIN32)
+  if("${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "LLVMFlang")
+    target_link_options(main PRIVATE "-Wl,--stack,134217728")
+  elseif("${CMAKE_Fortran_COMPILER_ID}" MATCHES "Intel")
+    target_link_options(main PRIVATE "/STACK:536870912")
+  endif()
+endif()
