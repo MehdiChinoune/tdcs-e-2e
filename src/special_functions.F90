@@ -357,8 +357,8 @@ contains
     spherical_harmonic = exp( 0.5*( lnfac(l-ma) -lnfac(l+ma) ) ) &
       *sqrt( (2.*l+1._wp)/(4.*pi) ) *cmplx( cos(m*phi), sin(m*phi), wp ) &
       *assoc_legendre(l, ma, cos(theta) )
-    if( mod(m,2)>0 ) spherical_harmonic = -spherical_harmonic
-    if( modulo(theta,2*pi)>pi .AND. mod(m,2)/=0 ) spherical_harmonic = -spherical_harmonic
+    if( mod(m,2)<0 ) spherical_harmonic = -spherical_harmonic
+    !if( modulo(theta,2*pi)>pi .AND. mod(m,2)/=0 ) spherical_harmonic = -spherical_harmonic
 
   end function spherical_harmonic
 
