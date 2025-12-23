@@ -43,7 +43,7 @@ contains
 
     call read_tcs_input(in_unit, Atom_name, Orbit_name, exchange)
 
-    call read_orbit(Atom_name//'_'//Orbit_name, orbit_target )
+    call read_orbit(trim(Atom_name)//'_'//Orbit_name, orbit_target )
 
     write( out_unit, * ) "Ei TCS_PW"
 
@@ -153,7 +153,7 @@ contains
 
     call read_tcs_input(in_unit, Atom_name, Orbit_name, exchange)
 
-    call read_orbit(Atom_name//'_'//Orbit_name, orbit_target )
+    call read_orbit(trim(Atom_name)//'_'//Orbit_name, orbit_target )
 
     zs = -1 ! Charge of the projectile
     ze = -1 ! Charge of ejected particle
@@ -321,19 +321,19 @@ contains
     call read_tcs_input(in_unit, Atom_name, Orbit_name, exchange)
     !
 #ifdef OCW
-    open( newunit = inp, file = 'data/'//Atom_name//'.dat', status = 'old', action = 'read')
+    open( newunit = inp, file = 'data/'//trim(Atom_name)//'.dat', status = 'old', action = 'read')
     i = 0
     allocate(atom_target%orbits(0))
     do
       read(inp, fmt=*, iostat = iei ) orbit_i
       if(iei<0) exit
       i = i + 1
-      call read_orbit(Atom_name//'_'//orbit_i, tmp_orbit)
+      call read_orbit(trim(Atom_name)//'_'//orbit_i, tmp_orbit)
       atom_target%orbits = [ atom_target%orbits, tmp_orbit]
     end do
 #endif
     !
-    call read_orbit(Atom_name//'_'//Orbit_name, orbit_target )
+    call read_orbit(trim(Atom_name)//'_'//Orbit_name, orbit_target )
     !
     zs = -1 ! Charge of the projectile
     ze = -1 ! Charge of ejected particle

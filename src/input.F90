@@ -40,7 +40,7 @@ contains
 
   module subroutine read_orbit(orbit_file, orbit_target )
     use constants, only: ev
-    character(len=5), intent(in)  :: orbit_file
+    character(*), intent(in)  :: orbit_file
     type(orbit), intent(out) :: orbit_target
     !
     real(wp) :: Ie

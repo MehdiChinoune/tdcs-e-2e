@@ -20,7 +20,7 @@ module input
     end subroutine read_tcs_input
 
     module subroutine read_orbit(orbit_file, orbit_target )
-      character(len=5), intent(in)  :: orbit_file
+      character(*), intent(in)  :: orbit_file
       type(orbit), intent(out) :: orbit_target
     end subroutine read_orbit
 

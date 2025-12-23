@@ -33,7 +33,7 @@ contains
 
     call read_fdcs_input(in_unit,Ei, Es, Ee, thetas, step, Atom_name, Orbit_name, exchange)
 
-    call read_orbit(Atom_name//'_'//Orbit_name, orbit_target )
+    call read_orbit(trim(Atom_name)//'_'//Orbit_name, orbit_target )
 
     kim = sqrt(2.*Ei*eV)
     ksm = sqrt(2.*Es*eV)
@@ -117,7 +117,7 @@ contains
 
     call read_fdcs_input(in_unit,Ei, Es, Ee, thetas, step, Atom_name, Orbit_name, exchange)
 
-    call read_orbit(Atom_name//'_'//Orbit_name, orbit_target )
+    call read_orbit(trim(Atom_name)//'_'//Orbit_name, orbit_target )
 
     kim = sqrt(2.*Ei*eV)
     ksm = sqrt(2.*Es*eV)
@@ -203,7 +203,7 @@ contains
 
     call read_fdcs_input(in_unit,Ei, Es, Ee, thetas, step, Atom_name, Orbit_name, exchange )
 
-    call read_orbit(Atom_name//'_'//Orbit_name, orbit_target )
+    call read_orbit(trim(Atom_name)//'_'//Orbit_name, orbit_target )
 
     kim = sqrt(2.*Ei*eV)
     ksm = sqrt(2.*Es*eV)
@@ -377,7 +377,7 @@ contains
 
     call read_fdcs_input(in_unit,Ei, Es, Ee, thetas, step, Atom_name, Orbit_name, exchange )
 
-    call read_orbit(Atom_name//'_'//Orbit_name, orbit_target )
+    call read_orbit(trim(Atom_name)//'_'//Orbit_name, orbit_target )
 
     kim = sqrt(2.*Ei*eV)
     ksm = sqrt(2.*Es*eV)
@@ -561,7 +561,7 @@ contains
 
     call read_fdcs_input(in_unit,Ei, Es, Ee, thetas, step, Atom_name, Orbit_name)
 
-    call read_orbit(Atom_name//'_'//Orbit_name, orbit_target )
+    call read_orbit(trim(Atom_name)//'_'//Orbit_name, orbit_target )
 
     kim = sqrt(2.*Ei*eV)
     ksm = sqrt(2.*Es*eV)
