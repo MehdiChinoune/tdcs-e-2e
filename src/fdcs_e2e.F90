@@ -2,7 +2,7 @@ submodule(fdcs_e2e) fdcs_e2e
   implicit none
 contains
 
-  module subroutine fdcs_fba_pw(in_unit,out_unit)
+  module subroutine fdcs_fba_pw(in_unit)
     use constants, only : pi, ev, deg
     use special_functions, only : factorial
     use input, only : read_fdcs_input, read_orbit
@@ -10,13 +10,13 @@ contains
     use types, only: orbit
 
     integer, intent(in) :: in_unit
-    integer, intent(in) :: out_unit
 
     character(len=2) :: Atom_name, Orbit_name
     real(wp) :: Ei, Es, Ee
     real(wp) :: thetas
     integer :: step(3), exchange
     type(orbit) :: orbit_target
+    integer :: out_unit
 
     real(wp), parameter   :: phie = 0._wp
     real(wp) :: kim, ksm, kem, km
@@ -46,6 +46,8 @@ contains
 
     factor = orbit_target%nelec/(2._wp*orbit_target%l+1._wp) *4._wp*ksm*kem/kim
 
+    open( newunit = out_unit, file = 'tdcs_pw_'//trim(Atom_name)//'_'//Orbit_name//'.dat', &
+      status = 'replace', action = 'write' )
     write( out_unit, * ) "Theta TDCS_PW"
     do i = step(1), step(2), step(3)
 
@@ -85,10 +87,12 @@ contains
       if( show_output ) print '(1x,i4,1x,es15.8)',i,sigma
       write( out_unit, '(1x,i4,1x,es15.8)' ) i, sigma
     end do
-
+    !
+    close(out_unit)
+    !
   end subroutine fdcs_fba_pw
 
-  module subroutine fdcs_fba_cw(in_unit,out_unit)
+  module subroutine fdcs_fba_cw(in_unit)
     use constants, only : ev, deg, pi
     use trigo, only : spher2cartez
     use special_functions, only : factorial
@@ -96,14 +100,14 @@ contains
     use types, only: orbit
     !
     integer, intent(in) :: in_unit
-    integer, intent(in) :: out_unit
-
+    !
     character(len=2) :: Atom_name, Orbit_name
     real(wp) :: Ei, Es, Ee
     real(wp) :: thetas
     integer :: step(3), exchange
     integer :: ze, zs
     type(orbit) :: orbit_target
+    integer :: out_unit
 
     real(wp), parameter   :: phie = 0._wp
     real(wp) :: kim, ksm, kem, km, alpha
@@ -135,7 +139,8 @@ contains
     !\abs{ \exp{\pi\alpha/2}*\Gamma(1-i\alpha) }^2
     if(ze/=0) factor = factor*2.*pi*alpha/(1._wp-exp(-2.*pi*alpha))
 
-
+    open( newunit = out_unit, file = 'tdcs_cw_'//trim(Atom_name)//'_'//Orbit_name//'.dat', &
+      status = 'replace', action = 'write' )
     write( out_unit, * ) "Theta TDCS_CW"
     do i = step(1),step(2),step(3)
 
@@ -156,10 +161,12 @@ contains
       if( show_output ) print'(1x,i4,1x,es15.8)',i,sigma
       write( out_unit, '(1x,i4,1x,es15.8)' ) i, sigma
     end do
-
+    !
+    close(out_unit)
+    !
   end subroutine fdcs_fba_cw
 
-  module subroutine fdcs_fba_dw(in_unit,out_unit)
+  module subroutine fdcs_fba_dw(in_unit)
     use ieee_arithmetic, only : ieee_is_nan
     use constants, only : pi, deg, ev
     use special_functions, only : cgamma, spherical_harmonic, ricbes, factorial !&
@@ -168,15 +175,15 @@ contains
     use input, only : read_fdcs_input, read_orbit
     use trigo, only : spher2cartez, cartez2spher
     use types, only: orbit
-
+    !
     integer, intent(in) :: in_unit
-    integer, intent(in) :: out_unit
-
+    !
     character(len=2) :: Atom_name, Orbit_name
     real(wp) :: Ei, Es, Ee
     real(wp) :: thetas
     integer :: step(3), exchange
     type(orbit) :: orbit_target
+    integer :: out_unit
 
     real(wp), parameter   :: phie = 0._wp
     real(wp) :: kim, ksm, kem, km
@@ -278,6 +285,8 @@ contains
       *0.5*h*sum( wf(1:np)*chi_b(1:np,orbit_target%l) +wf(0:np-1)*chi_b(0:np-1,orbit_target%l) )
 
 
+    open( newunit = out_unit, file = 'tdcs_dw_'//trim(Atom_name)//'_'//Orbit_name//'.dat', &
+      status = 'replace', action = 'write' )
     write( out_unit, * ) "Theta TDCS_DW"
     do i = step(1), step(2), step(3)
 
@@ -314,10 +323,12 @@ contains
       if( show_output ) print'(1x,i4,1x,es15.8)',i,sigma
       write(out_unit, '(1x,i4,1x,es15.8)' ) i, sigma
     end do
-
+    !
+    close(out_unit)
+    !
   end subroutine fdcs_fba_dw
 
-  module subroutine fdcs_dwb(in_unit,out_unit)
+  module subroutine fdcs_dwb(in_unit)
     use constants, only : ev, deg, pi
     use special_functions, only : spherical_harmonic, cgamma, factorial
     use utils, only : norm_fac, calculate_U
@@ -325,15 +336,15 @@ contains
     use trigo, only : spher2cartez
     use integration, only : gauleg
     use types, only: orbit
-
+    !
     integer, intent(in) :: in_unit
-    integer, intent(in) :: out_unit
-
+    !
     character(len=2) :: Atom_name, Orbit_name
     real(wp) :: Ei, Es, Ee
     real(wp) :: thetas
     integer :: step(3), exchange, PCI = 2
     type(orbit) :: orbit_target
+    integer :: out_unit
 
     real(wp), parameter   :: phie = 0._wp
     real(wp) :: kim, ksm, kem
@@ -469,6 +480,9 @@ contains
         ylme(le,-1:-le:-2,i) = -ylme(le,1:le:2,i)
       end do
     end do
+    !
+    open( newunit = out_unit, file = 'tdcs_dwba_'//trim(Atom_name)//'_'//Orbit_name//'.dat', &
+      status = 'replace', action = 'write' )
     write( out_unit, * ) "Theta TDCS_DWBA"
 
     !$OMP PARALLEL DO PRIVATE(sigma, mo, termd, termx, le, ls, me)
@@ -513,7 +527,9 @@ contains
       if( show_output ) print'(1x,i4,1x,es15.8)', i, sigma
       write(out_unit, '(1x,i4,1x,es15.8)' ) i, sigma
     end do
-
+    !
+    close(out_unit)
+    !
   contains
 
     elemental subroutine PCI_EFFECTS(i,sigma)
@@ -533,21 +549,21 @@ contains
 
   end subroutine fdcs_dwb
 
-  module subroutine fdcs_bbk(in_unit,out_unit)
+  module subroutine fdcs_bbk(in_unit)
     use constants, only : pi, ev, deg
     use special_functions, only : factorial
     use input, only : read_fdcs_input, read_orbit
     use trigo, only : spher2cartez
     use types, only: orbit
-
+    !
     integer, intent(in) :: in_unit
-    integer, intent(in) :: out_unit
-
+    !
     character(len=2) :: Atom_name, Orbit_name
     real(wp) :: Ei, Es, Ee
     real(wp) :: thetas
     integer :: step(3)
     type(orbit) :: orbit_target
+    integer :: out_unit
 
     real(wp), parameter   :: phie = 0._wp
     real(wp) :: kim, ksm, kem, km
@@ -574,6 +590,10 @@ contains
 
     factor = orbit_target%nelec/(2._wp*orbit_target%l+1._wp) *4._wp*ksm*kem/(kim)
 
+    open( newunit = out_unit, file = 'tdcs_bbk_'//trim(Atom_name)//'_'//Orbit_name//'.dat', &
+      status = 'replace', action = 'write' )
+    write( out_unit, * ) "Theta TDCS_BBK"
+    !
     do i = step(1), step(2), step(3)
 
       call spher2cartez( kem, i*deg, phie, ke )
@@ -594,7 +614,9 @@ contains
       if( show_output ) print'(1x,i4,1x,es15.8)',i,sigma
       write( out_unit, '(1x,i4,1x,es15.8)' ) i, sigma
     end do
-
+    !
+    close(out_unit)
+    !
   end subroutine fdcs_bbk
 
   complex(wp) function U_bbk(alpha1, alpha2, alpha3, k1, k2, k3, lam1, lam2, lam3 &

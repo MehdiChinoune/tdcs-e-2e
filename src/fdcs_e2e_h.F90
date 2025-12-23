@@ -6,29 +6,24 @@ module fdcs_e2e
 
   interface
 
-    module subroutine fdcs_fba_pw(in_unit,out_unit)
+    module subroutine fdcs_fba_pw(in_unit)
       integer, intent(in) :: in_unit
-      integer, intent(in) :: out_unit
     end subroutine fdcs_fba_pw
 
-    module subroutine fdcs_fba_cw(in_unit,out_unit)
+    module subroutine fdcs_fba_cw(in_unit)
       integer, intent(in) :: in_unit
-      integer, intent(in) :: out_unit
     end subroutine fdcs_fba_cw
 
-    module subroutine fdcs_fba_dw(in_unit,out_unit)
+    module subroutine fdcs_fba_dw(in_unit)
       integer, intent(in) :: in_unit
-      integer, intent(in) :: out_unit
     end subroutine fdcs_fba_dw
 
-    module subroutine fdcs_dwb(in_unit,out_unit)
+    module subroutine fdcs_dwb(in_unit)
       integer, intent(in) :: in_unit
-      integer, intent(in) :: out_unit
     end subroutine fdcs_dwb
 
-    module subroutine fdcs_bbk(in_unit,out_unit)
+    module subroutine fdcs_bbk(in_unit)
       integer, intent(in) :: in_unit
-      integer, intent(in) :: out_unit
     end subroutine fdcs_bbk
 
     module pure complex(wp) function tpw( n, l, m, e, ke, k)

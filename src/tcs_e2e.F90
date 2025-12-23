@@ -3,7 +3,7 @@ submodule(tcs_e2e) tcs_e2e
   real(wp), parameter :: prec = 0.001_wp
 contains
 
-  module subroutine tcs_fba_pw(in_unit,out_unit)
+  module subroutine tcs_fba_pw(in_unit)
     use constants, only : pi, ev
     use special_functions, only : factorial
     use input, only : read_tcs_input, read_orbit
@@ -11,12 +11,11 @@ contains
     use fdcs_e2e, only: tpw
     use integration, only: gauleg
     use types, only: orbit
-
+    !
     integer, intent(in) :: in_unit
-    integer, intent(in) :: out_unit
-
+    !
     character(len=2) :: Atom_name, Orbit_name
-    integer :: exchange
+    integer :: out_unit, exchange
     type(orbit) :: orbit_target
 
     real(wp) :: Ei, Es, Ee
@@ -45,6 +44,8 @@ contains
 
     call read_orbit(trim(Atom_name)//'_'//Orbit_name, orbit_target )
 
+    open( newunit = out_unit, file = 'tcs_pw_'//trim(Atom_name)//'_'//Orbit_name//'.dat', &
+      status = 'replace', action = 'write' )
     write( out_unit, * ) "Ei TCS_PW"
 
     call gauleg(0._wp, pi, xts, wts, nts)
@@ -125,9 +126,12 @@ contains
       if( show_output ) print '(1x,es11.4,1x,es15.8)', Ei_values(iei), tcs
       write( out_unit, '(1x,es11.4,1x,es15.8)' ) Ei_values(iei), tcs
     end do
+    !
+    close(out_unit)
+    !
   end subroutine tcs_fba_pw
 
-  module subroutine tcs_fba_cw(in_unit,out_unit)
+  module subroutine tcs_fba_cw(in_unit)
     use constants, only : pi, ev
     use types, only: atom, orbit
     use special_functions, only : factorial
@@ -137,11 +141,10 @@ contains
     use integration, only: gauleg, clenshaw_curtis
     !
     integer, intent(in) :: in_unit
-    integer, intent(in) :: out_unit
 
     character(len=2) :: Atom_name, Orbit_name
     type(orbit) :: orbit_target
-    integer :: exchange, iei
+    integer :: out_unit, exchange, iei
     real(wp) :: Ei, kim, ki(3), zs, ze, Ee_max, tcs
     real(wp) :: Ei_values(55) = &
       [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 20, 22, 25, 28, 30, 32 &
@@ -158,6 +161,8 @@ contains
     zs = -1 ! Charge of the projectile
     ze = -1 ! Charge of ejected particle
 
+    open( newunit = out_unit, file = 'tcs_cw_'//trim(Atom_name)//'_'//Orbit_name//'.dat', &
+      status = 'replace', action = 'write' )
     write( out_unit, * ) "Ei TCS_CW"
 
     do iei = 1, size(Ei_values)
@@ -176,6 +181,9 @@ contains
       write( out_unit, '(1x,es11.4,1x,es15.8)' ) Ei_values(iei), tcs
       !
     end do
+    !
+    close(out_unit)
+    !
   end subroutine tcs_fba_cw
 
   recursive subroutine int_adaptive_cw(a, b, ze, zs, orbit_target, &
@@ -287,7 +295,7 @@ contains
 
   end subroutine int_adaptive_cw
 
-  module subroutine tcs_fba_ocw(in_unit,out_unit)
+  module subroutine tcs_fba_ocw(in_unit)
     use constants, only : pi, ev
     use types, only: atom, orbit
     use special_functions, only : factorial
@@ -297,12 +305,11 @@ contains
     use integration, only: gauleg, clenshaw_curtis
     !
     integer, intent(in) :: in_unit
-    integer, intent(in) :: out_unit
     !
 #define OCW
     character(len=2) :: Atom_name, Orbit_name
     type(orbit) :: orbit_target
-    integer :: exchange, iei
+    integer :: out_unit, exchange, iei
     real(wp) :: Ei, kim, ki(3), zs, ze, Ee_max, tcs
 #ifdef OCW
     type(orbit) :: tmp_orbit
@@ -339,8 +346,12 @@ contains
     ze = -1 ! Charge of ejected particle
     !
 #ifdef SOCW
+    open( newunit = out_unit, file = 'tcs_socw_'//trim(Atom_name)//'_'//Orbit_name//'.dat', &
+      status = 'replace', action = 'write' )
     write( out_unit, * ) "Ei TCS_SOCW"
 #else
+    open( newunit = out_unit, file = 'tcs_ocw_'//trim(Atom_name)//'_'//Orbit_name//'.dat', &
+      status = 'replace', action = 'write' )
     write( out_unit, * ) "Ei TCS_OCW"
 #endif
 
@@ -364,6 +375,9 @@ contains
       write( out_unit, '(1x,es11.4,1x,es15.8)' ) Ei_values(iei), tcs
       !
     end do
+    !
+    close(out_unit)
+    !
   end subroutine tcs_fba_ocw
 
 #ifdef SOCW

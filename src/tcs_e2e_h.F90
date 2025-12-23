@@ -6,19 +6,16 @@ module tcs_e2e
 
   interface
 
-    module subroutine tcs_fba_pw(in_unit,out_unit)
+    module subroutine tcs_fba_pw(in_unit)
       integer, intent(in) :: in_unit
-      integer, intent(in) :: out_unit
     end subroutine tcs_fba_pw
 
-    module subroutine tcs_fba_cw(in_unit,out_unit)
+    module subroutine tcs_fba_cw(in_unit)
       integer, intent(in) :: in_unit
-      integer, intent(in) :: out_unit
     end subroutine tcs_fba_cw
 
-    module subroutine tcs_fba_ocw(in_unit,out_unit)
+    module subroutine tcs_fba_ocw(in_unit)
       integer, intent(in) :: in_unit
-      integer, intent(in) :: out_unit
     end subroutine tcs_fba_ocw
 
     module complex(wp) function eikr_element(n1, l1, m1, e1, n2, l2, m2, e2, k)
