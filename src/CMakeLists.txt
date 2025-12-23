@@ -15,6 +15,8 @@ set( srcs
   utils.F90
   fdcs_e2e_h.F90
   fdcs_e2e.F90
+  tcs_e2e_h.F90
+  tcs_e2e.F90
   types.F90
 )
 

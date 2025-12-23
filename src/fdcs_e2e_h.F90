@@ -31,6 +31,22 @@ module fdcs_e2e
       integer, intent(in) :: out_unit
     end subroutine fdcs_bbk
 
+    module pure complex(wp) function tpw( n, l, m, e, ke, k)
+      integer, intent(in) :: n,l,m
+      real(wp), intent(in) :: e,ke(3)
+      real(wp), intent(in),optional :: k(3)
+    end function tpw
+
+    module pure complex(wp) function tcw( n, l, m, e, alpha, ke, k)
+      integer, intent(in) :: n, l, m
+      real(wp), intent(in) :: e, alpha, ke(3), k(3)
+    end function tcw
+
+    module pure complex(wp) function tcw0( n, l, m, e, alpha, ke)
+      integer, intent(in) :: n, l, m
+      real(wp), intent(in) :: e, alpha, ke(3)
+    end function tcw0
+
 
   end interface
 

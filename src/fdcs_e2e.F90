@@ -5,7 +5,7 @@ contains
   module subroutine fdcs_fba_pw(in_unit,out_unit)
     use constants, only : pi, ev, deg
     use special_functions, only : factorial
-    use input, only : read_input, read_orbit
+    use input, only : read_fdcs_input, read_orbit
     use trigo, only : spher2cartez
     use types, only: orbit
 
@@ -31,7 +31,7 @@ contains
 
     call factorial()
 
-    call read_input(in_unit,Ei, Es, Ee, thetas, step, Atom_name, Orbit_name, exchange)
+    call read_fdcs_input(in_unit,Ei, Es, Ee, thetas, step, Atom_name, Orbit_name, exchange)
 
     call read_orbit(Atom_name//'_'//Orbit_name, orbit_target )
 
@@ -92,7 +92,7 @@ contains
     use constants, only : ev, deg, pi
     use trigo, only : spher2cartez
     use special_functions, only : factorial
-    use input, only : read_input, read_orbit
+    use input, only : read_fdcs_input, read_orbit
     use types, only: orbit
     !
     integer, intent(in) :: in_unit
@@ -115,7 +115,7 @@ contains
 
     call factorial()
 
-    call read_input(in_unit,Ei, Es, Ee, thetas, step, Atom_name, Orbit_name, exchange)
+    call read_fdcs_input(in_unit,Ei, Es, Ee, thetas, step, Atom_name, Orbit_name, exchange)
 
     call read_orbit(Atom_name//'_'//Orbit_name, orbit_target )
 
@@ -151,7 +151,7 @@ contains
         sigma = sigma +(mo+1)*abs(term)**2
       end do
 
-      sigma = factor*sigma/(2*orbit_target%l+1)
+      sigma = factor*sigma
 
       if( show_output ) print'(1x,i4,1x,es15.8)',i,sigma
       write( out_unit, '(1x,i4,1x,es15.8)' ) i, sigma
@@ -165,7 +165,7 @@ contains
     use special_functions, only : cgamma, spherical_harmonic, ricbes, factorial !&
       !, coul90, symbol_3j
     use utils, only : norm_fac, y1y2y3, calculate_U, ode_second_dw
-    use input, only : read_input, read_orbit
+    use input, only : read_fdcs_input, read_orbit
     use trigo, only : spher2cartez, cartez2spher
     use types, only: orbit
 
@@ -201,7 +201,7 @@ contains
 
     call factorial()
 
-    call read_input(in_unit,Ei, Es, Ee, thetas, step, Atom_name, Orbit_name, exchange )
+    call read_fdcs_input(in_unit,Ei, Es, Ee, thetas, step, Atom_name, Orbit_name, exchange )
 
     call read_orbit(Atom_name//'_'//Orbit_name, orbit_target )
 
@@ -309,7 +309,7 @@ contains
 
       end do
 
-      sigma = factor*sigma/(2*orbit_target%l+1)
+      sigma = factor*sigma
 
       if( show_output ) print'(1x,i4,1x,es15.8)',i,sigma
       write(out_unit, '(1x,i4,1x,es15.8)' ) i, sigma
@@ -321,7 +321,7 @@ contains
     use constants, only : ev, deg, pi
     use special_functions, only : spherical_harmonic, cgamma, factorial
     use utils, only : norm_fac, calculate_U
-    use input, only : read_input, read_orbit
+    use input, only : read_fdcs_input, read_orbit
     use trigo, only : spher2cartez
     use integration, only : gauleg
     use types, only: orbit
@@ -375,7 +375,7 @@ contains
 
     call factorial()
 
-    call read_input(in_unit,Ei, Es, Ee, thetas, step, Atom_name, Orbit_name, exchange )
+    call read_fdcs_input(in_unit,Ei, Es, Ee, thetas, step, Atom_name, Orbit_name, exchange )
 
     call read_orbit(Atom_name//'_'//Orbit_name, orbit_target )
 
@@ -505,7 +505,7 @@ contains
           -real( conjg(termd)*termx, wp ) )
       end do
 
-      sigma = factor*sigma/(2*orbit_target%l+1)
+      sigma = factor*sigma
       if(PCI>=1) then
         call PCI_EFFECTS(i,sigma)
       end if
@@ -536,7 +536,7 @@ contains
   module subroutine fdcs_bbk(in_unit,out_unit)
     use constants, only : pi, ev, deg
     use special_functions, only : factorial
-    use input, only : read_input, read_orbit
+    use input, only : read_fdcs_input, read_orbit
     use trigo, only : spher2cartez
     use types, only: orbit
 
@@ -559,7 +559,7 @@ contains
 
     call factorial()
 
-    call read_input(in_unit,Ei, Es, Ee, thetas, step, Atom_name, Orbit_name)
+    call read_fdcs_input(in_unit,Ei, Es, Ee, thetas, step, Atom_name, Orbit_name)
 
     call read_orbit(Atom_name//'_'//Orbit_name, orbit_target )
 
@@ -791,7 +791,7 @@ contains
 
   end subroutine dwb_integrals
 
-  pure complex(wp) function tpw( n, l, m, e, ke, k)
+  module pure complex(wp) function tpw( n, l, m, e, ke, k)
     use constants, only : pi
     use trigo, only : cartez2spher
     use utils, only : norm_fac
@@ -825,7 +825,7 @@ contains
 
   end function tpw
 
-  pure complex(wp) function tcw( n, l, m, e, alpha, ke, k)
+  module pure complex(wp) function tcw( n, l, m, e, alpha, ke, k)
     use constants, only : pi
     use special_functions, only : fac
     use utils, only : norm_fac
@@ -921,7 +921,7 @@ contains
 
   end function tcw
 
-  pure complex(wp) function tcw0( n, l, m, e, alpha, ke)
+  module pure complex(wp) function tcw0( n, l, m, e, alpha, ke)
     use constants, only : pi
     use trigo, only : cartez2spher
     use utils, only : norm_fac

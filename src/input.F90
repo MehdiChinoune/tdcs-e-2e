@@ -3,7 +3,7 @@ submodule(input) input
 
 contains
 
-  module subroutine read_input(in_unit, Ei, Es, Ee, thetas, step, Atom_name, Orbit_name, exchange)
+  module subroutine read_fdcs_input(in_unit, Ei, Es, Ee, thetas, step, Atom_name, Orbit_name, exchange)
     integer, intent(in) :: in_unit
     character(len=2), intent(out) :: Atom_name, Orbit_name
     real(wp), intent(out) :: Ei, Es, Ee, thetas
@@ -21,7 +21,22 @@ contains
     ! Rewind, to use it more than once.
     rewind( in_unit )
     !
-  end subroutine read_input
+  end subroutine read_fdcs_input
+
+  module subroutine read_tcs_input(in_unit, Atom_name, Orbit_name, exchange)
+    integer, intent(in) :: in_unit
+    character(len=2), intent(out) :: Atom_name, Orbit_name
+    integer, intent(out), optional :: exchange
+    !
+    read( in_unit, * ) Atom_name
+    read( in_unit, * ) Orbit_name
+    if( present(exchange) ) then
+      read( in_unit, * ) exchange
+    end if
+    ! Rewind, to use it more than once.
+    rewind( in_unit )
+    !
+  end subroutine read_tcs_input
 
   module subroutine read_orbit(orbit_file, orbit_target )
     use constants, only: ev

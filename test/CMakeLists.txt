@@ -5,8 +5,10 @@ add_library(arb_bindings OBJECT arb_functions.F90)
 target_link_libraries(arb_bindings arb::arb tdcs_e_2e)
 
 set(tests
+  test_eikr_element
   test_conhyp_01
   test_conhyp_opt
+  test_adaptive_integration
 )
 
 if(BUILD_SLOW_TESTS)
