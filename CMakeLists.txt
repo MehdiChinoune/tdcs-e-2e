@@ -76,7 +76,11 @@ endif()
 
 add_subdirectory(src)
 
-file(COPY data DESTINATION ./ )
+add_custom_target( sync_data ALL
+  COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different ${CMAKE_SOURCE_DIR}/data $<TARGET_FILE_DIR:main>/data
+  COMMENT "Sync Data"
+  )
+
 file(COPY input_example.dat DESTINATION ./ )
 
 option( BUILD_TESTS "Build Tests" OFF)
