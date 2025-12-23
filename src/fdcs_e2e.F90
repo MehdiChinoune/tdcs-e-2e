@@ -834,6 +834,7 @@ contains
     endif
 
     call cartez2spher( q, kem, thetae, phie)
+    !
     a = kem**2 +e**2
     kec = cmplx( 0._wp, kem, wp )
 
@@ -862,8 +863,9 @@ contains
     complex(wp), parameter :: zi = (0._wp, 1._wp)
     integer :: j, j1, ma, m1, s, s1, s2, s3
 
-    ma = abs(m)
     kem = norm2(ke)
+    !
+    ma = abs(m)
     ke_t = -ke
     km = norm2(k)
     if( m>=0 ) then
@@ -936,10 +938,9 @@ contains
     end do
 
     tcw = tcw*norm_fac(e, n )*sqrt(l+0.5_wp)*fac(n-l)*sqrt( fac(l-ma)/fac(l+ma) ) &
-      *(-1)**ma*fac(ma)*(zi*k(3)/ekec)**l*(2.*ekec/a)**n/a*(kp/k(3))**ma &
-      *w1m**(-alphac) /pi
-      !*powcc(w1m,-alpha)/pi
-    if( mod(m,2)<0 ) tcw = -tcw
+      *fac(ma)*(zi*k(3)/ekec)**l*(2.*ekec/a)**n/a*(kp/k(3))**ma &
+      *w1m**(-alphac) /pi !*powcc(w1m,-alpha)/pi
+    if( mod(m,2)>0 ) tcw = -tcw ! (-1)^(m*\theta(m)
 
   end function tcw
 
