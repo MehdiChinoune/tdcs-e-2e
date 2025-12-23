@@ -566,7 +566,7 @@ contains
     !
     term_l = (0._wp, 0._wp)
     do l = abs(l1-l2), l1 + l2
-      if( mod(l1+l2+l,2)/=0 ) cycle
+      if( mod(l1+l2+l,2)/=0 .OR. abs(m1-m2)>l ) cycle
       term_j = 0._wp
       do j = 0, (n-l-1)/2
         term_j = term_j + (-1)**j * (fac(n-l-1)*fac(n-j-1)*(2._wp*e)**(n-l-2*j-1)) &
