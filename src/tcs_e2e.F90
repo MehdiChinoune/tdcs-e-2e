@@ -123,8 +123,8 @@ contains
         enddo; enddo
       enddo
 
-      if( show_output ) print '(1x,es11.4,1x,es15.8)', Ei_values(iei), tcs
-      write( out_unit, '(1x,es11.4,1x,es15.8)' ) Ei_values(iei), tcs
+      if( show_output ) print '(1x,f6.0,1x,es15.8)', Ei_values(iei), tcs
+      write( out_unit, '(1x,f6.0,1x,es15.8)' ) Ei_values(iei), tcs
     end do
     !
     close(out_unit)
@@ -177,8 +177,8 @@ contains
       call int_adaptive_cw([0._wp,0._wp,0._wp,0._wp],[Ee_max,pi,pi,2._wp*pi], ze, zs, &
         orbit_target, kim, ki, Ei, tcs, 1.e-3_wp)
       !
-      if( show_output ) print '(1x,es11.4,1x,es15.8)', Ei_values(iei), tcs
-      write( out_unit, '(1x,es11.4,1x,es15.8)' ) Ei_values(iei), tcs
+      if( show_output ) print '(1x,f6.0,1x,es15.8)', Ei_values(iei), tcs
+      write( out_unit, '(1x,f6.0,1x,es15.8)' ) Ei_values(iei), tcs
       !
     end do
     !
@@ -371,8 +371,8 @@ contains
         orbit_target, atom_target, kim, ki, Ei, tcs, 1.e-3_wp)
 #endif
       !
-      if( show_output ) print '(1x,es11.4,1x,es15.8)', Ei_values(iei), tcs
-      write( out_unit, '(1x,es11.4,1x,es15.8)' ) Ei_values(iei), tcs
+      if( show_output ) print '(1x,f6.0,1x,es15.8)', Ei_values(iei), tcs
+      write( out_unit, '(1x,f6.0,1x,es15.8)' ) Ei_values(iei), tcs
       !
     end do
     !
