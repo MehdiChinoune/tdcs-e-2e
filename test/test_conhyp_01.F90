@@ -15,6 +15,7 @@ program test_conhyp_01
     if( conhyp( a, b, z, 0, 10 )/=(1._wp,0._wp) ) error stop " Failed : 1_F_1(a,b,z=0)/=1"
   end do
   ! Test against flint/arb hypgeom_1f1
+  !$OMP PARALLEL DO COLLAPSE(6) PRIVATE(a, b, z, zh ,ch)
   do ia = 1, 6
     do ja = 1, 6
       do ib = 1, 8

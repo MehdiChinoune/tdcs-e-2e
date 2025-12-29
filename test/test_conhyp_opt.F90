@@ -8,6 +8,7 @@ program test_conhyp_opt
   complex(wp) :: a, b, z, cho, zh
   ! Test My simplified function
   b = cmplx(1._wp, 0._wp, wp)
+  !$OMP PARALLEL DO COLLAPSE(2) PRIVATE(a, z, zh, cho)
   do ia = 1, 4
     do iz = 1, 4
       a = cmplx( 0._wp, i_tst(ia)*1._wp, wp)
