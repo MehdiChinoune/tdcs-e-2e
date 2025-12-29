@@ -153,14 +153,14 @@ contains
     integer :: i1, i2, nocup
     character(len=2) :: orbit_i
 
-    open( newunit = in, file = 'data/'//Atom_name//'.dat', status = 'old', action = 'read')
+    open( newunit = in, file = 'data/'//trim(Atom_name)//'.dat', status = 'old', action = 'read')
 
     U = 0._wp
     do
       read(in, fmt=*, iostat = nocup ) orbit_i
       if(nocup<0) exit
 
-      call read_orbit(Atom_name//'_'//orbit_i, orbit_tmp)
+      call read_orbit(trim(Atom_name)//'_'//orbit_i, orbit_tmp)
       nocup = orbit_tmp%nelec*(2*orbit_tmp%l+1)
       if(orbit_i==Orbit_name ) nocup = nocup -state
 
