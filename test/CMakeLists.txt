@@ -9,6 +9,7 @@ set(tests
   test_conhyp_01
   test_conhyp_opt
   test_adaptive_integration
+  test_orbit_wf
 )
 
 if(BUILD_SLOW_TESTS)
