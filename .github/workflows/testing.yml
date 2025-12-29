@@ -41,10 +41,10 @@ jobs:
         run: |
           cd build
           mv input_example.dat input.dat
-          ./main pw
-          ./main cw
-          ./main dw
-          ./main dwb
+          ./main fdcs pw
+          ./main fdcs cw
+          ./main fdcs dw
+          ./main fdcs dwb
 
   MSYS2:
     name: MSYS2/UCRT64 (${{ matrix.build_type }})
@@ -80,10 +80,10 @@ jobs:
         run: |
           cd build
           mv input_example.dat input.dat
-          ./main pw
-          ./main cw
-          ./main dw
-          ./main dwb
+          ./main fdcs pw
+          ./main fdcs cw
+          ./main fdcs dw
+          ./main fdcs dwb
 
   Intel:
     name: Intel (${{ matrix.build_type }})
@@ -125,10 +125,10 @@ jobs:
         run: |
           cd build
           mv input_example.dat input.dat
-          ./main pw
-          ./main cw
-          ./main dw
-          ./main dwb
+          ./main fdcs pw
+          ./main fdcs cw
+          ./main fdcs dw
+          ./main fdcs dwb
 
   Nvidia:
     name: Nvidia (${{ matrix.build_type }})
@@ -169,7 +169,7 @@ jobs:
         run: |
           cd build
           mv input_example.dat input.dat
-          ./main pw
-          ./main cw
-          ./main dw
-          ./main dwb
+          ./main fdcs pw
+          ./main fdcs cw
+          ./main fdcs dw
+          ./main fdcs dwb
