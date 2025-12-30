@@ -20,7 +20,11 @@ set( srcs
   types.F90
 )
 
-add_library( tdcs_e_2e SHARED ${srcs} )
+if(WIN32 AND "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "LLVMFlang")
+  add_library( tdcs_e_2e STATIC ${srcs} )
+else()
+  add_library( tdcs_e_2e SHARED ${srcs} )
+endif()
 
 if( ENABLE_OPENMP )
   target_link_libraries( tdcs_e_2e PUBLIC OpenMP::OpenMP_Fortran )
