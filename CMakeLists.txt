@@ -26,6 +26,15 @@ if ( "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU" )
     set( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -march=native" )
   endif()
 
+elseif ( "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "LLVMFlang" )
+
+  set( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fimplicit-none-ext -std=f2018" )
+  set( CMAKE_Fortran_FLAGS_FAST "-O3 -ffast-math -fstack-arrays" )
+  set( CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} -pedantic" )
+  if( TDCS_TARGET_NATIVE )
+    set( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -march=native" )
+  endif()
+
 elseif ( "${CMAKE_Fortran_COMPILER_ID}" MATCHES "Intel" )
 
   if(WIN32)
