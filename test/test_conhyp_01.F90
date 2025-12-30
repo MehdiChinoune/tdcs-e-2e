@@ -18,11 +18,11 @@ program test_conhyp_01
   !$OMP PARALLEL DO COLLAPSE(6) PRIVATE(a, b, z, zh ,ch)
   do ia = 1, 7
     do ja = 1, 7
-      do ib = 1, 9
-        do jb = 1, 9
+      do ib = 2, 9
+        do jb = 2, 9
           do iz = 1, 8
             do jz = 1, 8
-              if(ib==1 .AND. jb==1) cycle ! b/=0
+              !if(ib==1 .AND. jb==1) cycle ! b/=0
               a = cmplx( i_tst(ia)*1._dp, i_tst(ja)*1._dp, dp)
               b = cmplx( i_tst(ib)*1._dp, i_tst(jb)*1._dp, dp)
               z = cmplx( i_tst(iz)*1._dp, i_tst(jz)*1._dp, dp)
