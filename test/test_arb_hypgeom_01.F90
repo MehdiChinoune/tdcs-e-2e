@@ -19,6 +19,7 @@ program test_arb_hypgeom_01
     endif
   end do
   ! Test transformation 1F1(a,b,z)=exp(z)*1F1(b-a,b,-z)
+  !$OMP PARALLEL DO COLLAPSE(6) PRIVATE(a,b,z,zh1,zh2)
   do ia = 1, 8
     do ja = 1, 8
       do ib = 1, 8
@@ -30,7 +31,7 @@ program test_arb_hypgeom_01
               z = cmplx( i_tst(iz)*1._dp, i_tst(jz)*1._dp, dp)
               zh1 = zhypgeom_1f1(a, b, z)
               zh2 = exp(z)*zhypgeom_1f1(b-a, b, -z)
-              if( abs(zh1-zh2)/abs(zh1)>1.e-7 ) then
+              if( abs(zh1-zh2)/abs(zh1)>1.e-7_dp ) then
                 print*, "a=", a
                 print*, "b=", b
                 print*, "z=", z

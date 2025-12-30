@@ -8,6 +8,7 @@ program test_arb_hypgeom_02
   complex(dp) :: a, b, z, zh1, zh2, zh3
   integer, dimension(8) :: i_tst = [ 1, 2, 5, 10, 20, 50, 100, 200 ]
   ! Test recurrence relation (b-a)*1F1(a-1,b,z)+(2a-b+z)*1F1(a,b,z)-a*1F1(a+1,b,z)=0
+  !$OMP PARALLEL DO COLLAPSE(6) PRIVATE(a,b,z,zh1,zh2,zh3)
   do ia = 1, 8
     do ja = 1, 8
       do ib = 1, 8
@@ -20,7 +21,7 @@ program test_arb_hypgeom_02
               zh1 = (b-a)*zhypgeom_1f1(a-1, b, z)
               zh2 = (2*a-b+z)*zhypgeom_1f1(a, b, z)
               zh3 = -a*zhypgeom_1f1(a+1, b, z)
-              if( abs(zh1+zh2+zh3)/max(abs(zh1),abs(zh2),abs(zh3))>1.e-7 ) then
+              if( abs(zh1+zh2+zh3)/max(abs(zh1),abs(zh2),abs(zh3))>1.e-7_dp ) then
                 print*, "a=", a
                 print*, "b=", b
                 print*, "z=", z
