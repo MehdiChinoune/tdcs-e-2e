@@ -5,7 +5,6 @@ add_library(arb_bindings OBJECT arb_functions.F90)
 target_link_libraries(arb_bindings arb::arb tdcs_e_2e)
 
 set(tests
-  test_eikr_element
   test_conhyp_01
   test_conhyp_opt
   test_adaptive_integration
@@ -14,6 +13,7 @@ set(tests
 
 if(BUILD_SLOW_TESTS)
   list(APPEND tests
+    test_eikr_element
     test_arb_hypgeom_01
     test_arb_hypgeom_02
     test_arb_hypgeom_03
@@ -32,7 +32,7 @@ foreach( tst ${tests} )
   set_tests_properties( ${tst} PROPERTIES FAIL_REGULAR_EXPRESSION "[^a-z]Failed;FAILED" )
 endforeach()
 
-if(WIN32)
+if(TARGET test_eikr_element AND WIN32)
   if("${CMAKE_Fortran_COMPILER_ID}" STREQUAL "GNU" OR "${CMAKE_Fortran_COMPILER_ID}" STREQUAL "LLVMFlang")
     target_link_options(test_eikr_element PRIVATE "-Wl,--stack,134217728")
   elseif("${CMAKE_Fortran_COMPILER_ID}" MATCHES "Intel")
