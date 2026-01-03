@@ -12,7 +12,7 @@ end module
 program test_adaptive_integration
   use functions, only: gauss2d
   use integration, only: gauleg
-  use constants, only: wp, pi, xg, wg, xk, wk
+  use constants, only: wp, pi, wg, xk, wk
   implicit none
   interface
     real(wp) function funct2d(x,y)
