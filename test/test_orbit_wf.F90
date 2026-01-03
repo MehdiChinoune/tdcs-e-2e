@@ -33,7 +33,7 @@ program test_orbital_wave_functions
             do j1 = 1, at1%nf; do j2 = 1, at2%nf
               integ = integ + at1%a(j1)*at2%a(j2)*norm_fac(at1%e(j1),at1%n(j1))*&
                 norm_fac(at2%e(j2),at2%n(j2))*&
-                fac(at1%n(j1)+at2%n(j2))/(at1%e(j1)+at2%e(j2))**(at1%n(j1)+at2%n(j2)+1)
+                real(fac(at1%n(j1)+at2%n(j2)),wp)/(at1%e(j1)+at2%e(j2))**(at1%n(j1)+at2%n(j2)+1)
             end do; end do
             if ( i1==i2 .AND. abs(integ-1._wp) >= 1.e-5_wp) then
               print*, "orbit number: ", i1, "from ", atom_names(i1), " is not normalized"
