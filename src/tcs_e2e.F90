@@ -569,8 +569,8 @@ contains
       if( mod(l1+l2+l,2)/=0 .OR. abs(m1-m2)>l ) cycle
       term_j = 0._wp
       do j = 0, (n-l-1)/2
-        term_j = term_j + (-1)**j * (fac(n-l-1)*fac(n-j-1)*(2._wp*e)**(n-l-2*j-1)) &
-          / (fac(j)*fac(n-l-2*j-1)*(e**2+km**2)**(n-j))
+        term_j = term_j + (-1)**j * (real(fac(n-l-1)*fac(n-j-1),wp)*(2._wp*e)**(n-l-2*j-1)) &
+          / (real(fac(j)*fac(n-l-2*j-1),wp)*(e**2+km**2)**(n-j))
       enddo
       term_l = term_l + (2._wp*km*xi)**l*conjg(spherical_harmonic( l, m1-m2, theta, phi))* &
         (-1)**m1*y1y2y3(l1, l2, l, -m1, m2, m1-m2) * term_j
