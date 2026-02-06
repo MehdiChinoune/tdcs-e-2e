@@ -4,6 +4,7 @@ submodule(tcs_e2e) tcs_e2e
 contains
 
   module subroutine tcs_fba_pw(in_unit)
+    !DIR$ ATTRIBUTES DLLEXPORT :: tcs_fba_pw
     use constants, only : pi, ev
     use special_functions, only : factorial
     use input, only : read_tcs_input, read_orbit
@@ -132,6 +133,7 @@ contains
   end subroutine tcs_fba_pw
 
   module subroutine tcs_fba_cw(in_unit)
+    !DIR$ ATTRIBUTES DLLEXPORT :: tcs_fba_cw
     use constants, only : pi, ev
     use types, only: atom, orbit
     use special_functions, only : factorial
@@ -296,6 +298,7 @@ contains
   end subroutine int_adaptive_cw
 
   module subroutine tcs_fba_ocw(in_unit)
+    !DIR$ ATTRIBUTES DLLEXPORT :: tcs_fba_ocw
     use constants, only : pi, ev
     use types, only: atom, orbit
     use special_functions, only : factorial

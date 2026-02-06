@@ -3,6 +3,7 @@ submodule(fdcs_e2e) fdcs_e2e
 contains
 
   module subroutine fdcs_fba_pw(in_unit)
+    !DIR$ ATTRIBUTES DLLEXPORT :: fdcs_fba_pw
     use constants, only : pi, ev, deg
     use special_functions, only : factorial
     use input, only : read_fdcs_input, read_orbit
@@ -93,6 +94,7 @@ contains
   end subroutine fdcs_fba_pw
 
   module subroutine fdcs_fba_cw(in_unit)
+    !DIR$ ATTRIBUTES DLLEXPORT :: fdcs_fba_cw
     use constants, only : ev, deg, pi
     use trigo, only : spher2cartez
     use special_functions, only : factorial
@@ -167,6 +169,7 @@ contains
   end subroutine fdcs_fba_cw
 
   module subroutine fdcs_fba_dw(in_unit)
+    !DIR$ ATTRIBUTES DLLEXPORT :: fdcs_fba_dw
     use ieee_arithmetic, only : ieee_is_nan
     use constants, only : pi, deg, ev
     use special_functions, only : cgamma, spherical_harmonic, ricbes, factorial !&
@@ -329,6 +332,7 @@ contains
   end subroutine fdcs_fba_dw
 
   module subroutine fdcs_dwb(in_unit)
+    !DIR$ ATTRIBUTES DLLEXPORT :: fdcs_dwb
     use constants, only : ev, deg, pi
     use special_functions, only : spherical_harmonic, cgamma, factorial
     use utils, only : norm_fac, calculate_U
@@ -550,6 +554,7 @@ contains
   end subroutine fdcs_dwb
 
   module subroutine fdcs_bbk(in_unit)
+    !DIR$ ATTRIBUTES DLLEXPORT :: fdcs_bbk
     use constants, only : pi, ev, deg
     use special_functions, only : factorial
     use input, only : read_fdcs_input, read_orbit

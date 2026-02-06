@@ -7,14 +7,17 @@ module tcs_e2e
   interface
 
     module subroutine tcs_fba_pw(in_unit)
+      !DIR$ ATTRIBUTES DLLEXPORT :: tcs_fba_pw
       integer, intent(in) :: in_unit
     end subroutine tcs_fba_pw
 
     module subroutine tcs_fba_cw(in_unit)
+      !DIR$ ATTRIBUTES DLLEXPORT :: tcs_fba_cw
       integer, intent(in) :: in_unit
     end subroutine tcs_fba_cw
 
     module subroutine tcs_fba_ocw(in_unit)
+      !DIR$ ATTRIBUTES DLLEXPORT :: tcs_fba_ocw
       integer, intent(in) :: in_unit
     end subroutine tcs_fba_ocw
 
