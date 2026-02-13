@@ -13,6 +13,8 @@ set( CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/modules )
 if(NOT CMAKE_BUILD_TYPE)
   set( CMAKE_BUILD_TYPE "Release" )
   message(STATUS "No CMAKE_BUILD_TYPE selected, default to ${CMAKE_BUILD_TYPE}")
+else()
+  message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 endif()
 
 Option( TDCS_TARGET_NATIVE "Generate native target optimized binaries" ON )
