@@ -1,8 +1,5 @@
 cmake_minimum_required(VERSION 3.22)
 
-cmake_policy(SET CMP0069 NEW) # INTERPROCEDURAL_OPTIMIZATION
-cmake_policy(SET CMP0083 NEW) # POSITION_INDEPENDENT_CODE
-
 project(TDCS-e-2e Fortran)
 
 set( CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH} )
