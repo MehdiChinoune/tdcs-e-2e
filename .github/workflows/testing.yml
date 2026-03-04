@@ -12,13 +12,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        gnu_ver: [13, 14]
+        gnu_ver: [14, 15]
         build_type: [Debug, Release, Fast]
 
     steps:
       - uses: actions/checkout@v6
       - name: Install gfortran
         run: |
+          sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
           sudo apt update
           sudo apt install --no-install-recommends -y \
             gfortran-${{ matrix.gnu_ver }} \
