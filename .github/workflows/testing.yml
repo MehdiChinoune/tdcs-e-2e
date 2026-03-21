@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        gnu_ver: [14, 15]
+        gnu_ver: [14, 15, 16]
         build_type: [Debug, Release, Fast]
 
     steps:
