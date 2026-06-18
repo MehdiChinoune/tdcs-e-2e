@@ -16,6 +16,10 @@ jobs:
         build_type: [Debug, Release, Fast]
 
     steps:
+      - name: Get Processor Info
+        run : |
+          lscpu | grep name
+          nproc
       - uses: actions/checkout@v6
       - name: Install gfortran
         run: |
@@ -62,6 +66,10 @@ jobs:
         shell: msys2 {0}
 
     steps:
+      - name: Get Processor Info
+        shell: pwsh
+        run : |
+          Get-CIMInstance -Class Win32_Processor | Select-Object -Property Name
       - uses: actions/checkout@v6
       - name: Install compiler
         uses: msys2/setup-msys2@v2
@@ -100,6 +108,10 @@ jobs:
         build_type: [Debug, Release, Fast]
 
     steps:
+      - name: Get Processor Info
+        run : |
+          lscpu | grep name
+          nproc
       - name: Checkout
         uses: actions/checkout@v6
       - name: Install Intel compilers
@@ -147,6 +159,10 @@ jobs:
         build_type: [Debug, Release, Fast]
 
     steps:
+      - name: Get Processor Info
+        run : |
+          lscpu | grep name
+          nproc
       - name: Checkout
         uses: actions/checkout@v6
       - name: Install Nvidia HPC Compiler
