@@ -6,13 +6,13 @@ on:
     - cron: "0 8 * * 0"
 
 jobs:
-  GNU:
-    name: GNU ${{ matrix.gnu_ver }} (${{ matrix.build_type }})
+  Ubuntu:
+    name: Linux - ${{ matrix.compiler }} (${{ matrix.build_type }})
     runs-on: ubuntu-26.04
     strategy:
       fail-fast: false
       matrix:
-        gnu_ver: [14, 15, 16]
+        compiler: [gfortran-14, gfortran-15, gfortran-16, ifx, nvfortran]
         build_type: [Debug, Release, Fast]
 
     steps:
@@ -20,26 +20,44 @@ jobs:
         run : |
           lscpu | grep name
           nproc
-      - uses: actions/checkout@v6
-      - name: Install gfortran
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Install the compiler
         run: |
-          #sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-          sudo apt update
-          sudo apt install --no-install-recommends -y \
-            gfortran-${{ matrix.gnu_ver }} \
-            ninja-build \
-            libflint-dev
+          if [[ ${{ matrix.compiler }} == gfortran-* ]]; then
+            sudo add-apt-repository ppa:misterc/gcc-snapshot-latest-lts
+            #sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+            sudo apt update
+            sudo apt install --no-install-recommends -y ${{ matrix.compiler }}
+          elif [[ ${{ matrix.compiler }} == ifx ]]; then
+            wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB \
+              | gpg --dearmor | sudo tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null
+            echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
+            sudo apt update
+            sudo apt install --no-install-recommends -y intel-oneapi-compiler-fortran
+            source /opt/intel/oneapi/setvars.sh
+            printenv >> $GITHUB_ENV
+          elif [[ ${{ matrix.compiler }} == nvfortran ]]; then
+            NV_VERSION="26.9"
+            curl https://developer.download.nvidia.com/hpc-sdk/ubuntu/DEB-GPG-KEY-NVIDIA-HPC-SDK | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg
+            echo 'deb [signed-by=/usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg] https://developer.download.nvidia.com/hpc-sdk/ubuntu/amd64 /' | sudo tee /etc/apt/sources.list.d/nvhpc.list
+            sudo apt-get update
+            sudo apt install --no-install-recommends -y nvhpc-${NV_VERSION/./-}
+            echo "/opt/nvidia/hpc_sdk/Linux_x86_64/${NV_VERSION}/compilers/bin" >> $GITHUB_PATH
+            echo "LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_x86_64/${NV_VERSION}/compilers/lib:/opt/nvidia/hpc_sdk/Linux_x86_64/${NV_VERSION}/math_libs/lib64" >> $GITHUB_ENV
+          fi
+          sudo apt install --no-install-recommends -y ninja-build libflint-dev
       - name: Configuring
         run: |
-          mkdir build
-          cd build
-          cmake .. \
+          cmake \
             -GNinja \
-            -DCMAKE_Fortran_COMPILER=gfortran-${{ matrix.gnu_ver }} \
+            -DCMAKE_Fortran_COMPILER=${{ matrix.compiler }} \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
             -DTDCS_TARGET_NATIVE=ON \
             -DTDCS_BUILD_TESTS=ON \
-            -DTDCS_BUILD_SLOW_TESTS=$([[ ${{ matrix.build_type }} == Debug ]] && echo "OFF" || echo "ON")
+            -DTDCS_BUILD_SLOW_TESTS=$([[ ${{ matrix.build_type }} == Debug ]] && echo "OFF" || echo "ON") \
+            -S . \
+            -B build
       - name: Building
         run: cmake --build build
       - name: Testing
@@ -70,7 +88,7 @@ jobs:
         shell: pwsh
         run : |
           Get-CIMInstance -Class Win32_Processor | Select-Object -Property Name
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Install compiler
         uses: msys2/setup-msys2@v2
         with:
@@ -80,114 +98,13 @@ jobs:
           pacboy: fc:p cmake:p ninja:p flint:p
       - name: Configuring
         run: |
-          mkdir build && cd build
-          cmake .. \
+          cmake \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
             -DTDCS_TARGET_NATIVE=ON \
             -DTDCS_BUILD_TESTS=ON \
-            -DTDCS_BUILD_SLOW_TESTS=$([[ ${{ matrix.build_type }} == Debug ]] && echo "OFF" || echo "ON")
-      - name: Building
-        run: cmake --build build
-      - name: Testing
-        run: ctest --output-on-failure --test-dir build
-      - name: Running
-        run: |
-          cd build
-          mv input_example.dat input.dat
-          ./main fdcs pw
-          ./main fdcs cw
-          ./main fdcs dw
-          ./main fdcs dwb
-
-  Intel:
-    name: Intel (${{ matrix.build_type }})
-    runs-on: ubuntu-26.04
-    strategy:
-      fail-fast: false
-      matrix:
-        build_type: [Debug, Release, Fast]
-
-    steps:
-      - name: Get Processor Info
-        run : |
-          lscpu | grep name
-          nproc
-      - name: Checkout
-        uses: actions/checkout@v6
-      - name: Install Intel compilers
-        run: |
-          wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB \
-            | gpg --dearmor | sudo tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null
-          echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
-          sudo apt update
-          sudo apt install --no-install-recommends -y \
-            intel-oneapi-compiler-fortran \
-            ninja-build \
-            libflint-dev
-          source /opt/intel/oneapi/setvars.sh
-          printenv >> $GITHUB_ENV
-      - name: Configuring
-        run: |
-          mkdir build
-          cd build
-          cmake .. \
-            -GNinja \
-            -DCMAKE_Fortran_COMPILER=ifx \
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-            -DTDCS_TARGET_NATIVE=ON \
-            -DTDCS_BUILD_TESTS=ON \
-            -DTDCS_BUILD_SLOW_TESTS=$([[ ${{ matrix.build_type }} == Debug ]] && echo "OFF" || echo "ON")
-      - name: Building
-        run: cmake --build build
-      - name: Testing
-        run: ctest --output-on-failure --test-dir build
-      - name: Running
-        run: |
-          cd build
-          mv input_example.dat input.dat
-          ./main fdcs pw
-          ./main fdcs cw
-          ./main fdcs dw
-          ./main fdcs dwb
-
-  Nvidia:
-    name: Nvidia (${{ matrix.build_type }})
-    runs-on: ubuntu-26.04
-    strategy:
-      fail-fast: false
-      matrix:
-        build_type: [Debug, Release, Fast]
-
-    steps:
-      - name: Get Processor Info
-        run : |
-          lscpu | grep name
-          nproc
-      - name: Checkout
-        uses: actions/checkout@v6
-      - name: Install Nvidia HPC Compiler
-        run: |
-          curl https://developer.download.nvidia.com/hpc-sdk/ubuntu/DEB-GPG-KEY-NVIDIA-HPC-SDK | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg
-          echo 'deb [signed-by=/usr/share/keyrings/nvidia-hpcsdk-archive-keyring.gpg] https://developer.download.nvidia.com/hpc-sdk/ubuntu/amd64 /' | sudo tee /etc/apt/sources.list.d/nvhpc.list
-          sudo apt-get update
-          sudo apt install --no-install-recommends -y \
-            nvhpc-26-9 \
-            ninja-build \
-            libflint-dev
-          find /opt/nvidia/hpc_sdk/Linux_x86_64/26.9 -maxdepth 3 \( -name lib -o -name lib64 \) | sort
-          echo "/opt/nvidia/hpc_sdk/Linux_x86_64/26.9/compilers/bin" >> $GITHUB_PATH
-          echo "LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_x86_64/26.9/compilers/lib:/opt/nvidia/hpc_sdk/Linux_x86_64/26.3//math_libs/lib" >> $GITHUB_ENV
-      - name: Configuring
-        run: |
-          mkdir build
-          cd build
-          cmake .. \
-            -GNinja \
-            -DCMAKE_Fortran_COMPILER=nvfortran \
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-            -DTDCS_TARGET_NATIVE=ON \
-            -DTDCS_BUILD_TESTS=ON \
-            -DTDCS_BUILD_SLOW_TESTS=$([[ ${{ matrix.build_type }} == Debug ]] && echo "OFF" || echo "ON")
+            -DTDCS_BUILD_SLOW_TESTS=$([[ ${{ matrix.build_type }} == Debug ]] && echo "OFF" || echo "ON") \
+            -S . \
+            -B build
       - name: Building
         run: cmake --build build
       - name: Testing
